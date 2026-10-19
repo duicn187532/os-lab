@@ -1,67 +1,66 @@
-# OS LAB — 作業系統互動式自學網站
+# CS LAB / OS LAB — 作業系統互動式自學網站
 
 🌐 [開啟互動課程](https://duicn187532.github.io/os-lab/)
 
-繁體中文、完全靜態的作業系統教材網站。以「先用生活類比（ELI5）→ 回到真實底層原理 → 操作簡化模型 → 逐題檢核」的方式學習。
+繁體中文、完全靜態的資工互動教材。根目錄是七門課（OS、DM、DSA、LA、AI、CO、ASM）的入口網；本儲存庫的主課程 **OS LAB**（`os/`）以「先預測 → 生活類比 → 回到真實機制 → 操作模擬器 → 測驗檢核 → 錯題複習」的節奏學習作業系統。
 
-## 使用方式
+## OS LAB 內容
 
-1. 開啟根目錄 `index.html` 進入七門課的入口網，選擇 OS LAB（`os/index.html`）。電腦上推薦使用 Chrome、Edge、Firefox 或 Safari。
-2. 左側選擇章節；手機版點左上角 `☰` 開啟章節清單。
-3. 各章包含 **① 從觀念出發 → ② 動手模擬 → ③ 章末挑戰**。
-4. 章末每題最多作答兩次；第一次錯誤只顯示提示；第二次仍錯誤才揭示答案及原因。
-5. 筆記與進度保留在 **目前瀏覽器的 localStorage**，沒有帳號、後端、任何資料上傳。若在不同瀏覽器、裝置、網址下開啟，進度不會自動同步。
+**21 章 · 21 個專屬模擬器 · 84 題測驗 · 97 個術語 · 公式速查**
 
-> 部分手機「檔案預覽」不執行 JavaScript。如果點擊不能操作，請改用瀏覽器開啟，或將網站放到 GitHub Pages。
+| 單元 | 章節與互動實驗 |
+| --- | --- |
+| 基礎 | 電腦如何執行程式（指令週期、timer interrupt）· Kernel 與 System Call（read() 路徑、快取命中與否） |
+| 執行 | Process（狀態機與 PCB，含不合法轉換說明）· Thread（共享 / 私有分類與記憶體配置圖） |
+| 排程 | CPU Scheduling（FCFS、SJF、SRTF、RR、Priority，可增刪工作、Ready 佇列、演算法比較）· **優先權、MLFQ 與多核心排程**（三層佇列、priority boost） |
+| 並行 | Race Condition 與死結（手動決定交錯、mutex、兩把鎖與資源配置圖）· **Semaphore 與生產者–消費者**（含不加同步、錯誤 wait 順序）· **Deadlock 處理與銀行家演算法**（逐步安全檢查、請求試算） |
+| 記憶體 | 分頁與 TLB（位元拆解、頁表、TLB 命中、EAT 計算）· **連續配置與碎片化**（First / Best / Worst / Next Fit、釋放合併、壓縮）· 頁面置換（FIFO、LRU、OPT，逐步表格、Belady 異常） |
+| 儲存 | 檔案系統（fd、page cache、fsync、背景回寫、斷電）· **磁碟排程**（FCFS、SSTF、SCAN、C-SCAN、LOOK、C-LOOK 路徑圖）· I/O（輪詢、中斷、DMA 的 CPU 時間線） |
+| 系統 | Protection（Unix rwx 與八進位、存取檢查）· VM vs Container（堆疊與情境）· 效能（M/M/1 佇列、Little's Law、延遲曲線） |
+| 整合 / 實驗 / 複習 | API 請求延遲分解 · fork() 行程樹與輸出預測 · 跨章節混合練習 |
 
-## 主要互動實驗
+粗體為本次新增章節。原有 16 章的教材文字與 32 題全部保留，並為每章補上學習目標、重點回顧、關鍵術語與兩題以上的新測驗。
 
-- CPU 指令週期、模擬 Timer Interrupt
-- Process 狀態轉換
-- System Call / Kernel / I/O 路徑
-- CPU Scheduling：FCFS、SJF、SRTF、RR，修改到達時間、CPU Burst、時間片，逐 tick 查看 Gantt Chart、CT、WT、RT、TAT
-- 共享變數讀改寫交錯／Mutex 對照
-- Paging：16-bit 虛擬位址、4KiB Page、VPN / Offset、PFN、實體位址
-- FIFO／LRU Page Replacement
-- write / fsync / 模擬斷電與持久化
-- 模式／核心／狀態分類練習
+## 學習功能
 
-## 發布到 GitHub Pages
+- **三階段章節**：① 觀念（學習目標、先寫下猜測、ELI5、深入原理、流程、常見誤解、程式碼、重點回顧、術語、自己的解釋）→ ② 實驗 → ③ 測驗。
+- **模擬器**：先預測再操作；支援「上一步」回看、重設，以及可調速的自動播放（切換頁籤或隱藏頁面即暫停）。
+- **測驗與錯題本**：每題兩次機會，第一次只給提示；答錯的題目進入錯題本，可做錯題複習或 8 題跨章節混合練習。
+- **工具頁**：實驗總覽、公式速查、術語表（中英對照）、我的筆記（匯出 Markdown、備份 / 還原進度 JSON、列印）。
+- **體驗**：可分享的網址（`#/ch/4/lab`）、瀏覽器上一頁、`/` 或 `Ctrl+K` 全文搜尋、`[` `]` 切換章節、`A`–`D` 作答、深色 / 淺色主題、手機抽屜選單、尊重「減少動態效果」。
+- **隱私**：沒有帳號、後端或追蹤；進度、筆記與錯題本只存在瀏覽器 localStorage（沿用舊版鍵值 `os_lab_2026_v1`，舊進度不會遺失）。
 
-1. 新建一個公開或符合方案條件的 GitHub repository。
-2. 保留完整目錄結構，將入口網、各課程目錄與 `.github/workflows/pages.yml` 一起推送到 `main`。
-3. 到 Repository → **Settings → Pages**。
-4. 此專案的 workflow 會將 `main` 發布至 `gh-pages`。在 **Build and deployment** 選 **Deploy from a branch**；branch 選 `gh-pages`、目錄選 `/(root)`。
-5. GitHub Pages 部署完成後，即可用 HTTPS 網址在手機與電腦瀏覽。
+## 檔案結構
 
-> 不需要 Python、Node.js 或資料庫。此版是「教學網站」，不是實際 Linux Kernel 模擬器。模型刻意省略細節；請搭配真正的 Linux C 練習和教科書深入學習。
+```
+index.html              七門課入口網
+os/index.html           OS LAB 頁面骨架
+os/assets/content.js    教材資料（章節、測驗、術語、公式）；id 是進度用的穩定識別碼，陣列順序是顯示順序
+os/assets/labs-core.js  實驗共用 UI 工具，以及執行、排程、並行類實驗
+os/assets/labs-more.js  記憶體、儲存、系統、整合與複習類實驗
+os/assets/app.js        路由、進度、測驗、錯題本、搜尋、術語、公式、筆記
+os/assets/os.css        設計變數（淺色 / 深色）、版面與元件樣式
+tests/os-review.cjs     端對端檢查
+```
 
-## 開發檔案
+沒有建置步驟。每個實驗以 `OSLabs.register(type, { title, prompt, init, view, act, set, auto })` 註冊；純計算函式（如 `scheduleSim`、`bankerSafety`、`diskSchedule`）掛在 `OSLabs.sim`，方便測試。
 
-目前儲存庫直接維護各課程的獨立 HTML。OS 教材資料、樣式與互動邏輯都在 `os/index.html`；根目錄 `index.html` 是七門課入口網。沒有額外建置步驟。
-
-## 教材授權說明
-
-教材內容為原創整理，參照作業系統課程與《Operating System Concepts》的常見知識範疇，但不是該書翻譯、逐頁改編或官方配套教材。
-
-## OS LAB 檢視與優化（2026-10-19）
-
-- 保留全部 16 章、32 題，以及原有課程文字、程式片段與筆記儲存鍵。
-- 修正三張 SVG 公式與符號說明錯配，補充 CPU 時間、平均等待與分頁公式。
-- CPU 的 EXECUTE 階段完成後更新暫存器與資料記憶體；指令區與資料區使用不同位址。
-- CPU、系統呼叫、排程、競爭條件、頁面置換支援自動播放、暫停、三段速度與回看；切換頁籤或隱藏頁面即暫停。
-- 同一章切換頁籤保留實驗與測驗狀態；重新進入章節或明確重設才開始新的實驗。
-- 排程未執行的時間片不再洩漏工作名稱／顏色；時間片輸入取整數。
-- 手機選單支援 Escape 與焦點控制，頁籤支援方向鍵；尊重減少動態效果偏好。
-
-### 驗證
-
-安裝 Node.js、Playwright 與 Chromium 後，在儲存庫根目錄執行：
+## 本機預覽與測試
 
 ```sh
 python -m http.server 8000
-# 另一個終端
+# 另一個終端（需要 Node.js 與 Playwright）
 node tests/os-review.cjs
 ```
 
-可用 `CHROMIUM_PATH` 指定 Chromium，`TEST_URL` 指定測試網址。測試涵蓋全部章節與題目、原始教材保留、主要演算法結果、播放控制、筆記／進度、鍵盤選單與手機溢位。
+可用 `CHROMIUM_PATH` 指定瀏覽器、`TEST_URL` 指定網址、`SHOT_DIR` 輸出截圖。測試涵蓋：原始教材保留、每章欄位完整、演算法與教科書手算結果一致（SRTF、Banker、FIFO/LRU/OPT、Belady、磁碟排程…）、全部 21 個實驗的按鈕操作、84 題作答、錯題本流程、路由與上一頁、播放與回看、搜尋、重新整理後保留進度、手機版所有頁面無水平溢位，且無瀏覽器錯誤。
+
+## 發布到 GitHub Pages
+
+`.github/workflows/pages.yml` 會在推送到 `main` 時把整個儲存庫發布到 `gh-pages` 分支。到 **Settings → Pages**，選 **Deploy from a branch**、分支 `gh-pages`、目錄 `/(root)`。
+
+> 部分手機的「檔案預覽」不執行 JavaScript；請用瀏覽器開啟，或使用 GitHub Pages 網址。
+
+## 教材定位
+
+教材內容為原創整理，參照作業系統課程與《Operating System Concepts》等教科書的常見知識範疇，但不是任何書籍的翻譯、逐頁改編或官方配套教材。模擬器刻意簡化，不是真實的 Linux Kernel 模擬器；請搭配真正的 Linux C 實驗、xv6 與原始碼深入學習。
