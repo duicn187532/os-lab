@@ -32,7 +32,7 @@
 
 ## 檔案結構與共用 shell
 
-OS LAB 與 DM LAB 共用同一套應用程式外殼（`shared/`）：路由、進度、測驗、錯題本、搜尋、術語、公式、筆記、主題與自動播放只寫一次，每門課只提供教材資料、課程設定與自己的實驗。其餘課程（DSA、AI、LA、CO、ASM）預計依序遷移。
+OS LAB、DM LAB 與 DSA LAB 共用同一套應用程式外殼（`shared/`）：路由、進度、測驗、錯題本、搜尋、術語、公式、筆記、主題與自動播放只寫一次，每門課只提供教材資料、課程設定與自己的實驗。其餘課程（AI、LA、CO、ASM）預計依序遷移。
 
 ```
 index.html                  七門課入口網
@@ -46,8 +46,10 @@ os/assets/labs-core.js      執行、排程、並行類實驗
 os/assets/labs-more.js      記憶體、儲存、系統、整合類實驗
 os/assets/os-labs.css       OS 專屬實驗樣式
 dm/assets/…                 DM LAB 的同類檔案（labs.js 為 24 種逐步實驗）
+dsa/assets/…                DSA LAB 的同類檔案（labs.js 為 18 種逐步實驗）
 tests/os-review.cjs         OS LAB 端對端檢查
 tests/dm-review.cjs         DM LAB 端對端檢查
+tests/dsa-review.cjs        DSA LAB 端對端檢查
 ```
 
 沒有建置步驟。
@@ -55,7 +57,7 @@ tests/dm-review.cjs         DM LAB 端對端檢查
 ### 新增一門課到共用 shell
 
 1. 建立 `<課程>/assets/content.js`：`{ units, lessons, glossary, formulas }`。每章必要欄位為 `id`（穩定識別碼，進度依此儲存）、`unit`、`title`、`lab`、`quiz`（`[題目, 選項, 正解索引, 提示, 解析]`）；選用欄位 `short`、`minutes`、`goals`、`ask`、`analogy`、`why`、`details`（`[標題, 說明]` 或字串）、`steps`、`worked`、`caveat`、`code`（`[語言, 程式碼]`）、`summary`、`terms`。陣列順序就是顯示順序。
-2. 建立 `course.js`：`window.CSLAB_COURSE = { id, name, mark, title, storageKey, eyebrow, heroTitle, heroLead, footer, disclaimer, data }`。沿用舊版的 localStorage 鍵即可保留學習者的已完成章節、筆記與主題。
+2. 建立 `course.js`：`window.CSLAB_COURSE = { id, name, mark, title, storageKey, eyebrow, heroTitle, heroLead, footer, disclaimer, data }`。沿用舊版的 localStorage 鍵即可保留學習者的已完成章節、筆記與主題；舊版若把進度分存在多個鍵，就在 `course.js` 裡於第一次載入時匯入（範例見 `dsa/assets/course.js`）。
 3. 實驗以 `CSLab.register(type, { title, prompt, init, view, act, set, auto })` 註冊；「輸入 → 一串步驟畫面」型的實驗可直接用 `CSLab.frameLab(type, { title, inputs, frames })`。純計算函式掛在 `CSLab.sim` 方便測試。
 4. 頁面依序載入 `content.js`、`course.js`、`../shared/cslab-ui.js`、實驗檔、`../shared/cslab-app.js`。
 
@@ -66,13 +68,15 @@ python -m http.server 8000
 # 另一個終端（需要 Node.js 與 Playwright）
 node tests/os-review.cjs
 node tests/dm-review.cjs
+node tests/dsa-review.cjs
 ```
 
 可用 `CHROMIUM_PATH` 指定瀏覽器、`TEST_URL` 指定網址、`SHOT_DIR` 輸出截圖（OS）。
 
 - **OS**：原始教材保留、每章欄位完整、演算法與教科書手算結果一致（SRTF、Banker、FIFO/LRU/OPT、Belady、磁碟排程…）、全部 21 個實驗的按鈕操作、84 題作答、錯題本流程、路由與上一頁、播放與回看、搜尋、重新整理後保留進度、手機版無水平溢位。
 - **DM**：舊版單檔的 24 章與 72 題逐字保留、舊版 localStorage 進度 / 筆記 / 主題相容、24 個逐步實驗、正解位置分散、自動播放、錯題本、搜尋、手機版無水平溢位。
-- 兩者都要求沒有任何瀏覽器錯誤。
+- **DSA**：舊版單檔的 18 章與 54 題逐字保留、舊版四個 `dsa.*` 鍵的進度 / 筆記 / 主題 / 答錯紀錄會匯入、18 章各有不同的實驗（選型、Dijkstra 距離、快取未命中數另有計算檢查）、提示後才給解析、正解位置分散、自動播放、錯題本、搜尋、手機版無水平溢位。
+- 三者都要求沒有任何瀏覽器錯誤。
 
 ## 發布到 GitHub Pages
 
