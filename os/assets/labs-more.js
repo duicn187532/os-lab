@@ -1,7 +1,7 @@
 /* OS LAB 互動實驗：記憶體、儲存、系統、整合與複習。 */
 'use strict';
 (function () {
-  const { register, sim, ui } = window.OSLabs;
+  const { register, sim, ui } = window.CSLab;
   const { h, int, btn, seg, stat, stats, note, num, field, range, panel, fmt } = ui;
 
   /* ───────────── 分頁與 TLB ───────────── */
@@ -412,25 +412,5 @@
     },
     set(s, key, v) { if (key === 'guessP' || key === 'guessO') s[key] = String(v).replace(/\D/g, '').slice(0, 3); }
   });
-
-  /* ───────────── 綜合複習（混合題） ───────────── */
-  register('review', {
-    title: '綜合混合練習',
-    prompt: '題目來自所有章節並隨機混合，優先出現你曾經答錯的題目。作答前先想：這題屬於哪一章的觀念？',
-    init: ctx => ({ items: ctx.pickReview(8), i: 0, choice: null, score: 0, seed: Date.now() }),
-    view(s, ctx) {
-      if (!s.items.length) return note('題庫還沒有準備好。', 'warn');
-      if (s.i >= s.items.length) return `<div class="center">${stats([stat('得分', `${s.score} / ${s.items.length}`, { tone: s.score === s.items.length ? 'ok' : '' })])}<p>${s.score === s.items.length ? '全部答對！你已經能跨章節運用這些觀念。' : '答錯的題目已加入錯題本，可以到「錯題複習」頁面再練一次。'}</p><div class="row center">${btn('again', '再來一組', { kind: 'primary' })}<a class="btn secondary sm" href="#/review">前往錯題複習</a></div></div>`;
-      const [lid, qi] = s.items[s.i], L = ctx.lesson(lid), q = L.quiz[qi], answered = s.choice !== null;
-      return `<div class="row between"><span class="muted">第 ${s.i + 1} / ${s.items.length} 題 · 得分 ${s.score}</span>${answered ? `<span class="tag">${h(ctx.chapterLabel(lid))}</span>` : '<span class="tag">章節隱藏中</span>'}</div>
-      <h3 class="q">${h(q[0])}</h3>
-      <div class="choices">${q[1].map((c, i) => `<button type="button" class="choice${answered ? (i === q[2] ? ' right' : i === s.choice ? ' wrong' : '') : ''}" data-act="answer" data-arg="${i}"${answered ? ' disabled' : ''}><span class="key">${String.fromCharCode(65 + i)}</span>${h(c)}</button>`).join('')}</div>
-      ${answered ? note(`${s.choice === q[2] ? '✓ 答對了。' : '✗ 正解是「' + h(q[1][q[2]]) + '」。'} ${h(q[4])}`, s.choice === q[2] ? 'ok' : 'bad') + `<div class="row">${btn('next', s.i === s.items.length - 1 ? '看結果 →' : '下一題 →', { kind: 'primary' })}<button type="button" class="btn ghost sm" data-go="${lid}">回到「${h(L.title)}」複習</button></div>` : ''}`;
-    },
-    act(s, a, arg, ctx) {
-      if (a === 'answer' && s.choice === null) { s.choice = +arg; const [lid, qi] = s.items[s.i], ok = s.choice === ctx.lesson(lid).quiz[qi][2]; if (ok) s.score++; ctx.recordAnswer(lid, qi, ok); }
-      if (a === 'next') { s.i++; s.choice = null; }
-      if (a === 'again') { s.items = ctx.pickReview(8); s.i = 0; s.choice = null; s.score = 0; }
-    }
-  });
+  // 綜合複習實驗（review）由 shared/cslab-ui.js 提供。
 })();

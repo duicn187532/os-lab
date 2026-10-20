@@ -108,7 +108,8 @@ assert.equal(new Set(D.lessons.map(l => l.lab)).size, D.lessons.length, 'every c
   assert(await page.evaluate(() => '0:0' in OSApp.store.wrong));
   await page.goto(URL + '#/review');
   await page.locator('[data-review=start]').click();
-  await page.keyboard.press(String.fromCharCode(65 + q0[2]));
+  // 選項會以固定種子洗牌顯示，按鍵要用畫面上的字母
+  await page.keyboard.press(await page.locator(`#reviewStage [data-answer="${q0[2]}"]`).getAttribute('data-key'));
   await page.keyboard.press('Enter');
   assert.equal(await page.evaluate(() => Object.keys(OSApp.store.wrong).length), 0, 'review clears wrong answer');
 

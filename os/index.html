@@ -7,69 +7,17 @@
 <meta name="description" content="OS LAB：繁體中文作業系統互動教材。21 章、21 個模擬器、84 題測驗，從 CPU 指令、行程排程、同步與死結、虛擬記憶體到檔案系統與效能分析。">
 <title>OS LAB — 作業系統互動學習</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235eead4'/%3E%3Ctext x='32' y='43' font-size='30' text-anchor='middle' font-family='monospace' font-weight='700' fill='%230b1120'%3EOS%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/os.css">
-<script>try{var t=JSON.parse(localStorage.getItem('os_lab_2026_v1')||'{}').theme;if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="../shared/cslab.css">
+<link rel="stylesheet" href="assets/os-labs.css">
+<script>try{var t=JSON.parse(localStorage.getItem('os_lab_2026_v1')||'{}').theme;if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body>
-<a class="skip-link" href="#main">跳至課程內容</a>
-<div class="app">
-  <aside class="side" id="side" aria-label="章節選單">
-    <div class="brand">
-      <a class="brand-mark" href="#/" aria-label="OS LAB 課程地圖">OS</a>
-      <div><a class="brand-name" href="#/">OS LAB</a><a class="brand-sub" href="../">← CS LAB 入口</a></div>
-    </div>
-    <div class="side-progress">
-      <div class="row between"><span id="progressNum">0 / 21 章</span><span id="progressPct" class="muted">0%</span></div>
-      <div class="bar" role="progressbar" aria-label="完成章節比例" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="progressBar"></i></div>
-    </div>
-    <nav class="side-links" aria-label="學習工具">
-      <a href="#/labs">🧪 實驗總覽</a><a href="#/review">↺ 錯題複習 <span class="badge" id="wrongBadge" hidden>0</span></a><a href="#/formulas">∑ 公式速查</a><a href="#/glossary">🔤 術語表</a><a href="#/notes">✎ 我的筆記</a>
-    </nav>
-    <nav id="sidebarNav" aria-label="課程章節"></nav>
-    <p class="side-foot">完全離線的靜態網站 · 進度只存在此瀏覽器<br>原創教材，參照作業系統課程知識架構。</p>
-  </aside>
-  <div class="backdrop" id="backdrop"></div>
-  <main class="main" id="main" tabindex="-1">
-    <header class="topbar">
-      <button type="button" class="icon-btn menu-btn" id="menu" aria-label="開啟章節選單" aria-controls="side" aria-expanded="false">☰</button>
-      <div class="crumb" id="crumb"></div>
-      <button type="button" class="search-btn" id="searchBtn" aria-label="搜尋（快捷鍵 /）"><span>⌕ 搜尋章節、術語、實驗</span><kbd>/</kbd></button>
-      <button type="button" class="icon-btn" id="helpBtn" aria-label="鍵盤快捷鍵說明">?</button>
-      <button type="button" class="icon-btn" id="themeBtn" aria-label="切換主題">☾</button>
-    </header>
-    <div class="content" id="content">
-      <noscript><div class="card"><h1>需要啟用 JavaScript</h1><p>OS LAB 的模擬器與測驗需要 JavaScript。部分手機的「檔案預覽」不會執行 JavaScript，請改用瀏覽器開啟。</p></div></noscript>
-    </div>
-  </main>
-</div>
-<button type="button" class="scrolltop" id="scrollTop" aria-label="回到頂部">↑</button>
-
-<dialog class="palette" id="palette" aria-label="搜尋">
-  <form method="dialog" class="palette-box">
-    <input id="paletteInput" type="search" placeholder="搜尋章節、術語、實驗…" aria-label="搜尋" aria-controls="paletteList" autocomplete="off">
-    <ul id="paletteList" role="listbox"></ul>
-    <p class="palette-foot"><kbd>↑</kbd><kbd>↓</kbd> 選擇　<kbd>Enter</kbd> 前往　<kbd>Esc</kbd> 關閉</p>
-  </form>
-</dialog>
-<dialog class="help" id="help" aria-labelledby="helpTitle">
-  <form method="dialog">
-    <h2 id="helpTitle">鍵盤快捷鍵</h2>
-    <dl class="keys">
-      <dt><kbd>/</kbd> 或 <kbd>Ctrl</kbd>+<kbd>K</kbd></dt><dd>搜尋章節、術語與實驗</dd>
-      <dt><kbd>[</kbd> <kbd>]</kbd></dt><dd>上一章 / 下一章</dd>
-      <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>在「觀念 / 實驗 / 測驗」頁籤間切換（焦點在頁籤上時）</dd>
-      <dt><kbd>A</kbd>–<kbd>D</kbd></dt><dd>測驗作答</dd>
-      <dt><kbd>Enter</kbd></dt><dd>測驗下一題</dd>
-      <dt><kbd>?</kbd></dt><dd>開啟這個說明</dd>
-    </dl>
-    <p class="muted small">學習進度、筆記與錯題本存在這個瀏覽器的 localStorage，不會上傳。可在「我的筆記」頁面備份與還原。</p>
-    <div class="row"><button class="btn primary" value="close">知道了</button></div>
-  </form>
-</dialog>
-
+<noscript><div class="card"><h1>需要啟用 JavaScript</h1><p>OS LAB 的模擬器與測驗需要 JavaScript。部分手機的「檔案預覽」不會執行 JavaScript，請改用瀏覽器開啟。</p></div></noscript>
 <script src="assets/content.js"></script>
+<script src="assets/course.js"></script>
+<script src="../shared/cslab-ui.js"></script>
 <script src="assets/labs-core.js"></script>
 <script src="assets/labs-more.js"></script>
-<script src="assets/app.js"></script>
+<script src="../shared/cslab-app.js"></script>
 </body>
 </html>

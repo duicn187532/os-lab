@@ -1,26 +1,8 @@
-/* OS LAB 互動實驗：共用工具、執行與排程、並行相關實驗。
- * 每個實驗註冊為 { title, prompt, init(ctx), view(s, ctx), act(s, action, arg, ctx), set(s, key, value, ctx), auto }。
- * act / set 直接修改狀態；app 負責重繪、回上一步（歷史）、自動播放。純計算函式掛在 OSLabs.sim 供測試使用。 */
+/* OS LAB 互動實驗：執行、排程與並行相關實驗。實驗 API 與 UI 工具見 shared/cslab-ui.js。 */
 'use strict';
 (function () {
-  const h = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-  const int = (v, lo, hi, fallback) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? clamp(n, lo, hi) : fallback; };
-  const btn = (act, label, o = {}) => `<button type="button" class="btn ${o.kind || 'secondary'} sm" data-act="${act}"${o.arg !== undefined ? ` data-arg="${h(o.arg)}"` : ''}${o.disabled ? ' disabled' : ''}${o.pressed !== undefined ? ` aria-pressed="${o.pressed}"` : ''}>${label}</button>`;
-  const seg = (key, value, options, label) => `<div class="seg" role="group" aria-label="${h(label || key)}">${options.map(([v, text]) => `<button type="button" data-act="set:${key}" data-arg="${h(v)}" aria-pressed="${String(v) === String(value)}">${text}</button>`).join('')}</div>`;
-  const stat = (label, value, o = {}) => `<div class="stat${o.tone ? ' ' + o.tone : ''}"><span>${label}</span><strong>${value}</strong></div>`;
-  const stats = items => `<div class="stats">${items.join('')}</div>`;
-  const note = (html, tone = '') => `<div class="note ${tone}" role="status">${html}</div>`;
-  const num = (key, value, lo, hi, o = {}) => `<input class="num" type="number" inputmode="numeric" min="${lo}" max="${hi}" value="${value}" data-set="${key}"${o.label ? ` aria-label="${h(o.label)}"` : ''}${o.live ? ' data-live' : ''}>`;
-  const field = (label, control) => `<label class="field"><span>${label}</span>${control}</label>`;
-  const range = (key, value, lo, hi, step, label) => `<input class="range" type="range" min="${lo}" max="${hi}" step="${step}" value="${value}" data-set="${key}" data-live aria-label="${h(label)}">`;
-  const panel = (title, body, extra = '') => `<section class="board">${title ? `<div class="board-title">${title}${extra ? `<span>${extra}</span>` : ''}</div>` : ''}${body}</section>`;
-  const avg = (rows, k) => rows.length ? rows.reduce((a, r) => a + r[k], 0) / rows.length : 0;
-  const fmt = (n, d = 2) => Number.isInteger(n) ? String(n) : n.toFixed(d);
-
-  const registry = {};
-  window.OSLabs = { registry, sim: {}, ui: { h, clamp, int, btn, seg, stat, stats, note, num, field, range, panel, avg, fmt }, register(type, def) { registry[type] = def; } };
-  const { register, sim } = window.OSLabs;
+  const { register, sim, ui } = window.CSLab;
+  const { h, int, btn, seg, stat, stats, note, num, field, range, panel, avg, fmt } = ui;
 
   /* ───────────── CPU 指令週期 ───────────── */
   const CPU_OPS = [

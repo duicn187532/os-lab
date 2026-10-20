@@ -2,7 +2,7 @@
 
 [回到 CS LAB 首頁](https://duicn187532.github.io/os-lab/)｜[離散數學線上版](https://duicn187532.github.io/os-lab/dm/)
 
-繁體中文、完全靜態、單檔可離線開啟的離散數學教材，涵蓋 24 章、24 種互動實驗、72 題練習；包含 Python 範例與證明思路。
+繁體中文、完全靜態的離散數學教材：24 章、24 種逐步實驗、72 題練習，附 Python 範例與證明思路。
 
 ## 課程內容
 
@@ -11,24 +11,23 @@
 - 直接證明、逆否、反證、數學歸納、迴圈不變量
 - 計數、排列組合、容斥、遞迴、生成函數
 - 整除、歐幾里得、模運算與教學級 RSA 基礎
-- 圖論、BFS／DFS、Euler 路徑、樹
+- 圖論、BFS / DFS、Euler 路徑、樹
 - 布林電路、離散機率、DFA 與形式語言
 
-## 使用與限制
+## 使用方式
 
-1. 可直接開啟 `index.html`，或將 `index.html` 放在 GitHub Pages 的 `dm/` 目錄。
-2. 切換章節後可操作逐步實驗；調整實驗參數會重新計算。
-3. 每章三題答對後計為完成。答錯會先顯示提示，再顯示解析；仍須自行選擇正確答案。
-4. 個人筆記、答題和進度存於目前瀏覽器 localStorage，不會跨裝置同步。隱私模式或清除站點資料可能導致遺失。
-5. 所有數學模擬皆為有界的教學案例，非正式證明的替代品；若涉及數學定理，請閱讀適用條件及完整證明。
+- 每章分為 ① 觀念（直覺類比、正式原理、核心概念、解題步驟、範例演練、常見陷阱、Python 範例、自己的解釋）→ ② 實驗 → ③ 測驗。
+- 實驗可調整參數、逐步前進或回看，也可自動播放；點步驟列表可直接跳到任一步。
+- 測驗每題兩次機會，第一次只給提示；答錯的題目進入錯題本，可在「錯題複習」再練或做跨章節混合練習。
+- 進度、筆記與錯題本存在目前瀏覽器的 localStorage（鍵值 `dm_lab_progress_v1`，與舊版相同，舊進度會保留）。可在「我的筆記」頁備份與還原。
+- 所有數學模擬都是有界的教學案例，不能取代一般性的正式證明；使用定理前請確認適用條件。
 
-## 修改內容
+## 檔案
 
-- `source/curriculum.py`：課綱、講義及測驗。
-- `source/labs.js`：24 種實驗及數學步驟。
-- `source/site.css`：RWD/深淺色樣式。
-- `source/app.js`：路由、互動、進度與筆記。
-- `source/template.html`：網站骨架。
-- `source/build.py`：打包為單檔 HTML，執行 `python source/build.py`。
+- `index.html`：頁面，只載入下列檔案與共用 shell（`../shared/`）。
+- `assets/content.js`：24 章教材與 72 題（由舊版單檔逐字拆出）。
+- `assets/course.js`：課程設定。
+- `assets/labs.js`：24 種實驗；`LAB_DEFS` 定義輸入，`labFrames()` 產生步驟畫面，透過 `CSLab.frameLab` 註冊。
+- `assets/dm-labs.css`：實驗視覺元件樣式。
 
-無模型 API、CDN、伺服器或第三方 JavaScript 依賴。
+測試：在儲存庫根目錄執行 `python -m http.server 8000`，再執行 `node tests/dm-review.cjs`。無模型 API、CDN、伺服器或第三方 JavaScript 依賴。
