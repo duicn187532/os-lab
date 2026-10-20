@@ -99,10 +99,13 @@ for (const [elem, size] of [['char', 1], ['int', 4], ['double', 8]]) for (const 
   await page.goto(URL + '#/ch/13/lab'); assert((await page.locator('#labBody').innerText()).includes('Dijkstra'), 'shortest-path chapter starts on Dijkstra');
   await page.goto(URL + '#/ch/8/lab'); assert((await page.locator('#labBody').innerText()).includes('合併區間'), 'divide-and-conquer chapter starts on Merge Sort');
 
-  // 5. 正解不再集中在同一個位置（固定種子洗牌）
-  const positions = await page.evaluate(() => CSApp.lessons.flatMap(l => l.quiz.map((q, qi) => CSApp.choiceOrder(l.id, qi).indexOf(q[2]))));
-  const counts = [0, 1, 2].map(p => positions.filter(x => x === p).length);
-  assert(Math.max(...counts) / positions.length < 0.45 && Math.min(...counts) > 0, `answer positions spread out: ${counts}`);
+  // 5. 正解平均分散在每個位置：全課程各位置的正解數相差不超過 1，每章也輪流用遍各位置；重新整理後順序不變
+  const answerSlots = () => page.evaluate(() => CSApp.lessons.map(l => l.quiz.map((q, qi) => [q[1].length, CSApp.choiceOrder(l.id, qi).indexOf(q[2])])));
+  const slots = await answerSlots(), tally = (qs, n) => [...Array(n).keys()].map(p => qs.filter(([, x]) => x === p).length);
+  const counts = tally(slots.flat(), 3);
+  assert(Math.max(...counts) - Math.min(...counts) <= 1, `answer positions near-uniform: ${counts}`);
+  slots.forEach((qs, i) => { const c = tally(qs, Math.min(...qs.map(([n]) => n))); assert(Math.max(...c) - Math.min(...c) <= 1, `chapter ${i} answer positions: ${c}`); });
+  await page.reload(); assert.deepEqual(await answerSlots(), slots, 'choice order stable across reloads');
 
   // 6. 自動播放、錯題本、搜尋、工具頁
   await page.goto(URL + '#/ch/7/lab');
@@ -133,5 +136,5 @@ for (const [elem, size] of [['char', 1], ['int', 4], ['double', 8]]) for (const 
   }
   assert.deepEqual(errors, []);
   await browser.close();
-  console.log(`PASS: DSA ${ids.length} chapters and ${D.lessons.reduce((a, l) => a + l.quiz.length, 0)} questions preserved, ${ids.length} distinct labs (choose / Dijkstra / cache-line results checked), all quizzes answered, old progress imported, answer positions shuffled, hint then explanation, autoplay, wrong-answer log, search, mobile overflow; no browser errors`);
+  console.log(`PASS: DSA ${ids.length} chapters and ${D.lessons.reduce((a, l) => a + l.quiz.length, 0)} questions preserved, ${ids.length} distinct labs (choose / Dijkstra / cache-line results checked), all quizzes answered, old progress imported, answer positions balanced and stable, hint then explanation, autoplay, wrong-answer log, search, mobile overflow; no browser errors`);
 })().catch(e => { console.error(e); process.exit(1); });

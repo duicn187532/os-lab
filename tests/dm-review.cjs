@@ -63,10 +63,13 @@ for (const o of old) {
   assert.equal(await page.evaluate(() => CSApp.countDone()), ids.length);
   assert.equal(await page.evaluate(() => Object.keys(CSApp.store.lab).length), ids.length, 'every lab used');
 
-  // 4. 正解不再集中在同一個位置（固定種子洗牌）
-  const positions = await page.evaluate(() => CSApp.lessons.flatMap(l => l.quiz.map((q, qi) => CSApp.choiceOrder(l.id, qi).indexOf(q[2]))));
-  const counts = [0, 1, 2, 3].map(p => positions.filter(x => x === p).length);
-  assert(Math.max(...counts) / positions.length < 0.45, `answer positions spread out: ${counts}`);
+  // 4. 正解平均分散在每個位置：全課程各位置的正解數相差不超過 1，每章也輪流用遍各位置；重新整理後順序不變
+  const answerSlots = () => page.evaluate(() => CSApp.lessons.map(l => l.quiz.map((q, qi) => [q[1].length, CSApp.choiceOrder(l.id, qi).indexOf(q[2])])));
+  const slots = await answerSlots(), tally = (qs, n) => [...Array(n).keys()].map(p => qs.filter(([, x]) => x === p).length);
+  const counts = tally(slots.flat(), 4);
+  assert(Math.max(...counts) - Math.min(...counts) <= 1, `answer positions near-uniform: ${counts}`);
+  slots.forEach((qs, i) => { const c = tally(qs, Math.min(...qs.map(([n]) => n))); assert(Math.max(...c) - Math.min(...c) <= 1, `chapter ${i} answer positions: ${c}`); });
+  await page.reload(); assert.deepEqual(await answerSlots(), slots, 'choice order stable across reloads');
 
   // 5. 自動播放、錯題本、搜尋、工具頁
   await page.goto(URL + '#/ch/12/lab');
@@ -92,5 +95,5 @@ for (const o of old) {
   }
   assert.deepEqual(errors, []);
   await browser.close();
-  console.log(`PASS: DM ${ids.length} chapters preserved, ${ids.length} frame labs, ${D.lessons.reduce((a, l) => a + l.quiz.length, 0)} quiz answers, old progress compatible, answer positions shuffled, autoplay, wrong-answer log, search, mobile overflow; no browser errors`);
+  console.log(`PASS: DM ${ids.length} chapters preserved, ${ids.length} frame labs, ${D.lessons.reduce((a, l) => a + l.quiz.length, 0)} quiz answers, old progress compatible, answer positions balanced and stable, autoplay, wrong-answer log, search, mobile overflow; no browser errors`);
 })().catch(e => { console.error(e); process.exit(1); });

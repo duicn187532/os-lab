@@ -83,11 +83,13 @@ assert.deepEqual(unitOrder, [...unitOrder].sort((x, y) => x - y), 'lessons order
   assert.equal(await page.evaluate(() => CSApp.countDone()), ids.length);
   assert.equal(await page.evaluate(() => Object.keys(CSApp.store.lab).length), ids.length, 'every lab used');
 
-  // 5. 正解不再集中在同一個位置（舊版 A 占 67%、C 從未出現；固定種子洗牌後分散）
-  // 三選一的均勻比例是 1/3；72 題的隨機洗牌允許合理波動（目前 A/B/C = 19/20/33）。
-  const positions = await page.evaluate(() => CSApp.lessons.flatMap(l => l.quiz.map((q, qi) => CSApp.choiceOrder(l.id, qi).indexOf(q[2]))));
-  const counts = [0, 1, 2].map(p => positions.filter(x => x === p).length);
-  assert(Math.max(...counts) / positions.length < 1 / 3 + 0.15 && Math.min(...counts) > 0, `answer positions spread out: ${counts}`);
+  // 5. 正解平均分散在每個位置：全課程各位置的正解數相差不超過 1，每章也輪流用遍各位置；重新整理後順序不變
+  const answerSlots = () => page.evaluate(() => CSApp.lessons.map(l => l.quiz.map((q, qi) => [q[1].length, CSApp.choiceOrder(l.id, qi).indexOf(q[2])])));
+  const slots = await answerSlots(), tally = (qs, n) => [...Array(n).keys()].map(p => qs.filter(([, x]) => x === p).length);
+  const counts = tally(slots.flat(), 3);
+  assert(Math.max(...counts) - Math.min(...counts) <= 1, `answer positions near-uniform: ${counts}`);
+  slots.forEach((qs, i) => { const c = tally(qs, Math.min(...qs.map(([n]) => n))); assert(Math.max(...c) - Math.min(...c) <= 1, `chapter ${i} answer positions: ${c}`); });
+  await page.reload(); assert.deepEqual(await answerSlots(), slots, 'choice order stable across reloads');
 
   // 6. 自動播放、提示、錯題本、搜尋、工具頁
   await page.goto(URL + '#/ch/4/lab');
@@ -119,5 +121,5 @@ assert.deepEqual(unitOrder, [...unitOrder].sort((x, y) => x - y), 'lessons order
   for (const p of ['', 'labs', 'formulas', 'review', 'notes']) { await page.goto(URL + '#/' + p); assert(await fits(), `mobile overflow: ${p || 'home'}`); }
   assert.deepEqual(errors, []);
   await browser.close();
-  console.log(`PASS: AI ${ids.length} chapters preserved (+${D.lessons.reduce((a, l) => a + l.quiz.length, 0)} hints), ${ids.length} frame labs (all ≥5 steps), quiz answers, old ailab.* progress and #/chapter routes compatible, answer positions shuffled, autoplay, wrong-answer log, search, mobile overflow incl. every lab step; no browser errors`);
+  console.log(`PASS: AI ${ids.length} chapters preserved (+${D.lessons.reduce((a, l) => a + l.quiz.length, 0)} hints), ${ids.length} frame labs (all ≥5 steps), quiz answers, old ailab.* progress and #/chapter routes compatible, answer positions balanced and stable, autoplay, wrong-answer log, search, mobile overflow incl. every lab step; no browser errors`);
 })().catch(e => { console.error(e); process.exit(1); });

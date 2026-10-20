@@ -59,13 +59,33 @@
     const shuffled = pool.filter(([a, b]) => !wrong.some(([c, d]) => a === c && b === d)).sort(() => Math.random() - 0.5);
     return [...wrong.slice(0, Math.ceil(n / 2)), ...shuffled].slice(0, n).sort(() => Math.random() - 0.5);
   }
-  // 選項顯示順序：以課程、章節、題號為種子的固定洗牌，消除「正解總在同一位置」的偏差，又讓每次看到的順序一致。
+  // 選項顯示順序：消除「正解總在同一位置」的偏差，又讓每次看到的順序一致（只取決於課程 id 與教材）。
+  // 先替每題決定正解的顯示位置：章內輪流用遍每個位置、全課程各位置次數也均衡（同分時以固定種子決定），再以固定種子打亂其餘選項。
+  function seeded(key) {
+    let seed = 2166136261; for (const ch of key) seed = Math.imul(seed ^ ch.charCodeAt(0), 16777619); // FNV-1a
+    return () => { seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; // mulberry32
+  }
+  const shuffle = (a, rand) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  let answerSlots = null;
+  function answerSlot(lid, qi) {
+    if (!answerSlots) {
+      answerSlots = {}; const total = [];
+      for (const l of lessons) {
+        const rand = seeded(`${C.id}:${l.id}`), local = [];
+        for (const i of shuffle(l.quiz.map((_, i) => i), rand)) {
+          const slots = [...l.quiz[i][1].keys()], score = p => (local[p] || 0) * 1e6 + (total[p] || 0);
+          const min = Math.min(...slots.map(score)), best = slots.filter(p => score(p) === min), p = best[Math.floor(rand() * best.length)];
+          local[p] = (local[p] || 0) + 1; total[p] = (total[p] || 0) + 1; answerSlots[`${l.id}:${i}`] = p;
+        }
+      }
+    }
+    return answerSlots[`${lid}:${qi}`];
+  }
   function choiceOrder(lid, qi) {
-    const n = byId[lid].quiz[qi][1].length, order = [...Array(n).keys()];
-    let seed = 2166136261; for (const ch of `${C.id}:${lid}:${qi}`) seed = Math.imul(seed ^ ch.charCodeAt(0), 16777619); // FNV-1a
-    const rand = () => { seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; // mulberry32
-    for (let i = n - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
-    return order;
+    const [, options, answer] = byId[lid].quiz[qi];
+    const others = shuffle([...options.keys()].filter(i => i !== answer), seeded(`${C.id}:${lid}:${qi}`));
+    others.splice(answerSlot(lid, qi), 0, answer);
+    return others;
   }
   const chapterLabel = id => `第 ${pos(id) + 1} 章 · ${byId[id].title}`;
   const labCtx = { lesson: id => byId[id], chapterLabel, pickReview, recordAnswer, choiceOrder };

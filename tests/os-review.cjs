@@ -98,7 +98,15 @@ assert.equal(new Set(D.lessons.map(l => l.lab)).size, D.lessons.length, 'every c
   assert.equal(await page.evaluate(() => OSApp.countDone()), lessonIds.length);
   assert.equal(await page.evaluate(() => Object.keys(OSApp.store.lab).length), lessonIds.length, 'every lab was used');
 
-  // 4. 錯題本：答錯兩次 → 進入錯題本；在錯題複習中答對 → 移除
+  // 4. 正解平均分散在每個位置：全課程各位置的正解數相差不超過 1，每章也輪流用遍各位置；重新整理後順序不變
+  const answerSlots = () => page.evaluate(() => OSApp.lessons.map(l => l.quiz.map((q, qi) => [q[1].length, OSApp.choiceOrder(l.id, qi).indexOf(q[2])])));
+  const slots = await answerSlots(), tally = (qs, n) => [...Array(n).keys()].map(p => qs.filter(([, x]) => x === p).length);
+  const counts = tally(slots.flat(), 3);
+  assert(Math.max(...counts) - Math.min(...counts) <= 1, `answer positions near-uniform: ${counts}`);
+  slots.forEach((qs, i) => { const c = tally(qs, Math.min(...qs.map(([n]) => n))); assert(Math.max(...c) - Math.min(...c) <= 1, `chapter ${i} answer positions: ${c}`); });
+  await page.reload(); assert.deepEqual(await answerSlots(), slots, 'choice order stable across reloads');
+
+  // 5. 錯題本：答錯兩次 → 進入錯題本；在錯題複習中答對 → 移除
   await page.evaluate(() => { for (const k in OSApp.store.wrong) delete OSApp.store.wrong[k]; OSApp.navigate(0, 'quiz'); }); // 綜合複習實驗剛才隨機作答過
   const q0 = await page.evaluate(() => OSApp.byId[0].quiz[0]);
   const wrongs = [0, 1, 2].filter(i => i !== q0[2]);
@@ -113,7 +121,7 @@ assert.equal(new Set(D.lessons.map(l => l.lab)).size, D.lessons.length, 'every c
   await page.keyboard.press('Enter');
   assert.equal(await page.evaluate(() => Object.keys(OSApp.store.wrong).length), 0, 'review clears wrong answer');
 
-  // 5. 路由、上一頁、搜尋、播放控制
+  // 6. 路由、上一頁、搜尋、播放控制
   await page.goto(URL + '#/ch/4/lab');
   assert.equal(await page.evaluate(() => OSApp.state.tab), 'lab');
   await page.locator('#tab-quiz').click(); await page.goBack();
@@ -132,12 +140,12 @@ assert.equal(new Set(D.lessons.map(l => l.lab)).size, D.lessons.length, 'every c
   await page.locator('#themeBtn').click(); assert(['light', 'dark'].includes(await page.evaluate(() => document.documentElement.dataset.theme)));
   if (SHOTS) { await page.goto(URL + '#/ch/4/lab'); await page.screenshot({ path: path.join(SHOTS, 'os-desktop.png') }); }
 
-  // 6. 重新整理後保留進度與筆記
+  // 7. 重新整理後保留進度與筆記
   await page.reload();
   assert.equal(await page.evaluate(() => OSApp.countDone()), lessonIds.length);
   assert.equal(await page.evaluate(() => OSApp.store.notes[0]), '筆記 0');
 
-  // 7. 手機版面：選單焦點與 Escape、所有章節所有頁籤不溢位
+  // 8. 手機版面：選單焦點與 Escape、所有章節所有頁籤不溢位
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto(URL + '#/');
   await page.locator('#menu').click(); assert.equal(await page.locator('#menu').getAttribute('aria-expanded'), 'true');
@@ -150,5 +158,5 @@ assert.equal(new Set(D.lessons.map(l => l.lab)).size, D.lessons.length, 'every c
 
   assert.deepEqual(errors, []);
   await browser.close();
-  console.log(`PASS: ${D.lessons.length} chapters, ${D.lessons.reduce((a, l) => a + l.quiz.length, 0)} quiz answers, ${D.lessons.length} labs exercised, algorithms, wrong-answer review, routing, playback/undo, search, persistence, mobile overflow; no browser errors`);
+  console.log(`PASS: ${D.lessons.length} chapters, ${D.lessons.reduce((a, l) => a + l.quiz.length, 0)} quiz answers (positions balanced), ${D.lessons.length} labs exercised, algorithms, wrong-answer review, routing, playback/undo, search, persistence, mobile overflow; no browser errors`);
 })().catch(e => { console.error(e); process.exit(1); });
