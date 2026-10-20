@@ -32,7 +32,7 @@
 
 ## 檔案結構與共用 shell
 
-OS LAB 與 DM LAB 共用同一套應用程式外殼（`shared/`）：路由、進度、測驗、錯題本、搜尋、術語、公式、筆記、主題與自動播放只寫一次，每門課只提供教材資料、課程設定與自己的實驗。其餘課程（DSA、AI、LA、CO、ASM）預計依序遷移。
+OS、DM 與 AI LAB 共用同一套應用程式外殼（`shared/`）：路由、進度、測驗、錯題本、搜尋、術語、公式、筆記、主題與自動播放只寫一次，每門課只提供教材資料、課程設定與自己的實驗。其餘課程（DSA、LA、CO、ASM）預計依序遷移。
 
 ```
 index.html                  七門課入口網
@@ -46,8 +46,10 @@ os/assets/labs-core.js      執行、排程、並行類實驗
 os/assets/labs-more.js      記憶體、儲存、系統、整合類實驗
 os/assets/os-labs.css       OS 專屬實驗樣式
 dm/assets/…                 DM LAB 的同類檔案（labs.js 為 24 種逐步實驗）
+ai/assets/…                 AI LAB 的同類檔案（labs.js 為 24 種逐步實驗，course.js 另含舊版 ailab.* 進度轉換）
 tests/os-review.cjs         OS LAB 端對端檢查
 tests/dm-review.cjs         DM LAB 端對端檢查
+tests/ai-review.cjs         AI LAB 端對端檢查
 ```
 
 沒有建置步驟。
@@ -66,13 +68,15 @@ python -m http.server 8000
 # 另一個終端（需要 Node.js 與 Playwright）
 node tests/os-review.cjs
 node tests/dm-review.cjs
+node tests/ai-review.cjs
 ```
 
 可用 `CHROMIUM_PATH` 指定瀏覽器、`TEST_URL` 指定網址、`SHOT_DIR` 輸出截圖（OS）。
 
 - **OS**：原始教材保留、每章欄位完整、演算法與教科書手算結果一致（SRTF、Banker、FIFO/LRU/OPT、Belady、磁碟排程…）、全部 21 個實驗的按鈕操作、84 題作答、錯題本流程、路由與上一頁、播放與回看、搜尋、重新整理後保留進度、手機版無水平溢位。
 - **DM**：舊版單檔的 24 章與 72 題逐字保留、舊版 localStorage 進度 / 筆記 / 主題相容、24 個逐步實驗、正解位置分散、自動播放、錯題本、搜尋、手機版無水平溢位。
-- 兩者都要求沒有任何瀏覽器錯誤。
+- **AI**：舊版單檔的 24 章與 72 題逐字保留（每題另有提示）、舊版四個 `ailab.*` 鍵的進度 / 筆記 / 主題 / 錯題與 `#/chapter/…` 舊網址相容、24 個實驗都至少 5 步、小數參數不被取整、正解位置分散、自動播放、錯題本、搜尋、手機版每個實驗步驟都無水平溢位。
+- 全部都要求沒有任何瀏覽器錯誤。
 
 ## 發布到 GitHub Pages
 
