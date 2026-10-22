@@ -12,6 +12,8 @@
   const $ = id => document.getElementById(id);
   const labName = l => Labs.registry[l.lab]?.title || '';
   const pad = n => String(n).padStart(2, '0');
+  // 外觀層（shared/cslab-skin.js）與之後的擴充透過這些 DOM 事件得知畫面與進度的變化；應用程式本身不依賴任何監聽者。
+  const emit = (type, detail) => document.dispatchEvent(new CustomEvent('cslab:' + type, { detail }));
 
   /* ───────────── 頁面骨架 ───────────── */
   function mount() {
@@ -52,6 +54,7 @@
     const k = `${lid}:${qi}`;
     if (ok) delete store.wrong[k]; else store.wrong[k] = { n: (store.wrong[k]?.n || 0) + 1, at: Date.now() };
     save(); renderSidebarMeta();
+    emit('answer', { lesson: lid, question: qi, correct: ok });
   }
   function pickReview(n) {
     const wrong = wrongKeys().sort((a, b) => store.wrong[a].at - store.wrong[b].at).map(k => k.split(':').map(Number));
@@ -139,6 +142,7 @@
     document.body.dataset.page = state.page;
     ({ home: renderHome, lesson: renderLesson, glossary: renderGlossary, formulas: renderFormulas, review: renderReview, notes: renderNotes, labs: renderLabIndex })[state.page]();
     document.title = state.page === 'lesson' ? `${byId[state.lesson].title}｜${C.name}` : state.page === 'home' ? `${C.name} — ${C.title}` : `${TITLES[state.page]}｜${C.name}`;
+    emit('render', { page: state.page, lesson: state.page === 'lesson' ? state.lesson : null, tab: state.page === 'lesson' ? state.tab : null });
   }
   const crumb = html => { $('crumb').innerHTML = html; };
   const crumbFor = label => crumb(`<a href="#/">課程地圖</a> / <b>${label}</b>`);
@@ -152,12 +156,14 @@
     const w = wrongKeys().length, badge = $('wrongBadge'); badge.textContent = w; badge.hidden = !w;
   }
   const chapterStatus = l => ({ learn: !!store.learn[l.id], lab: !!store.lab[l.id], quiz: !!store.done[l.id] });
+  // 任務狀態：done 測驗完成、doing 讀過觀念或做過實驗、todo 尚未開始
+  const questState = l => store.done[l.id] ? 'done' : store.learn[l.id] || store.lab[l.id] ? 'doing' : 'todo';
   const dots = l => { const s = chapterStatus(l); return `<span class="dots" aria-label="觀念${s.learn ? '已讀' : '未讀'}、實驗${s.lab ? '已做' : '未做'}、測驗${s.quiz ? '完成' : '未完成'}"><i class="${s.learn ? 'on' : ''}"></i><i class="${s.lab ? 'on' : ''}"></i><i class="${s.quiz ? 'on' : ''}"></i></span>`; };
   function renderSidebar() {
     renderSidebarMeta();
     $('sidebarNav').innerHTML = units.map(unit => {
       const group = lessons.filter(l => l.unit === unit); if (!group.length) return '';
-      return `<div class="nav-group"><div class="nav-unit">${h(unit)}</div>${group.map(l => { const on = state.page === 'lesson' && state.lesson === l.id; return `<a class="nav-item${on ? ' active' : ''}${store.done[l.id] ? ' done' : ''}" href="#/ch/${l.id}/learn"${on ? ' aria-current="page"' : ''}><span class="nav-num">${pad(pos(l.id) + 1)}</span><span class="nav-text"><b>${h(l.title)}</b>${l.short ? `<small>${h(l.short)}</small>` : ''}</span>${dots(l)}</a>`; }).join('')}</div>`;
+      return `<div class="nav-group"><div class="nav-unit">${h(unit)}</div>${group.map(l => { const on = state.page === 'lesson' && state.lesson === l.id; return `<a class="nav-item${on ? ' active' : ''}${store.done[l.id] ? ' done' : ''}" data-status="${questState(l)}" href="#/ch/${l.id}/learn"${on ? ' aria-current="page"' : ''}><span class="nav-num">${pad(pos(l.id) + 1)}</span><span class="nav-text"><b>${h(l.title)}</b>${l.short ? `<small>${h(l.short)}</small>` : ''}</span>${dots(l)}</a>`; }).join('')}</div>`;
     }).join('');
     document.querySelectorAll('.side-links a').forEach(a => a.classList.toggle('active', a.getAttribute('href') === hashFor({ page: state.page })));
   }
@@ -186,7 +192,7 @@
     </div>
     <h2 class="section-title">完整學習地圖</h2>
     <p class="muted small">主線：${units.filter(u => lessons.some(l => l.unit === u)).map(h).join(' → ')}</p>
-    <div class="course-grid">${lessons.map(l => `<a class="course-card${store.done[l.id] ? ' done' : ''}" href="#/ch/${l.id}/learn"><div class="cc-top"><span class="cc-num">CH ${pad(pos(l.id) + 1)} · ${h(l.unit)}</span>${dots(l)}</div><h4>${h(l.title)}</h4><p>${h(l.short || l.ask || '')}</p><div class="cc-meta">${l.minutes ? `<span>⏱ ${l.minutes} 分鐘</span>` : ''}<span>🧪 ${h(labName(l))}</span></div></a>`).join('')}</div>
+    <div class="course-grid">${lessons.map(l => `<a class="course-card${store.done[l.id] ? ' done' : ''}" data-status="${questState(l)}" href="#/ch/${l.id}/learn"><div class="cc-top"><span class="cc-num">CH ${pad(pos(l.id) + 1)} · ${h(l.unit)}</span>${dots(l)}</div><h4>${h(l.title)}</h4><p>${h(l.short || l.ask || '')}</p><div class="cc-meta">${l.minutes ? `<span>⏱ ${l.minutes} 分鐘</span>` : ''}<span>🧪 ${h(labName(l))}</span></div></a>`).join('')}</div>
     ${C.disclaimer ? `<p class="disclaimer">${h(C.disclaimer)}</p>` : ''}`;
   }
 
@@ -201,7 +207,7 @@
     const l = byId[state.lesson], p = pos(l.id), prev = lessons[p - 1], next = lessons[p + 1];
     crumb(`<a href="#/">課程地圖</a> / ${h(l.unit)} / <b>第 ${p + 1} 章</b>`);
     $('content').innerHTML = `
-    <header class="lesson-head">
+    <header class="lesson-head" data-status="${questState(l)}">
       <div class="lh-meta"><span class="cc-num">CHAPTER ${pad(p + 1)} · ${h(l.unit)}</span>${dots(l)}</div>
       <h1>${h(l.title)}</h1>
       ${l.short ? `<p class="lead">${h(l.short)}</p>` : ''}
@@ -241,7 +247,7 @@
     readObserver = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { markLearn(id); readObserver.disconnect(); } });
     readObserver.observe($('readEnd'));
   }
-  function markLearn(id) { if (store.learn[id]) return; store.learn[id] = Date.now(); save(); renderSidebar(); document.querySelector('#tab-learn')?.classList.add('complete'); }
+  function markLearn(id) { if (store.learn[id]) return; store.learn[id] = Date.now(); save(); renderSidebar(); document.querySelector('#tab-learn')?.classList.add('complete'); emit('progress', { lesson: id, kind: 'learn' }); }
 
   /* ───────────── 互動實驗 ───────────── */
   const labDef = () => Labs.registry[byId[state.lesson].lab];
@@ -265,7 +271,7 @@
   function labMutate(fn, record = true) {
     if (record) { state.history.push(JSON.stringify(state.lab)); if (state.history.length > 150) state.history.shift(); }
     fn(state.lab);
-    if (!store.lab[state.lesson]) { store.lab[state.lesson] = Date.now(); save(); renderSidebar(); document.querySelector('#tab-lab')?.classList.add('complete'); }
+    if (!store.lab[state.lesson]) { store.lab[state.lesson] = Date.now(); save(); renderSidebar(); document.querySelector('#tab-lab')?.classList.add('complete'); emit('progress', { lesson: state.lesson, kind: 'lab' }); }
     drawLab();
   }
   function labAct(action, arg) { const def = labDef(); if (def?.act) labMutate(s => def.act(s, action, arg, labCtx)); }
@@ -293,7 +299,7 @@
   function renderQuiz(l) {
     if (!state.quiz) state.quiz = newQuiz(l.quiz.map((_, qi) => [l.id, qi]));
     drawQuiz($('stage'), state.quiz, {
-      onFinish: q => { store.done[l.id] = { first: q.first, total: q.items.length, at: new Date().toISOString() }; save(true); renderSidebar(); document.querySelector('#tab-quiz')?.classList.add('complete'); },
+      onFinish: q => { store.done[l.id] = { first: q.first, total: q.items.length, at: new Date().toISOString() }; save(true); renderSidebar(); document.querySelector('#tab-quiz')?.classList.add('complete'); emit('progress', { lesson: l.id, kind: 'done', first: q.first, total: q.items.length }); },
       finishHtml: () => { const next = lessons[pos(l.id) + 1]; return `<div class="row center"><button type="button" class="btn secondary" data-quiz="retry">再做一次</button>${next ? `<a class="btn primary" href="#/ch/${next.id}/learn">前往下一章：${h(next.title)} →</a>` : '<a class="btn primary" href="#/review">前往錯題複習 →</a>'}</div>`; }
     });
   }
@@ -301,6 +307,7 @@
     if (q.i >= q.items.length) {
       const pct = Math.round(q.first / q.items.length * 100);
       target.innerHTML = `<section class="card quiz-done"><div class="big-check">✓</div><h2>完成 ${q.items.length} 題</h2><p class="lead">第一次就答對 <b>${q.first}</b> 題（${pct}%）。${pct === 100 ? '非常扎實！' : pct >= 50 ? '答錯過的題目已加入錯題本，隔天再複習一次效果最好。' : '建議回到「觀念」與「實驗」再走一遍，然後再挑戰。'}</p>${hooks.finishHtml(q)}</section>`;
+      emit('quiz-view', { target, finished: true, first: q.first, total: q.items.length });
       return;
     }
     const [lid, qi] = q.items[q.i], item = byId[lid].quiz[qi], ready = q.revealed, order = choiceOrder(lid, qi);
@@ -312,6 +319,7 @@
       ${ready ? `<div class="feedback ${q.correct ? 'ok' : 'bad'}" role="status"><b>${q.correct ? (q.tries === 0 ? '✓ 一次答對！' : '✓ 答對了') : '再看一次推理過程'}</b><p>正解：${h(item[1][item[2]])}</p><p>${h(item[4])}</p></div><div class="row"><button type="button" class="btn primary" id="nextQuiz">${q.i === q.items.length - 1 ? '看結果 →' : '下一題 →'}</button><span class="muted small">按 Enter 繼續</span></div>` : '<p class="muted small">可以用鍵盤 A–D 作答。</p>'}
     </section>`;
     target._quiz = { q, hooks };
+    emit('quiz-view', { target, lesson: lid, question: qi, revealed: ready, correct: q.correct, tries: q.tries });
   }
   function answer(target, n) {
     const { q, hooks } = target._quiz; if (q.revealed || q.picked.includes(n)) return;
@@ -521,7 +529,7 @@
   window.addEventListener('pagehide', () => save(true));
 
   // 供測試與除錯使用
-  window.CSApp = { course: C, state, store, lessons, byId, navigate, go, countDone, recordAnswer, pickReview, choiceOrder, labAct, sim: Labs.sim };
+  window.CSApp = { course: C, state, store, lessons, byId, navigate, go, countDone, questState, recordAnswer, pickReview, choiceOrder, labAct, sim: Labs.sim };
   window.OSApp = window.CSApp;
 
   applyTheme();

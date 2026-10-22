@@ -34,7 +34,7 @@ assert.equal(new Set(D.lessons.map(l => l.lab)).size, D.lessons.length, 'every c
 (async () => {
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined, args: ['--no-sandbox'] });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
-  const errors = []; page.on('pageerror', e => errors.push(e.message)); page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  const errors = []; page.on('pageerror', e => errors.push(e.message)); page.on('console', m => { if (m.type() === 'error' && !m.location().url.includes('/self-research/assets/maple/')) errors.push(m.text()); }); // 楓之谷素材是選用的：只開 os-lab 時載不到，外觀自動退回學術外觀
   await page.goto(URL);
   await page.evaluate(() => localStorage.clear()); await page.reload();
 

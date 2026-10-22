@@ -25,7 +25,7 @@ for (const o of old) {
 (async () => {
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined, args: ['--no-sandbox'] });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
-  const errors = []; page.on('pageerror', e => errors.push(e.message)); page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  const errors = []; page.on('pageerror', e => errors.push(e.message)); page.on('console', m => { if (m.type() === 'error' && !m.location().url.includes('/self-research/assets/maple/')) errors.push(m.text()); }); // 楓之谷素材是選用的：只開 os-lab 時載不到，外觀自動退回學術外觀
 
   // 2. 舊版進度（同一個 localStorage 鍵）在新版中仍然有效
   // 從同源但不執行 app 的頁面寫入舊資料（已開啟的 app 會在離開頁面時存檔，會蓋掉直接注入的資料）
