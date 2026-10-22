@@ -32,12 +32,13 @@
 
 ## 外觀：楓之谷與學術閱讀
 
-入口網、OS LAB 與 DSA LAB 預設使用「楓之谷」外觀（舊版楓之谷用戶端的遊戲視窗、NPC 對話框、MiniMap、任務圖示與場景），頂列的 🍁 按鈕可隨時切回原本的學術閱讀外觀。切換只改外觀：教材、測驗紀錄、錯題本與實驗狀態都不受影響；外觀選擇存在 localStorage 的 `cslab.skin`，所有課程共用。
+入口網與共用 shell 上的四門課（OS、DSA、DM、AI）預設使用「楓之谷」外觀（舊版楓之谷用戶端的遊戲視窗、NPC 對話框、MiniMap、任務圖示與場景），頂列的 🍁 按鈕可隨時切回原本的學術閱讀外觀。切換只改外觀：教材、測驗紀錄、錯題本與實驗狀態都不受影響；外觀選擇存在 localStorage 的 `cslab.skin`，所有課程共用。
 
 - **素材**：遊戲美術屬 Nexon 所有。本儲存庫**不收錄任何遊戲圖檔**，而是引用 [self-research](https://github.com/duicn187532/self-research) 已發布在同一個 GitHub Pages 網域的 `/self-research/assets/maple/`。素材載不到時（例如只部署本儲存庫）自動維持學術外觀並隱藏切換按鈕。
 - **規範**：`.claude/skills/maple-skin/` 是沿用自 self-research 的 maple-skin Skill（素材組裝、9-slice、精靈圖、RWD 規範與建圖腳本），其中「In this repo's site (CS LAB)」一節說明本站的對應方式。
 - **共用層**：`shared/skin-maple.css`（全部楓之谷樣式，含入口網）與 `shared/cslab-skin.js`（切換、素材探測、NPC 精靈圖）。精靈圖只在楓之谷外觀時載入、離開畫面時暫停，尊重「減少動態效果」。
-- **其他課程**：DM、AI 已在共用 shell 上，只要在頁面加上樣式表、`<head>` 一行程式與 `cslab-skin.js` 三行即可啟用；LA、CO、ASM 為獨立 HTML，之後以小型 adapter 樣式表把各自的元件對應到同一組視窗（見 Skill 說明）。
+- **場景**：OS、DM 在弓箭手村，DSA、AI 在魔法森林，入口網是登入畫面（`<html data-scene>`）。
+- **其他課程**：LA、CO、ASM 為獨立 HTML，之後以小型 adapter 樣式表把各自的元件對應到同一組視窗（見 Skill 說明）。
 - **第二階段擴充介面**：`cslab-app.js` 在 `document` 上發出 `cslab:render`、`cslab:quiz-view`、`cslab:answer`、`cslab:progress` 事件；`window.CSLabSkin` 提供 `skin`、`active`、`set()`、`url()`、`npc()`、`onChange()`。
 
 ## 檔案結構與共用 shell
@@ -65,7 +66,7 @@ tests/os-review.cjs         OS LAB 端對端檢查
 tests/dm-review.cjs         DM LAB 端對端檢查
 tests/dsa-review.cjs        DSA LAB 端對端檢查
 tests/ai-review.cjs         AI LAB 端對端檢查
-tests/skin-review.cjs       外觀層檢查（入口網、OS、DSA）
+tests/skin-review.cjs       外觀層檢查（入口網、OS、DSA、DM、AI）
 ```
 
 沒有建置步驟。
@@ -103,7 +104,7 @@ node os-lab/tests/skin-review.cjs
 - **DM**：舊版單檔的 24 章與 72 題逐字保留、舊版 localStorage 進度 / 筆記 / 主題相容、24 個逐步實驗、正解位置均衡（全課程與每章）且重新整理不變、自動播放、錯題本、搜尋、手機版無水平溢位。
 - **DSA**：舊版單檔的 18 章與 54 題逐字保留、舊版四個 `dsa.*` 鍵的進度 / 筆記 / 主題 / 答錯紀錄會匯入、18 章各有不同的實驗（選型、Dijkstra 距離、快取未命中數另有計算檢查）、提示後才給解析、正解位置均衡（全課程與每章）且重新整理不變、自動播放、錯題本、搜尋、手機版無水平溢位。
 - **AI**：舊版單檔的 24 章與 72 題逐字保留（每題另有提示）、舊版四個 `ailab.*` 鍵的進度 / 筆記 / 主題 / 錯題與 `#/chapter/…` 舊網址相容、24 個實驗都至少 5 步、小數參數不被取整、正解位置均衡（全課程與每章）且重新整理不變、自動播放、錯題本、搜尋、手機版每個實驗步驟都無水平溢位。
-- **外觀**：圖片路徑全部指向 self-research 且檔案存在、本儲存庫沒有遊戲圖檔、預設楓之谷、鍵盤切換、切換前後測驗作答次數 / 錯題本 / 實驗狀態 / 課程資料不變、重新整理後維持選擇、只下載 NPC 與任務圖示、離開畫面暫停、減少動態效果時不動、沒有素材時退回學術外觀、兩種外觀在 390px 與 1280px 的入口網與 OS、DSA 每一頁都沒有水平溢位。
+- **外觀**：圖片路徑全部指向 self-research 且檔案存在、本儲存庫沒有遊戲圖檔、預設楓之谷、鍵盤切換、切換前後測驗作答次數 / 錯題本 / 實驗狀態 / 課程資料不變、重新整理後維持選擇、只下載 NPC 與任務圖示、離開畫面暫停、減少動態效果時不動、沒有素材時退回學術外觀、兩種外觀在 390px 與 1280px 的入口網與 OS、DSA、DM、AI 每一頁都沒有水平溢位、桌面的 NPC 肖像不壓到對話框按鈕列。
 - 全部都要求沒有任何瀏覽器錯誤（只開 os-lab 時，選用的楓之谷素材載入失敗不算）。
 
 ## 發布到 GitHub Pages

@@ -11,7 +11,7 @@ const path = require('node:path');
 
 const root = path.join(__dirname, '..');
 const ROOT = process.env.TEST_ROOT || 'http://localhost:8000/os-lab/';
-const COURSES = { os: 'os_lab_2026_v1', dsa: 'dsa.progress' };
+const COURSES = { os: 'os_lab_2026_v1', dsa: 'dsa.progress', dm: 'dm_lab_progress_v1', ai: 'ailab.progress' };
 const PREFIX = '../../self-research/assets/maple/';
 
 // 1. 素材路徑只有一個：CSS 的每個 url() 與 JS 的 MAPLE_BASE 都指向 self-research 的 assets/maple/，且檔案存在
@@ -138,6 +138,8 @@ assert(!fs.existsSync(path.join(root, 'shared/maple')) && !fs.readdirSync(root, 
           await page.evaluate(([id, tab]) => CSApp.navigate(id, tab), [id, tab]);
           if (tab === 'lab') await page.locator('#labBody [data-act=end]').first().click({ timeout: 300 }).catch(() => {});
           await check(`${course} ch${id} ${tab}`);
+          // 桌面的 NPC 對話框：肖像欄（名牌）不能壓到底部的按鈕藍帶
+          if (skin === 'maple' && w > 640 && tab !== 'lab' && await page.evaluate(() => [...document.querySelectorAll('.npc-portrait')].some(p => { const box = p.parentElement.getBoundingClientRect(), name = p.querySelector('.npc-name').getBoundingClientRect(); return name.bottom > box.bottom - parseFloat(getComputedStyle(p.parentElement).borderBottomWidth) + 1; }))) bad.push(`${course} ch${id} ${tab}: NPC over the button band`);
         }
       }
       assert.deepEqual(bad, [], `${w}px ${skin}: horizontal overflow`);
@@ -145,5 +147,5 @@ assert(!fs.existsSync(path.join(root, 'shared/maple')) && !fs.readdirSync(root, 
   }
   assert.deepEqual(errors, []);
   await browser.close();
-  console.log(`PASS: skin art paths (${new Set(urls).size} images, none copied), maple default, keyboard toggle, quiz / lab / progress unchanged by switching, persistence without flash, only NPC strips fetched, offscreen pause, reduced motion, fallback without art, no overflow at 390 / 1280 in both skins (portal, OS, DSA); no browser errors`);
+  console.log(`PASS: skin art paths (${new Set(urls).size} images, none copied), maple default, keyboard toggle, quiz / lab / progress unchanged by switching, persistence without flash, only NPC strips fetched, offscreen pause, reduced motion, fallback without art, no overflow at 390 / 1280 in both skins (portal, OS, DSA, DM, AI); no browser errors`);
 })().catch(e => { console.error(e); process.exit(1); });

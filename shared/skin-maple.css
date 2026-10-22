@@ -219,8 +219,8 @@ html:root[data-skin="maple"] {
 :root[data-skin="maple"] .tabs a[aria-selected="true"] { border-image-source: url("../../self-research/assets/maple/bt-orange-normal.png"); background: none; color: #ffffff; outline: 0; text-shadow: -1px 0 #8a3c00, 1px 0 #8a3c00, 0 -1px #8a3c00, 0 1px #8a3c00; }
 :root[data-skin="maple"] .tabs a.complete::after { color: #c8ff7a; }
 /* ELI5：NPC 導讀對話。cslab-skin.js 放入 NPC 之後才有左側肖像欄 */
-:root[data-skin="maple"] .card:is(.analogy, .quiz, .quiz-done):has(.npc-portrait) { position: relative; min-height: 200px; border-width: 28px 22px 58px 150px; border-image: url("../../self-research/assets/maple/dlg9.png") 28 22 58 150 fill / 28px 22px 58px 150px stretch repeat; }
-:root[data-skin="maple"] .card.analogy:has(.npc-portrait) { min-height: 176px; }
+:root[data-skin="maple"] .card:is(.analogy, .quiz, .quiz-done):has(.npc-portrait) { position: relative; min-height: 232px; border-width: 28px 22px 58px 150px; border-image: url("../../self-research/assets/maple/dlg9.png") 28 22 58 150 fill / 28px 22px 58px 150px stretch repeat; }
+:root[data-skin="maple"] .card.analogy:has(.npc-portrait) { min-height: 232px; }
 :root[data-skin="maple"] .card.analogy::after { content: "NPC GUIDE"; position: absolute; left: -10px; bottom: -46px; line-height: 20px; font-size: 12px; font-weight: 900; letter-spacing: 0.06em; color: #ffffff; text-shadow: var(--outline); }
 :root[data-skin="maple"] .card.analogy:not(:has(.npc-portrait))::after { content: none; }
 :root[data-skin="maple"] .card:is(.analogy, .quiz, .quiz-done):has(.npc-portrait)::after { left: -136px; }

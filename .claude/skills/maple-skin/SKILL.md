@@ -135,6 +135,8 @@ CS LAB reuses its art and techniques, not its paper logic:
   probe is remembered in `cslab.art` so the head snippet applies the skin before first paint, and a
   deployment without the art never requests it. The skin never reads or writes a course's store.
 - **Scenes** are named on `<html data-scene>`: Henesys by default, `ellinia`, or `login` (portal).
+- **NPC dialogs** keep a min-height so the portrait column (sprite + name plate) clears the blue
+  button band even when the text is one line; `tests/skin-review.cjs` checks every chapter.
 - **Shell mapping** (all `:root[data-skin="maple"]` rules in `shared/skin-maple.css`):
   sidebar = MiniMap window (course name in the steel band, chapter dots: yellow current, green done,
   blue in progress, grey not started; `data-status` from `cslab-app.js`); course home hero = NPC
@@ -153,8 +155,9 @@ CS LAB reuses its art and techniques, not its paper logic:
 - **Extension points** for the RPG phase: `cslab-app.js` dispatches `cslab:render`,
   `cslab:quiz-view`, `cslab:answer` and `cslab:progress` on `document`; `window.CSLabSkin`
   exposes `skin`, `active`, `set()`, `url()`, `npc(host, key, quest)` and `onChange()`.
-- **Adding a course**: shell courses (DM, AI) need only the stylesheet link, the head snippet and
-  `<script src="../shared/cslab-skin.js">` after `cslab-app.js`. Standalone pages (LA, CO, ASM)
+- **Adding a course**: a shell course needs only the stylesheet link, the head snippet and
+  `<script src="../shared/cslab-skin.js">` after `cslab-app.js` (OS, DSA, DM and AI have them;
+  OS and DM are in Henesys, DSA and AI in Ellinia). Standalone pages (LA, CO, ASM)
   should add the same three lines plus a small adapter stylesheet mapping their own classes onto the
   same pieces (or the generic `.mp-win` window class), rather than being rewritten.
 
