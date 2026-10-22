@@ -493,14 +493,15 @@ html:root[data-skin="maple"] {
   :root[data-skin="maple"] .card:is(.analogy, .quiz, .quiz-done):has(.npc-portrait)::after { left: -2px; }
   /* 手機沒有肖像欄：NPC 站在對話框上緣，名牌在旁邊（SKILL.md「Phone」） */
   :root[data-skin="maple"] :is(.hero, .card.analogy, .card.quiz, .card.quiz-done):has(.npc-portrait) {
-    min-height: 0; margin-top: 84px; border-width: 28px 12px 58px 14px;
+    min-height: 0; margin-top: 108px; border-width: 28px 12px 58px 14px;
     border-image: url("../../self-research/assets/maple/win9.png") 28 22 58 24 fill / 28px 12px 58px 14px stretch repeat;
   }
   :root[data-skin="maple"] .hero:has(.npc-portrait) { border-bottom-width: 34px; border-image: url("../../self-research/assets/maple/win9s.png") 28 22 34 24 fill / 28px 12px 34px 14px stretch repeat; }
-  :root[data-skin="maple"] .npc-portrait { left: -4px; top: auto; bottom: calc(100% + 24px); width: auto; min-height: 0; flex-direction: row; align-items: flex-end; gap: 4px; }
+  /* 手機沒有肖像欄：角色站在對話框上緣，名牌和遊戲裡一樣在角色腳下 */
+  :root[data-skin="maple"] .npc-portrait { left: 0; top: auto; bottom: calc(100% + 22px); width: 96px; min-height: 0; flex-direction: column; align-items: center; gap: 2px; }
   :root[data-skin="maple"] .npc-fig { --maxh: 64; height: 64px; width: auto; min-width: 44px; }
   :root[data-skin="maple"] .npc-name { width: 96px; margin-bottom: 2px; background-size: 96px 19px; }
-  :root[data-skin="maple"] .npc-quest { right: auto; left: 30px; top: -24px; transform: scale(0.6); transform-origin: 0 0; }
+  :root[data-skin="maple"] .npc-quest { right: -14px; top: -20px; transform: scale(0.6); transform-origin: 100% 0; }
   :root[data-skin="maple"] .tabs { margin: 10px -10px 0; padding: 5px 6px; gap: 4px; }
   :root[data-skin="maple"] .tabs a { padding: 5px 2px; }
   :root[data-skin="maple"] .section-title { font-size: 16px; }
