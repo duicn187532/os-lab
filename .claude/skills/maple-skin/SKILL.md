@@ -148,15 +148,32 @@ CS LAB reuses its art and techniques, not its paper logic:
   on the scene = world-sign planks; dialogs (search, help) = win9s. Code stays on its dark panel.
 - **Portal** (`index.html`, `body.portal`) = the login screen's world select: title on scroll9,
   seven courses on parch9 boards, planks for headings.
-- **Sprites**: NPCs and quest marks only (no monsters, heroes, EXP or levels in this phase).
-  `sprites.js` loads only in maple; each strip on first use; shared 60ms ticker; `.is-off` pauses
-  sprites out of view; hidden tabs and reduced motion stand still. One NPC per chapter, picked from
-  the course id and chapter id.
-- **Extension points** for the RPG phase: `cslab-app.js` dispatches `cslab:render`,
-  `cslab:quiz-view`, `cslab:answer` and `cslab:progress` on `document`; `window.CSLabSkin`
-  exposes `skin`, `active`, `set()`, `url()`, `npc(host, key, quest)` and `onChange()`.
+- **Sprites**: `sprites.js` loads only in maple; each strip on first use; shared 60ms ticker;
+  `.is-off` pauses sprites out of view; hidden tabs and reduced motion stand still. One NPC per
+  chapter, picked from the course id and chapter id. `CSLabSkin.sprite` exposes the engine
+  (`setAct(el, name, act, once, ms)`, `swapAct`, `warm`, `kind`, `spec`, `whenTable`, `observe`).
+- **Game layer** (`shared/cslab-game.js`, after `cslab-skin.js`; self-research's EXP, status bar
+  and battles, adapted): EXP is derived from each course's existing store (learn 30, first lab use
+  30, note 20, quiz done 100 + elite 100 / boss 200, 10 per question of a done chapter not in the
+  wrong-answer log, whole course 500) and cached per course in `cslab.exp`
+  (`{ id: { exp, title } }`) so the portal and other courses add up one reader; it never writes a
+  course store and never touches self-research's `study:*`. Tiers: last chapter of each unit with
+  two or more chapters = elite, the course's last chapter = BOSS. The status bar (`.hud`) sits on
+  the bottom edge (`body.has-hud` pads the page and lifts the sidebar and scroll-top button). The
+  lesson header carries the hero + pet (`.perch-party`) and the chapter's monster on patrol
+  (`.perch-walk`, room from `--perch-h`, `overflow-x: clip` so a wide death frame never scrolls the
+  page). The quiz is drawn as a battle without changing its rules: the monster takes the portrait
+  column (so `cslab-skin.js` skips its quiz NPC when `window.CSLabGame` exists), `.bt-bar` shows HP
+  (one per question, lost on a right answer) and two hearts (the two tries); finishing shows the
+  hero cheering, the EXP gain and the level-up light. All of it is `aria-hidden`, unfocusable and
+  hidden in classic; `tests/game-review.cjs` covers it.
+- **Extension points**: `cslab-app.js` dispatches `cslab:render`, `cslab:quiz-view`,
+  `cslab:answer` and `cslab:progress` on `document`; `window.CSLabSkin` exposes `skin`, `active`,
+  `set()`, `url()`, `npc(host, key, quest)`, `onChange()` and `sprite`; `window.CSLabGame` exposes
+  the EXP table, `levelOf`, `jobOf`, the chapter tiers and the current level.
 - **Adding a course**: a shell course needs only the stylesheet link, the head snippet and
-  `<script src="../shared/cslab-skin.js">` after `cslab-app.js` (OS, DSA, DM and AI have them;
+  `<script src="../shared/cslab-skin.js">` and `<script src="../shared/cslab-game.js">` after
+  `cslab-app.js` (OS, DSA, DM and AI have them;
   OS and DM are in Henesys, DSA and AI in Ellinia). Standalone pages (LA, CO, ASM)
   should add the same three lines plus a small adapter stylesheet mapping their own classes onto the
   same pieces (or the generic `.mp-win` window class), rather than being rewritten.

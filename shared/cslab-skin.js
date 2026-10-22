@@ -67,14 +67,16 @@
       if (!el.isConnected) return false;
       if (el.closest('.is-off')) return true;
       sp.acc += TICK; if (sp.acc < sp.ms) return true;
-      sp.acc = 0; sp.i = (sp.i + 1) % sp.n;
+      sp.acc = 0; sp.i += 1;
+      if (sp.i >= sp.n) { if (sp.once) return false; sp.i = 0; }
       el.style.backgroundPosition = `${-sp.w * sp.i}px 0`;
       return true;
     });
     if (!live.length) { clearInterval(clock); clock = null; }
   }
   function stopAll() { live = []; clearInterval(clock); clock = null; }
-  function setAct(el, name, act) {
+  // once：播完一輪停在最後一格；ms：每格毫秒數
+  function setAct(el, name, act, once, ms) {
     const acts = spec(name).acts; if (!acts[act]) act = 'stand';
     const c = acts[act];
     el.style.backgroundImage = `url("${url(`spr-${name}-${act}.png`)}")`;
@@ -82,7 +84,7 @@
     el.style.setProperty('--w', c[0]); el.style.setProperty('--h', c[1]);
     live = live.filter(sp => sp.el !== el);
     if (c[2] < 2 || reduceMotion.matches || !active()) return;
-    live.push({ el, w: c[0], n: c[2], i: 0, acc: 0, ms: 170 });
+    live.push({ el, w: c[0], n: c[2], i: 0, acc: 0, ms: ms || 170, once: !!once });
     if (!clock) clock = setInterval(tick, TICK);
   }
   // 換動作前先下載並解碼新的動作條，舊畫格留到那時候，避免閃空白；最後一次要求為準
@@ -92,11 +94,12 @@
     if (!strips[u]) { const img = new Image(); img.src = u; strips[u] = (img.decode ? img.decode() : new Promise(ok => { img.onload = img.onerror = ok; })).catch(() => {}); }
     return strips[u];
   }
-  function swapAct(el, name, act) {
+  function swapAct(el, name, act, once, ms) {
     if (!spec(name).acts[act]) act = 'stand';
     const want = el.dataset.want = `${name}/${act}`;
-    fetchStrip(name, act).then(() => { if (el.dataset.want === want) setAct(el, name, act); });
+    fetchStrip(name, act).then(() => { if (el.dataset.want === want) setAct(el, name, act, once, ms); });
   }
+  const warm = (name, act) => { if (spec(name) && spec(name).acts[act]) fetchStrip(name, act); };
   const offscreen = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('is-off', !e.isIntersecting)), { rootMargin: '120px 0px' }) : null;
 
   // NPC 名單：sprites.js 裡 kind 為 npc 的角色（名牌用台灣版名稱或角色描述）；依鍵值固定挑選，同一章每次都是同一位
@@ -143,7 +146,8 @@
   }
   const chapterNpc = id => pickNpc(`${course()}:${id}`);
   function quizNpc(target) {
-    if (!active() || !App() || !target || !target._quiz) return;
+    // 有遊戲層（shared/cslab-game.js）時，測驗視窗的肖像欄由它放怪物與主角
+    if (window.CSLabGame || !active() || !App() || !target || !target._quiz) return;
     whenTable(() => {
       const { q } = target._quiz, finished = q.i >= q.items.length;
       const host = target.querySelector(':scope > .card.quiz, :scope > .card.quiz-done'); if (!host) return;
@@ -170,6 +174,9 @@
   window.CSLabSkin = {
     get skin() { return skin; }, get active() { return active(); }, get artReady() { return artReady; },
     set, url, npc: (host, key, quest) => new Promise(ok => whenTable(() => ok(npc(host, pickNpc(key), quest)))),
-    onChange: fn => listeners.push(fn)
+    onChange: fn => listeners.push(fn),
+    // 精靈圖引擎，給遊戲層（shared/cslab-game.js）用：表載入後才呼叫 spec / kind
+    sprite: { whenTable, spec, kind: k => Object.keys(window.MAPLE_SPRITES || {}).filter(n => spec(n).kind === k), setAct, swapAct, warm, fetchStrip,
+      observe: el => { if (offscreen) offscreen.observe(el); }, reduceMotion: () => reduceMotion.matches }
   };
 })();

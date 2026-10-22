@@ -8,7 +8,7 @@
      url() 在那裡會以頁面而不是本檔為基準解析）。路徑要和 cslab-skin.js 的 MAPLE_BASE 一致。
    - 所有閱讀內容都放在遊戲視窗的淺色面板上；場景圖只在視窗後面。深色模式只把場景變成夜晚。
    ===================================================================== */
-.npc-portrait, .skin-only { display: none; }
+.npc-portrait, .skin-only, .hud, .perch, .bt-bar { display: none; }
 
 html:root[data-skin="maple"] {
   color-scheme: light;
@@ -230,7 +230,7 @@ html:root[data-skin="maple"] {
   flex-direction: column; align-items: center; justify-content: flex-end; gap: 3px; pointer-events: none;
 }
 :root[data-skin="maple"] .npc-fig { --maxh: 104; display: flex; align-items: flex-end; justify-content: center; width: 100%; height: 104px; position: relative; }
-:root[data-skin="maple"] .npc-fig .spr { flex: none; transform: scale(min(1, calc(var(--maxh) / var(--h)))); transform-origin: 50% 100%; }
+:root[data-skin="maple"] .npc-fig > .spr { flex: none; transform: scale(min(1, calc(var(--maxh) / var(--h)))); transform-origin: 50% 100%; }
 :root[data-skin="maple"] .npc-quest { position: absolute; right: 0; top: -14px; transform: scale(0.75); transform-origin: 100% 0; }
 :root[data-skin="maple"] .npc-name { width: 121px; height: 19px; line-height: 19px; text-align: center; font-size: 12px; font-weight: 700; color: #ffffff; text-shadow: var(--outline); background: url("../../self-research/assets/maple/bar.png"); white-space: nowrap; overflow: hidden; }
 /* 先想一想：可接受的任務（米色框，Quest list1 標頭與燈泡） */
@@ -412,6 +412,68 @@ html:root[data-skin="maple"] {
 :root[data-skin="maple"] .portal .foot { max-width: none; padding: 14px max(20px, calc((100% - 1170px) / 2 + 28px)); color: #3a2a18; background: rgba(250, 236, 205, 0.94); border-top: 1px solid #c79a5c; }
 .portal .skin-btn { border: 1px solid #ffffff22; background: #ffffff08; border-radius: 8px; padding: 2px 6px; cursor: pointer; }
 
+/* ---------- 遊戲層（shared/cslab-game.js）：狀態列、站在視窗上的角色、測驗討伐 ----------
+   數值與做法沿用 self-research 的 assets/site.css。 */
+:root[data-skin="maple"] body.has-hud { padding-bottom: 80px; }
+:root[data-skin="maple"] body.has-hud .side { bottom: 71px; }
+:root[data-skin="maple"] body.has-hud .scrolltop { bottom: 84px; }
+/* 狀態列：貼在畫面底邊，和遊戲一樣高；上方一行是公告 */
+:root[data-skin="maple"] .hud { display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 22; height: 71px; background: url("../../self-research/assets/maple/hud-bg.png") 0 0 / auto 71px repeat-x #88aabb; image-rendering: pixelated; pointer-events: none; }
+:root[data-skin="maple"] .hud::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 200px; background: #88aabb; }
+:root[data-skin="maple"] .hud-chat { position: absolute; left: 0; top: 7px; width: min(760px, 100%); height: 22px; padding-left: 8px; background: url("../../self-research/assets/maple/chat9.png") 0 0 / 100% 22px no-repeat; font-size: 12px; line-height: 22px; color: #333333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; image-rendering: auto; }
+:root[data-skin="maple"] .hud-chat b { color: #d14a00; }
+:root[data-skin="maple"] .hud-row { position: absolute; left: 0; right: 0; top: 29px; height: 42px; display: flex; align-items: center; }
+:root[data-skin="maple"] .hud-left { position: relative; flex: none; width: 207px; height: 42px; background: url("../../self-research/assets/maple/hud-left.png") no-repeat; }
+:root[data-skin="maple"] .hud-lv { position: absolute; left: 38px; top: 15px; display: flex; }
+:root[data-skin="maple"] .hud-lv img { display: block; width: 11px; height: 13px; }
+:root[data-skin="maple"] .hud-name { position: absolute; left: 84px; top: 4px; right: 6px; display: flex; flex-direction: column; font-size: 11.5px; line-height: 1.3; color: #dddddd; image-rendering: auto; }
+:root[data-skin="maple"] .hud-name b { color: #ffffff; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+:root[data-skin="maple"] .hud-gp { flex: 1 1 auto; min-width: 0; margin-right: 8px; height: 42px; display: flex; align-items: center; padding: 0 6px; border-style: solid; border-width: 0 8px; border-image: url("../../self-research/assets/maple/hud-gp9.png") 0 8 fill / 0 8px repeat; }
+:root[data-skin="maple"] .hud-exp { position: relative; flex: 1; height: 31px; border-style: solid; border-width: 14px 3px 2px 32px; border-image: url("../../self-research/assets/maple/exp.png") 14 3 2 32 fill / 14px 3px 2px 32px stretch; }
+:root[data-skin="maple"] .hud-gray { position: absolute; top: 0; bottom: 0; right: 0; background: url("../../self-research/assets/maple/exp-gray.png") 0 0 / 1px 100% repeat-x; }
+:root[data-skin="maple"] .hud-num { position: absolute; right: 2px; top: -14px; font-size: 11px; font-weight: 700; line-height: 13px; color: #ffffff; text-shadow: var(--outline); image-rendering: auto; white-space: nowrap; }
+/* 章節標頭上的主角、寵物與怪物：站在視窗上緣，標頭上方留出最高那一格的空間（--perch-h） */
+:root[data-skin="maple"] .lesson-head:has(> .perch) { margin-top: calc(var(--perch-h, 0) * 1px + 2px); overflow-x: clip; }
+:root[data-skin="maple"] .perch { display: flex; align-items: flex-end; gap: 2px; position: absolute; z-index: 2; bottom: calc(100% + 23px); pointer-events: none; }
+:root[data-skin="maple"] .perch[hidden] { display: none; }
+:root[data-skin="maple"] .perch-party { left: 6px; }
+:root[data-skin="maple"] .perch-party .stander > .spr { transform: scaleX(-1); }
+:root[data-skin="maple"] .stander { position: relative; }
+:root[data-skin="maple"] .perch-walk { right: 16px; width: 170px; height: 1px; }
+:root[data-skin="maple"] .walker { position: absolute; left: 0; bottom: 0; }
+:root[data-skin="maple"] .perch-walk .stander { position: absolute; right: 0; bottom: 0; }
+:root[data-skin="maple"] .perch.is-down { animation: perch-fade 1.3s ease-in forwards; }
+@keyframes perch-fade { 0%, 65% { opacity: 1; } 100% { opacity: 0; } }
+:root[data-skin="maple"] .exp-pop {
+  position: absolute; z-index: 3; left: 50%; bottom: 40px; transform: translateX(-50%); white-space: nowrap; pointer-events: none;
+  font-size: 15px; font-weight: 900; color: #ffe94a; text-shadow: var(--outline); animation: exp-rise 1.3s ease-out forwards;
+}
+/* 升級（BasicEff LevelUp）：光柱，接著頭上浮出字樣 */
+:root[data-skin="maple"] .fx-levelup { position: absolute; z-index: 3; left: 50%; bottom: -6px; width: 0; height: 0; pointer-events: none; }
+:root[data-skin="maple"] .fx-levelup .spr { position: absolute; bottom: 0; left: calc(var(--w) * -0.5px); }
+:root[data-skin="maple"] .fx-levelup .fx-words { bottom: 64px; left: -48px; }
+/* 爆擊數字（BasicEff NoCri1），從怪物身上往上飄 */
+:root[data-skin="maple"] .fx-damage { position: absolute; z-index: 3; left: 50%; bottom: 30px; display: flex; transform: translateX(-50%); pointer-events: none; animation: dmg-rise 1.2s ease-out forwards; }
+:root[data-skin="maple"] .fx-damage .spr { margin-right: -10px; }
+@keyframes dmg-rise { from { opacity: 1; transform: translate(-50%, 0); } 70% { opacity: 1; } to { opacity: 0; transform: translate(-50%, -40px); } }
+@keyframes exp-rise { from { transform: translate(-50%, 10px); opacity: 0; } 20% { opacity: 1; } to { transform: translate(-50%, -26px); opacity: 1; } }
+/* 測驗討伐：怪物在肖像欄，對話框頂端是怪物的 HP 條與這一題剩下的心（兩次機會） */
+:root[data-skin="maple"] .bt-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 0 0 12px; padding: 6px 10px; background: rgba(20, 38, 66, 0.92); border: 1px solid #0e1a2e; color: #ffffff; }
+:root[data-skin="maple"] .bt-tier { flex: none; padding: 0 6px; font-size: 11px; font-weight: 900; line-height: 18px; background: #5b6f86; color: #ffffff; }
+:root[data-skin="maple"] .bt-bar[data-tier="elite"] .bt-tier { background: #7a3fc0; }
+:root[data-skin="maple"] .bt-bar[data-tier="boss"] .bt-tier { background: #c9302c; }
+:root[data-skin="maple"] .bt-bar[data-tier="review"] .bt-tier { background: #2f6f2a; }
+:root[data-skin="maple"] .bt-foe { font-size: 14px; color: #ffffff; text-shadow: var(--outline); }
+:root[data-skin="maple"] .bt-hp { flex: 1 1 120px; min-width: 80px; height: 10px; background: #3a0d0d; border: 1px solid #000000; }
+:root[data-skin="maple"] .bt-hp i { display: block; height: 100%; background: linear-gradient(#ff8a7a, #d3261c); transition: width 0.3s ease; }
+:root[data-skin="maple"] .bt-hearts { flex: none; color: #ff6a8a; font-size: 15px; letter-spacing: 0.1em; }
+:root[data-skin="maple"] .bt-hearts:empty { display: none; }
+:root[data-skin="maple"] .bt-say { flex-basis: 100%; margin: 0; min-height: 1.4em; font-size: 13px; color: #ffe39a; }
+:root[data-skin="maple"] .bt-bar.is-over .bt-foe { color: #c8ff7a; }
+:root[data-skin="maple"] .bt-bar.is-win .bt-hp { display: none; }
+:root[data-skin="maple"] .card.quiz.is-struck { animation: struck 0.35s ease-out; }
+@keyframes struck { 0%, 100% { transform: none; } 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); } }
+
 /* ---------- 響應式 ---------- */
 @media (max-width: 900px) {
   /* MiniMap 是左側抽屜：整個視窗從左邊滑出，標題帶在安全區下方 */
@@ -427,7 +489,8 @@ html:root[data-skin="maple"] {
   }
   :root[data-skin="maple"] :is(.lab, .card.quiz, .card.quiz-done) { border-image-width: 28px 12px 58px 14px; }
   :root[data-skin="maple"] :is(.card, .lab) { padding: 2px 4px 6px; }
-  :root[data-skin="maple"] .lab::after, :root[data-skin="maple"] :is(.card.quiz, .card.quiz-done, .card.analogy)::after { left: -2px; }
+  :root[data-skin="maple"] .lab::after, :root[data-skin="maple"] :is(.card.quiz, .card.quiz-done, .card.analogy)::after,
+  :root[data-skin="maple"] .card:is(.analogy, .quiz, .quiz-done):has(.npc-portrait)::after { left: -2px; }
   /* 手機沒有肖像欄：NPC 站在對話框上緣，名牌在旁邊（SKILL.md「Phone」） */
   :root[data-skin="maple"] :is(.hero, .card.analogy, .card.quiz, .card.quiz-done):has(.npc-portrait) {
     min-height: 0; margin-top: 84px; border-width: 28px 12px 58px 14px;
@@ -448,10 +511,22 @@ html:root[data-skin="maple"] {
   :root[data-skin="maple"] .portal .topnav { gap: 10px; white-space: nowrap; }
   :root[data-skin="maple"] .portal .top { padding-inline: 12px; }
   :root[data-skin="maple"] .portal .brand span { display: none; }
+  :root[data-skin="maple"] .perch-walk { width: 110px; right: 12px; }
+  /* 手機的狀態列：公告疊在底列上方，名字收起來 */
+  :root[data-skin="maple"] body.has-hud { padding-bottom: 72px; }
+  :root[data-skin="maple"] body.has-hud .side { bottom: 64px; }
+  :root[data-skin="maple"] body.has-hud .scrolltop { bottom: 76px; }
+  :root[data-skin="maple"] .hud { height: 64px; background-position: 0 -7px; }
+  :root[data-skin="maple"] .hud-chat { top: 0; }
+  :root[data-skin="maple"] .hud-row { top: 22px; }
+  :root[data-skin="maple"] .hud-left { width: 80px; background-size: 207px 42px; }
+  :root[data-skin="maple"] .hud-name { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   :root[data-skin="maple"] :is(.course-card, .lab-card):hover { transform: none; }
+  :root[data-skin="maple"] :is(.perch.is-down, .exp-pop, .card.quiz.is-struck) { animation: none; }
+  :root[data-skin="maple"] .bt-hp i { transition: none; }
 }
 @media print {
-  :root[data-skin="maple"] body::before, .npc-portrait { display: none !important; }
+  :root[data-skin="maple"] body::before, .npc-portrait, .hud, .perch, .bt-bar { display: none !important; }
 }
