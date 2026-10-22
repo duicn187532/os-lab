@@ -45,9 +45,15 @@ const ROOT = process.env.TEST_ROOT || 'http://localhost:8000/os-lab/';
   // 3. 測驗討伐：OS 第五章（未完成、普通怪）的怪物站在章節標頭，測驗裡答錯被反擊、答對扣 HP，答完完成章節並得到經驗值
   await page.goto(ROOT + 'os/#/'); await ready();
   const lid = await page.evaluate(() => CSApp.lessons[4].id);
+  await page.evaluate(id => CSApp.navigate(id, 'learn'), lid); await settle();
+  assert(await page.locator('.lesson-head > .perch-walk .spr').count(), 'the chapter monster patrols the header of an open chapter');
+  assert.equal(await page.locator('#content > .pager > .perch-party .spr').count(), 3, 'protagonist, companion and pet wait at the chapter pager');
+  assert.equal(await page.evaluate(() => [...document.querySelectorAll('#content > .pager > .perch-party .spr')].slice(0, 2).map(e => /^hero-(orca|lucid)/.test(e.style.backgroundImage.split('spr-')[1])).join()), 'true,true', 'the party is 殺人鯨 and 露希妲');
+  assert(await page.locator('#stage .card.goals > .npc-portrait .npc-quest').count() && await page.locator('#stage .card.analogy > .npc-portrait').count(), 'quest-giver and guide NPCs');
   await page.evaluate(id => CSApp.navigate(id, 'quiz'), lid); await settle();
-  assert(await page.locator('.lesson-head > .perch-party .spr').count() && await page.locator('.lesson-head > .perch-walk .spr').count(), 'hero and monster on an open chapter');
   assert(await page.locator('#stage .card.quiz > .bt-bar').count(), 'battle bar on the quiz');
+  assert(await page.locator('#stage .card.quiz > .perch-party .spr').count() && await page.locator('#stage .card.quiz > .perch-foe .spr').count(), 'the party faces the monster on the quiz window');
+  assert(await page.locator('#stage .card.quiz > .npc-portrait').count(), 'the NPC still asks the questions');
   const answer = right => page.evaluate(r => { const t = document.getElementById('stage'), { q } = t._quiz, [l, qi] = q.items[q.i], it = CSApp.byId[l].quiz[qi]; const n = r ? it[2] : [0, 1, 2, 3].find(i => i !== it[2] && !q.picked.includes(i)); t.querySelector(`[data-answer="${n}"]`).click(); }, right);
   const bar = () => page.evaluate(() => { const b = document.querySelector('#stage .bt-bar'); return { hp: b.querySelector('.bt-hp i').style.width, hearts: b.querySelector('.bt-hearts').textContent, say: b.querySelector('.bt-say').textContent }; });
   assert.deepEqual((await bar()).hearts, '♥♥', 'two hearts: the two tries');
@@ -65,13 +71,14 @@ const ROOT = process.env.TEST_ROOT || 'http://localhost:8000/os-lab/';
     assert.equal((await bar()).hp, `${100 * (total - i) / total}%`, 'each right answer takes one HP');
   }
   await page.click('#nextQuiz'); await page.waitForTimeout(100);
-  assert((await page.locator('#stage .bt-bar.is-over').innerText()).includes('撤退'), 'not every question right: the monster retreats');
+  assert((await page.locator('#stage .bt-bar.is-over').innerText()).includes('逃走'), 'not every question right: the monster runs away');
   assert(await page.evaluate(id => !!CSApp.store.done[id] && CSApp.store.done[id].first === CSApp.store.done[id].total - 1, lid), 'the quiz still records the chapter as done');
   const gain = await page.evaluate(() => CSLabGame.level.exp) - before;
   assert.equal(gain, 100 + 10 * (total - 1), 'EXP for the chapter: the quiz and every question not in the wrong-answer log');
   assert.equal(await page.locator('#stage .card.quiz-done .exp-pop').innerText(), `EXP +${gain}`, 'the gain shows on the hero');
-  await page.waitForTimeout(1800);
-  assert(await page.evaluate(() => { const p = document.querySelector('.lesson-head > .perch-walk'); return !p || p.hidden; }), 'the monster falls once the chapter is done');
+  assert(await page.locator('#content > .pager.is-clear').count(), 'a portal opens by the next chapter once this one is done');
+  await page.evaluate(id => CSApp.navigate(id, 'learn'), lid); await settle();
+  assert.equal(await page.locator('.lesson-head > .perch').count(), 0, 'a done chapter has no monster left');
 
   // 4. 錯題複習答對，錯題本少一題，經驗值 +10
   await page.evaluate(() => CSApp.go({ page: 'review' })); await settle();
@@ -110,5 +117,5 @@ const ROOT = process.env.TEST_ROOT || 'http://localhost:8000/os-lab/';
 
   assert.deepEqual(errors, []);
   await browser.close();
-  console.log('PASS: EXP derived from course progress (660 / 130 / 790 → LV.4), one reader across courses and the portal, battle follows the quiz (hearts = tries, HP = right answers, retreat, chapter done, EXP pop, monster falls), review EXP, decorative and hidden in classic, reduced motion, no art; no browser errors');
+  console.log('PASS: EXP derived from course progress (660 / 130 / 790 → LV.4), one reader across courses and the portal, party (殺人鯨, 露希妲, pet) at the pager and on the quiz, quest NPCs, battle follows the quiz (hearts = tries, HP = right answers, monster runs away, chapter done, EXP pop, portal, monster gone), review EXP, decorative and hidden in classic, reduced motion, no art; no browser errors');
 })().catch(e => { console.error(e); process.exit(1); });

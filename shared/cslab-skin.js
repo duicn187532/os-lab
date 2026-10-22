@@ -139,15 +139,19 @@
     whenTable(() => {
       const st = App().state;
       if (st.page === 'home') npc(document.querySelector('.hero'), pickNpc(`${course()}:home`), 'new');
-      if (st.page === 'lesson' && st.tab === 'learn') npc(document.querySelector('#stage .card.analogy'), chapterNpc(st.lesson), 'new');
+      if (st.page === 'lesson' && st.tab === 'learn') {
+        // 任務說明（學完這一章能夠…）由委託任務的 NPC 開口，任務圖示跟著章節狀態；生活類比由另一位 NPC 導讀
+        const guide = chapterNpc(st.lesson), state = App().questState(App().byId[st.lesson]);
+        npc(document.querySelector('#stage .card.analogy'), guide, null);
+        npc(document.querySelector('#stage .card.goals'), pickNpc(`${course()}:${st.lesson}:quest`, guide), state === 'done' ? 'done' : state === 'doing' ? 'open' : 'new');
+      }
       const quiz = document.querySelector('#stage, #reviewStage');
       if (quiz && quiz._quiz) quizNpc(quiz);
     });
   }
   const chapterNpc = id => pickNpc(`${course()}:${id}`);
   function quizNpc(target) {
-    // 有遊戲層（shared/cslab-game.js）時，測驗視窗的肖像欄由它放怪物與主角
-    if (window.CSLabGame || !active() || !App() || !target || !target._quiz) return;
+    if (!active() || !App() || !target || !target._quiz) return;
     whenTable(() => {
       const { q } = target._quiz, finished = q.i >= q.items.length;
       const host = target.querySelector(':scope > .card.quiz, :scope > .card.quiz-done'); if (!host) return;

@@ -160,12 +160,21 @@ CS LAB reuses its art and techniques, not its paper logic:
   course store and never touches self-research's `study:*`. Tiers: last chapter of each unit with
   two or more chapters = elite, the course's last chapter = BOSS. The status bar (`.hud`) sits on
   the bottom edge (`body.has-hud` pads the page and lifts the sidebar and scroll-top button). The
-  lesson header carries the hero + pet (`.perch-party`) and the chapter's monster on patrol
-  (`.perch-walk`, room from `--perch-h`, `overflow-x: clip` so a wide death frame never scrolls the
-  page). The quiz is drawn as a battle without changing its rules: the monster takes the portrait
-  column (so `cslab-skin.js` skips its quiz NPC when `window.CSLabGame` exists), `.bt-bar` shows HP
-  (one per question, lost on a right answer) and two hearts (the two tries); finishing shows the
-  hero cheering, the EXP gain and the level-up light. All of it is `aria-hidden`, unfocusable and
+  party is the course's protagonist (殺人鯨 or 露希妲, picked from the course id), the other one as
+  companion, and a pet; outfits change per chapter. It waits on the chapter pager (`.pager >
+  .perch-party`, a portal over 下一章 once the chapter is done), on the course home's NPC dialog,
+  and on the portal's scroll (orca + lucid + another hero + pet, as self-research's shelf). The
+  lesson header carries the chapter's monster on patrol (`.perch-walk`, room from `--perch-h`,
+  `overflow-x: clip` so a wide death frame never scrolls the page), except on the quiz tab where
+  the monster is on the quiz window. NPCs: the goals card is the quest-giver's dialog (QUEST INFO,
+  quest mark from the chapter state), ELI5 the guide's, the quiz the question-asker's. The quiz is
+  drawn as a battle without changing its rules: the window's top edge is the arena (`.has-arena`,
+  party left, `.perch-foe` right; on phones it replaces the NPC), `.bt-bar` shows HP (one per
+  question, lost on a right answer) and two hearts (the two tries); a hit is a lunge plus damage
+  digits, a miss the monster's lunge and a heart popping off, a lost question MISS; a full win
+  knocks the monster down, otherwise it runs away; then the hero cheers with the EXP gain and the
+  level-up light. The notice line cycles the page's key points (goals, the question, the summary,
+  the lab's prediction). All of it is `aria-hidden`, unfocusable and
   hidden in classic; `tests/game-review.cjs` covers it.
 - **Extension points**: `cslab-app.js` dispatches `cslab:render`, `cslab:quiz-view`,
   `cslab:answer` and `cslab:progress` on `document`; `window.CSLabSkin` exposes `skin`, `active`,

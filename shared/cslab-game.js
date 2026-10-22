@@ -124,6 +124,18 @@
       const l = App.byId[st.lesson], i = lessons.indexOf(l), t = tier[l.id] || 'normal', s = App.questState(l);
       lines.push(['任務', `第 ${pad(i + 1)} 章「${l.title}」${t !== 'normal' ? `（${TIER_NAME[t]}）` : ''}：` +
         (s === 'done' ? '已完成。答錯的題目到錯題複習答對，每題再得 +' + EXP.right + '。' : '讀「觀念」、做「實驗」，再到「測驗」打倒守在這一章的怪物。')]);
+      // 這一頁的重點輪流出現在公告列（和 self-research 每節的重點一樣）
+      if (st.tab === 'learn') {
+        (l.goals || []).forEach(g => lines.push(['目標', g]));
+        if (l.ask) lines.push(['提問', l.ask]);
+        (l.summary || []).forEach(x => lines.push(['重點', x]));
+      } else if (st.tab === 'lab') {
+        const d = window.CSLab && window.CSLab.registry[l.lab];
+        if (d && d.prompt) lines.push(['實驗', `先預測：${d.prompt}`]);
+      } else if (window.MAPLE_SPRITES) {
+        const f = foeFor(l.id);
+        if (f) lines.push(['戰鬥', `${label(f.name)}守在這一章。答對一題打掉一格 HP；每題兩顆心，答錯會被反擊。`]);
+      }
     } else {
       const next = lessons.find(l => !App.store.done[l.id]);
       lines.push(['公告', `歡迎來到 ${C.name}。讀觀念、做實驗、完成測驗都能獲得經驗值。`]);
@@ -155,16 +167,19 @@
     const m = pick(S.kind('mob'), key);
     return m ? { name: m, tier: 'normal' } : null;
   }
-  // 主角：每門課固定殺人鯨或露希妲，服裝依章節換；測驗完成時挑會歡呼的服裝
-  function heroFor(key, cheer) {
-    const all = S.kind('hero'), fam = (seedOf(C ? C.id : 'cslab') >> 1) % 2 ? 'lucid' : 'orca';
-    let list = all.filter(k => S.spec(k).family === fam);
+  // 隊伍：主角（每門課固定殺人鯨或露希妲）、另一位當夥伴、加上寵物；服裝依章節換，和 self-research 一樣
+  const MAIN = (seedOf(C ? C.id : 'cslab') >> 1) % 2 ? 'lucid' : 'orca', MATE = MAIN === 'orca' ? 'lucid' : 'orca';
+  function outfit(fam, key, cheer) {
+    let list = S.kind('hero').filter(k => S.spec(k).family === fam);
     if (cheer && list.some(k => S.spec(k).acts.cheer)) list = list.filter(k => S.spec(k).acts.cheer);
-    return pick(list.length ? list : all, key);
+    return pick(list.length ? list : S.kind('hero'), key);
   }
   const petFor = () => pick(S.kind('pet'), C ? C.id : 'cslab');
+  const partyFor = (key, cheer) => [outfit(MAIN, key, cheer), outfit(MATE, key + ':mate'), petFor()].filter(Boolean);
+  const roomOf = names => Math.max(0, ...names.map(tallest));
 
-  // 站在視窗上緣的一排角色；walk 讓怪物在一小段距離來回走（合成器上的 WAAPI，離開畫面就暫停）
+  // 站在視窗上緣的一排角色：party 是隊伍（面向右）、walk 是巡邏的怪物、foe 是站定迎戰的怪物（面向左）。
+  // 巡邏用合成器上的 WAAPI，離開畫面就暫停。
   const patrols = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => {
     e.target.classList.toggle('is-off', !e.isIntersecting);
     e.target.querySelectorAll('.walker').forEach(w => { if (w.patrol && !w.classList.contains('is-hit')) { if (e.isIntersecting) w.patrol.play(); else w.patrol.pause(); } });
@@ -194,7 +209,7 @@
     if (patrols) patrols.observe(wrap);
     return { wrap, cast };
   }
-  // 爆擊數字（BasicEff NoCri1 的數字），放在 host 裡往上飄
+  // 爆擊數字（BasicEff NoCri1 的數字），放在角色身上往上飄
   function damage(host, big) {
     if (reduce() || !S.spec('fx-digits')) return;
     const cell = S.spec('fx-digits').acts.stand, dmg = document.createElement('span');
@@ -210,13 +225,20 @@
     host.appendChild(dmg);
     setTimeout(() => dmg.remove(), 1300);
   }
-  function expPop(host, gain) {
-    if (!host || gain <= 0) return;
+  // 角色頭上浮出的字：EXP、MISS、被打到的心
+  function popText(host, text, cls) {
+    if (!host) return;
     const pop = document.createElement('span');
-    pop.className = 'exp-pop';
-    pop.textContent = `EXP +${gain}`;
+    pop.className = cls;
+    pop.textContent = text;
     host.appendChild(pop);
     setTimeout(() => pop.remove(), 1500);
+  }
+  const expPop = (host, gain) => { if (gain > 0) popText(host, `EXP +${gain}`, 'exp-pop'); };
+  // 往前衝一下再回來（攻擊、反擊）
+  function lunge(el, dx) {
+    if (reduce() || !el || !el.animate) return;
+    el.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${dx}px)`, offset: 0.4 }, { transform: 'translateX(0)' }], { duration: 340, easing: 'ease-out' });
   }
   // 主角歡呼；升級時播放光柱與 LEVEL UP 字樣
   function cheer(hero, up) {
@@ -240,58 +262,84 @@
     }, 900);
     setTimeout(() => fx.remove(), 2400);
   }
-
-  /* ───────────── 章節標頭：主角與寵物站在左邊，這一章的怪物在右邊巡邏，完成測驗後倒下 ───────────── */
-  let scene = null;
-  function stageHead() {
-    const head = document.querySelector('.lesson-head');
-    if (!head || head.querySelector(':scope > .perch')) return;
-    const lid = App.state.lesson, hero = heroFor(`${C.id}:${lid}`), pet = petFor();
-    scene = { lid, head, party: hero ? perch(head, pet ? [hero, pet] : [hero], 'party') : null, mob: null };
-    let room = hero ? Math.max(S.spec(hero).acts.stand[1], S.spec(hero).acts.cheer ? S.spec(hero).acts.cheer[1] : 0) : 0;
-    const foe = !App.store.done[lid] && foeFor(lid);
-    if (foe) {
-      scene.mob = perch(head, [foe.name], 'walk');
-      scene.mob.tier = foe.tier;
-      room = Math.max(room, tallest(foe.name));
-      ['hit', 'die'].forEach(a => S.warm(foe.name, a));
-    }
-    head.style.setProperty('--perch-h', room);
-  }
   function knockDown(p) {
     const m = p.cast[0];
     if (reduce()) { p.wrap.hidden = true; return; }
     m.walker.classList.add('is-hit');
     if (m.walker.patrol) m.walker.patrol.pause();
     S.swapAct(m.spr, m.name, 'hit');
-    damage(p.wrap, true);
+    damage(m.walker, true);
     setTimeout(() => {
       S.swapAct(m.spr, m.name, 'die', true, 140);
       p.wrap.classList.add('is-down');
       setTimeout(() => { p.wrap.hidden = true; }, 1400);
     }, 260);
   }
+  // 沒被打倒的怪物轉身逃走
+  function flee(p) {
+    const m = p.cast[0];
+    if (reduce() || !m.walker.animate) { p.wrap.hidden = true; return; }
+    if (S.spec(m.name).acts.move) S.swapAct(m.spr, m.name, 'move');
+    m.walker.animate([{ transform: 'scaleX(-1)', opacity: 1 }, { transform: 'translateX(60px) scaleX(-1)', opacity: 0 }], { duration: 1100, delay: 300, easing: 'ease-in', fill: 'forwards' });
+  }
+
+  /* ───────────── 場景 ─────────────
+   * 章節頁：這一章的怪物在章節標頭上巡邏（測驗頁籤時它到測驗視窗上迎戰）；隊伍站在頁尾的換章按鈕上，
+   * 跟著你一章一章走，章節完成後「下一章」上方出現傳送門。課程首頁：隊伍站在 NPC 對話框上，
+   * 下一個任務的怪物在「你的進度」上巡邏。入口網：殺人鯨、露希妲、另一位冒險家和寵物站在卷軸上，怪物在標題木牌上。 */
+  let scene = {}, arenaNow = null;
+  function stageHead() {
+    const head = document.querySelector('.lesson-head');
+    if (!head || head.querySelector(':scope > .perch') || App.state.tab === 'quiz') return;
+    const foe = !App.store.done[App.state.lesson] && foeFor(App.state.lesson);
+    if (!foe) return;
+    scene.mob = perch(head, [foe.name], 'walk');
+    head.style.setProperty('--perch-h', tallest(foe.name));
+    ['hit', 'die'].forEach(a => S.warm(foe.name, a));
+  }
+  function stagePager() {
+    const pager = document.querySelector('#content > .pager');
+    if (!pager || pager.querySelector(':scope > .perch')) return;
+    const names = partyFor(`${C.id}:${App.state.lesson}`);
+    scene.party = perch(pager, names, 'party');
+    let room = roomOf(names);
+    if (S.spec('portal')) {
+      const gate = sprEl('portal', 'stand');
+      gate.classList.add('pg-portal');
+      gate.setAttribute('aria-hidden', 'true');
+      pager.appendChild(gate);
+      room = Math.max(room, Math.round(S.spec('portal').acts.stand[1] * 0.6) - 10);
+    }
+    pager.style.setProperty('--perch-h', room);
+    pager.classList.toggle('is-clear', !!App.store.done[App.state.lesson]);
+  }
+  function stageHome() {
+    const hero = document.querySelector('#content > .hero');
+    if (!hero || hero.querySelector(':scope > .perch')) return;
+    const names = partyFor(`${C.id}:home`);
+    scene.party = perch(hero, names, 'party');
+    hero.style.setProperty('--perch-h', roomOf(names));
+    const next = lessons.find(l => !App.store.done[l.id]), card = document.querySelector('.home-grid > .progress-card'), foe = next && foeFor(next.id);
+    if (foe && card) { perch(card, [foe.name], 'walk'); card.parentElement.style.setProperty('--perch-h', tallest(foe.name)); }
+  }
+  function stagePortal() {
+    const hero = document.querySelector('.portal .hero');
+    if (!hero || hero.querySelector(':scope > .perch')) return;
+    const shuffle = list => list.map(x => [Math.random(), x]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
+    const heroes = S.kind('hero'), one = fam => shuffle(heroes.filter(k => S.spec(k).family === fam))[0];
+    const names = [one('orca'), one('lucid'), shuffle(heroes.filter(k => !S.spec(k).family))[0], shuffle(S.kind('pet'))[0]].filter(Boolean);
+    scene.party = perch(hero, names, 'party');
+    hero.style.setProperty('--perch-h', roomOf(names));
+    const mobs = shuffle(S.kind('mob'));
+    document.querySelectorAll('.portal .section-head h2, .portal #roadmap > h2').forEach((h, i) => { if (mobs.length) perch(h, [mobs[i % mobs.length]], 'walk'); });
+  }
 
   /* ───────────── 測驗討伐 ─────────────
-   * 怪物 HP＝題數，答對一題（第一次或第二次）打掉一格；答錯一次被反擊、少一顆心（每題兩顆心＝原本的兩次機會），
-   * 兩次都錯就是 MISS，這題沒打中。全部答對才算討伐成功，否則怪物撤退；兩種結果都照原本規則完成測驗。
-   * 一輪測驗的戰況記在 WeakMap（以 app 的測驗物件為鍵），不寫進 localStorage。 */
+   * 測驗視窗上緣是戰場：左邊是隊伍，右邊是這一章的怪物；出題的 NPC 留在對話框的肖像欄（cslab-skin.js）。
+   * 怪物 HP＝題數，答對一題（第一次或第二次）主角衝上去打掉一格；答錯一次怪物反擊、少一顆心
+   * （每題兩顆心＝原本的兩次機會），兩次都錯就是 MISS。全部答對才算討伐成功，否則怪物逃走；
+   * 兩種結果都照原本規則完成測驗。一輪的戰況記在 WeakMap（以 app 的測驗物件為鍵），不寫進 localStorage。 */
   const battles = new WeakMap();
-  function portrait(host, name, plate) {
-    let p = host.querySelector(':scope > .npc-portrait');
-    if (!p) {
-      p = document.createElement('span');
-      p.className = 'npc-portrait';
-      p.setAttribute('aria-hidden', 'true');
-      p.innerHTML = '<span class="npc-fig"><span class="spr"></span></span><span class="npc-name"></span>';
-      host.prepend(p);
-      S.observe(p);
-    }
-    const spr = p.querySelector('.npc-fig > .spr');
-    if (spr.dataset.npc !== name) { spr.dataset.npc = name; S.setAct(spr, name, 'stand'); }
-    p.querySelector('.npc-name').textContent = plate;
-    return { p, fig: p.querySelector('.npc-fig'), spr, name, walker: p.querySelector('.npc-fig') };
-  }
   function bar(host) {
     let b = host.querySelector(':scope > .bt-bar');
     if (!b) {
@@ -299,15 +347,25 @@
       b.className = 'bt-bar';
       b.setAttribute('aria-hidden', 'true');
       b.innerHTML = '<span class="bt-tier"></span><b class="bt-foe"></b><span class="bt-hp"><i></i></span><span class="bt-hearts"></span><p class="bt-say"></p>';
-      host.querySelector(':scope > .npc-portrait') ? host.querySelector(':scope > .npc-portrait').after(b) : host.prepend(b);
+      const first = host.querySelector(':scope > :not(.npc-portrait):not(.perch)');
+      host.insertBefore(b, first);
     }
     return b;
+  }
+  // 戰場：每次 app 重畫測驗視窗都重新放
+  function arena(host, b, withFoe) {
+    const names = partyFor(`${C.id}:${App.state.page === 'lesson' ? App.state.lesson : 'review'}:arena`, true);
+    const a = { party: perch(host, names, 'party'), foe: withFoe ? perch(host, [b.foe.name], 'foe') : null };
+    host.style.setProperty('--perch-h', roomOf(withFoe ? names.concat(b.foe.name) : names));
+    host.classList.add('has-arena');
+    arenaNow = a;
+    return a;
   }
   function battle(target) {
     if (!Skin.active || !App || !target || !target._quiz || !window.MAPLE_SPRITES) return;
     const q = target._quiz.q, review = target.id === 'reviewStage';
     const host = target.querySelector(':scope > .card.quiz, :scope > .card.quiz-done');
-    if (!host) return;
+    if (!host || host.querySelector(':scope > .perch')) return;
     let b = battles.get(q);
     if (!b) {
       const m = pick(S.kind('mob'), `${C.id}:review`);
@@ -316,66 +374,82 @@
     }
     if (!b.foe) return;
     const foeName = b.foe.tier === 'boss' ? `BOSS ${label(b.foe.name)}` : label(b.foe.name) || '怪物';
-    if (q.i >= q.items.length) return victory(host, b, q);
+    if (q.i >= q.items.length) return victory(host, b);
     const prev = b.last, fx = { kind: null };
     b.last = { i: q.i, tries: q.tries };
     if (q.revealed && q.correct && !b.right.has(q.i)) { b.right.add(q.i); fx.kind = q.tries === 0 ? 'crit' : 'hit'; }
     else if (prev && prev.i === q.i && q.tries > prev.tries) fx.kind = q.revealed ? 'miss' : 'struck';
-    const who = portrait(host, b.foe.name, foeName), el = bar(host);
+    const a = arena(host, b, true), el = bar(host), hero = a.party.cast[0], foe = a.foe.cast[0];
     el.dataset.tier = b.foe.tier;
     el.querySelector('.bt-tier').textContent = TIER_NAME[b.foe.tier];
     el.querySelector('.bt-foe').textContent = foeName;
     const hp = b.n - b.right.size, hearts = q.revealed && !q.correct ? 0 : 2 - q.tries;
     el.querySelector('.bt-hp i').style.width = `${100 * hp / b.n}%`;
     el.querySelector('.bt-hearts').textContent = '♥'.repeat(hearts) + '♡'.repeat(2 - hearts);
-    const say = el.querySelector('.bt-say');
-    say.textContent = { crit: '爆擊！一次答對，怪物受到重創。', hit: '命中！第二次答對了。', struck: '被反擊了！還剩一顆心，看看提示再試一次。', miss: 'MISS……這題沒打中，讀完解析再往下。' }[fx.kind] ||
-      (q.revealed ? '' : `${foeName} 擋在前面。答對一題打掉一格 HP。`);
+    el.querySelector('.bt-say').textContent = { crit: '爆擊！一次答對，怪物受到重創。', hit: '命中！第二次答對了。', struck: `${foeName}反擊了！還剩一顆心，看看提示再試一次。`, miss: 'MISS……這題沒打中，讀完解析再往下。' }[fx.kind] ||
+      (q.revealed ? '' : `${foeName}擋住了去路。答對一題，${label(hero.name) || '主角'}就打掉牠一格 HP。`);
     if (fx.kind === 'crit' || fx.kind === 'hit') {
-      S.swapAct(who.spr, b.foe.name, 'hit');
-      setTimeout(() => { if (who.spr.isConnected) S.swapAct(who.spr, b.foe.name, 'stand'); }, 450);
-      damage(who.fig, fx.kind === 'crit');
-    } else if (fx.kind === 'struck' && !reduce()) {
-      host.classList.remove('is-struck'); void host.offsetWidth; host.classList.add('is-struck');
+      lunge(hero.walker, 26);
+      setTimeout(() => {
+        if (!foe.spr.isConnected) return;
+        S.swapAct(foe.spr, foe.name, 'hit');
+        damage(foe.walker, fx.kind === 'crit');
+        setTimeout(() => { if (foe.spr.isConnected) S.swapAct(foe.spr, foe.name, 'stand'); }, 450);
+      }, 130);
+    } else if (fx.kind === 'struck') {
+      lunge(foe.walker, -26);
+      setTimeout(() => { lunge(hero.walker, -10); popText(hero.walker, '♥ -1', 'fx-ouch'); }, 130);
+      if (!reduce()) { host.classList.remove('is-struck'); void host.offsetWidth; host.classList.add('is-struck'); }
+    } else if (fx.kind === 'miss') {
+      lunge(hero.walker, 26);
+      setTimeout(() => popText(foe.walker, 'MISS', 'fx-miss'), 130);
     }
-    ['hit', 'die'].forEach(a => S.warm(b.foe.name, a));
+    ['hit', 'die', 'move'].forEach(act => S.warm(b.foe.name, act));
   }
-  function victory(host, b, q) {
+  function victory(host, b) {
     const fresh = !b.over;
     b.over = true;
     const win = b.right.size === b.n, foeName = label(b.foe.name) || '怪物';
-    const hero = heroFor(`${C.id}:${App.state.lesson}:win`, true);
-    const who = hero ? portrait(host, hero, jobOf(now.lv)) : null;
-    const el = bar(host);
+    const a = arena(host, b, fresh), el = bar(host);
     el.dataset.tier = b.foe.tier;
     el.classList.add('is-over');
     el.classList.toggle('is-win', win);
     el.querySelector('.bt-tier').textContent = TIER_NAME[b.foe.tier];
-    el.querySelector('.bt-foe').textContent = win ? `討伐成功！打倒了${foeName}` : `${foeName}撤退了`;
+    el.querySelector('.bt-foe').textContent = win ? `討伐成功！打倒了${foeName}` : `${foeName}逃走了`;
     el.querySelector('.bt-hp i').style.width = `${100 * (b.n - b.right.size) / b.n}%`;
     el.querySelector('.bt-hearts').textContent = '';
     el.querySelector('.bt-say').textContent = win ? '每一題都答對了，任務完成。' : `答對 ${b.right.size} / ${b.n} 題，任務照樣完成；答錯的題目在錯題本，複習時答對還能得經驗值。`;
-    // 剛打完：主角歡呼。完成章節的經驗值由 celebrate 接手（它先執行，會連升級特效一起播）
-    if (fresh && who) { victory.hero = who; setTimeout(() => { if (victory.told !== who) cheer(who, false); }, 0); }
+    if (!fresh) return;
+    if (a.foe) { if (win) { lunge(a.party.cast[0].walker, 26); setTimeout(() => knockDown(a.foe), 130); } else flee(a.foe); }
+    // 主角歡呼。完成章節的經驗值由 celebrate 接手（它先執行，會連升級特效一起播）
+    const hero = a.party.cast[0];
+    victory.hero = hero;
+    setTimeout(() => { if (victory.told !== hero) cheer(hero, false); }, 0);
   }
 
   /* ───────────── 收到 app 的事件：重算經驗值、播特效、更新公告 ───────────── */
+  // 經驗值出現在畫面上的隊伍身上：測驗視窗上的主角，否則頁尾（或首頁）的主角
+  const liveParty = () => arenaNow && arenaNow.party.wrap.isConnected ? arenaNow.party : scene.party && scene.party.wrap.isConnected ? scene.party : null;
   function celebrate(g, what) {
     if (!Skin.active) return;
     chat(g.gain > 0 ? gainLines(g, what) : pageLines());
     if (g.gain <= 0) return;
-    // EXP 字樣出現在畫面上看得到的角色身上：測驗結束的主角、測驗中的怪物，否則章節標頭的主角
-    const done = document.querySelector('.card.quiz-done > .npc-portrait .npc-fig'), foe = document.querySelector('.card.quiz > .npc-portrait .npc-fig');
-    const head = scene && scene.party && scene.party.wrap.isConnected ? scene.party : null;
-    expPop(done || foe || (head && head.cast[0].walker), g.gain);
-    if (done && victory.hero && victory.hero.p.isConnected) { victory.told = victory.hero; cheer(victory.hero, g.up); }
-    else if (head) cheer(head.cast[0], g.up);
+    const p = liveParty();
+    if (!p) return;
+    const hero = p.cast[0];
+    expPop(hero.walker, g.gain);
+    if (victory.hero === hero) victory.told = hero;
+    cheer(hero, g.up);
   }
   const WHAT = { learn: '讀完觀念', lab: '第一次操作實驗', done: '完成測驗' };
   if (App) {
     document.addEventListener('cslab:progress', e => {
       const g = award(), d = e.detail;
-      if (d.kind === 'done' && scene && scene.lid === d.lesson && scene.mob && scene.mob.wrap.isConnected && Skin.active) knockDown(scene.mob);
+      if (d.kind === 'done' && Skin.active) {
+        if (scene.mob && scene.mob.wrap.isConnected) knockDown(scene.mob);
+        const pager = document.querySelector('#content > .pager');
+        if (pager && App.state.lesson === d.lesson) pager.classList.add('is-clear');
+      }
       // 測驗完成的畫面在這個事件之後才畫出來
       setTimeout(() => celebrate(g, WHAT[d.kind] || '有進展'), 0);
     });
@@ -397,11 +471,13 @@
     if (App) { mine = courseExp(); now = levelOf(others + mine); } else now = levelOf(others);
     makeHud();
     paintHud();
-    chat(pageLines());
-    if (!App) return;
     S.whenTable(() => {
+      chat(pageLines());
       if (!window.MAPLE_SPRITES || !Skin.active) return;
-      if (App.state.page === 'lesson') stageHead(); else scene = null;
+      if (!App) { stagePortal(); return; }
+      scene = {}; arenaNow = null;
+      if (App.state.page === 'lesson') { stageHead(); stagePager(); }
+      if (App.state.page === 'home') stageHome();
       const t = document.querySelector('#stage, #reviewStage');
       if (t && t._quiz) battle(t);
     });
