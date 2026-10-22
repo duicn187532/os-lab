@@ -30,7 +30,7 @@ assert.deepEqual(unitOrder, [...unitOrder].sort((x, y) => x - y), 'lessons order
 (async () => {
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined, args: ['--no-sandbox'] });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
-  const errors = []; page.on('pageerror', e => errors.push(e.message)); page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  const errors = []; page.on('pageerror', e => errors.push(e.message)); page.on('console', m => { if (m.type() === 'error' && !m.location().url.includes('/self-research/assets/maple/')) errors.push(m.text()); }); // 楓之谷素材是選用的：只開 os-lab 時載不到，外觀自動退回學術外觀
   const portal = new globalThis.URL('../', URL).href;
 
   // 2. 舊版進度（四個 ailab.* 鍵）在第一次開啟新版時合併進來；舊網址 #/chapter/i/tab 仍可用

@@ -30,6 +30,16 @@
 - **體驗**：可分享的網址（`#/ch/4/lab`）、瀏覽器上一頁、`/` 或 `Ctrl+K` 全文搜尋、`[` `]` 切換章節、`A`–`D` 作答、深色 / 淺色主題、手機抽屜選單、尊重「減少動態效果」。
 - **隱私**：沒有帳號、後端或追蹤；進度、筆記與錯題本只存在瀏覽器 localStorage（沿用舊版鍵值 `os_lab_2026_v1`，舊進度不會遺失）。
 
+## 外觀：楓之谷與學術閱讀
+
+入口網、OS LAB 與 DSA LAB 預設使用「楓之谷」外觀（舊版楓之谷用戶端的遊戲視窗、NPC 對話框、MiniMap、任務圖示與場景），頂列的 🍁 按鈕可隨時切回原本的學術閱讀外觀。切換只改外觀：教材、測驗紀錄、錯題本與實驗狀態都不受影響；外觀選擇存在 localStorage 的 `cslab.skin`，所有課程共用。
+
+- **素材**：遊戲美術屬 Nexon 所有。本儲存庫**不收錄任何遊戲圖檔**，而是引用 [self-research](https://github.com/duicn187532/self-research) 已發布在同一個 GitHub Pages 網域的 `/self-research/assets/maple/`。素材載不到時（例如只部署本儲存庫）自動維持學術外觀並隱藏切換按鈕。
+- **規範**：`.claude/skills/maple-skin/` 是沿用自 self-research 的 maple-skin Skill（素材組裝、9-slice、精靈圖、RWD 規範與建圖腳本），其中「In this repo's site (CS LAB)」一節說明本站的對應方式。
+- **共用層**：`shared/skin-maple.css`（全部楓之谷樣式，含入口網）與 `shared/cslab-skin.js`（切換、素材探測、NPC 精靈圖）。精靈圖只在楓之谷外觀時載入、離開畫面時暫停，尊重「減少動態效果」。
+- **其他課程**：DM、AI 已在共用 shell 上，只要在頁面加上樣式表、`<head>` 一行程式與 `cslab-skin.js` 三行即可啟用；LA、CO、ASM 為獨立 HTML，之後以小型 adapter 樣式表把各自的元件對應到同一組視窗（見 Skill 說明）。
+- **第二階段擴充介面**：`cslab-app.js` 在 `document` 上發出 `cslab:render`、`cslab:quiz-view`、`cslab:answer`、`cslab:progress` 事件；`window.CSLabSkin` 提供 `skin`、`active`、`set()`、`url()`、`npc()`、`onChange()`。
+
 ## 檔案結構與共用 shell
 
 OS、DM、DSA 與 AI LAB 共用同一套應用程式外殼（`shared/`）：路由、進度、測驗、錯題本、搜尋、術語、公式、筆記、主題與自動播放只寫一次，每門課只提供教材資料、課程設定與自己的實驗。其餘課程（LA、CO、ASM）預計依序遷移。
@@ -38,7 +48,10 @@ OS、DM、DSA 與 AI LAB 共用同一套應用程式外殼（`shared/`）：路�
 index.html                  七門課入口網
 shared/cslab-app.js         共用應用程式：頁面骨架、路由、進度、測驗（正解位置均衡、選項固定種子排列）、錯題本、搜尋、筆記
 shared/cslab-ui.js          實驗註冊表與 UI 工具、DOM 比對更新、逐步框架實驗轉接器、通用綜合複習實驗
-shared/cslab.css            設計變數（淺色 / 深色）、版面與共用元件
+shared/cslab.css            設計變數（淺色 / 深色）、版面與共用元件（學術外觀）
+shared/skin-maple.css       楓之谷外觀（只在 <html data-skin="maple"> 時生效；圖片引用 self-research 的 assets/maple/）
+shared/cslab-skin.js        外觀切換、素材探測、NPC 精靈圖；擴充介面 window.CSLabSkin
+.claude/skills/maple-skin/  maple-skin Skill（規範、參考頁面、建圖腳本；不含遊戲圖檔）
 os/index.html               OS LAB 頁面（只載入下列檔案）
 os/assets/content.js        教材資料：章節、測驗、術語、公式
 os/assets/course.js         課程設定：名稱、localStorage 鍵、首頁文案
@@ -52,6 +65,7 @@ tests/os-review.cjs         OS LAB 端對端檢查
 tests/dm-review.cjs         DM LAB 端對端檢查
 tests/dsa-review.cjs        DSA LAB 端對端檢查
 tests/ai-review.cjs         AI LAB 端對端檢查
+tests/skin-review.cjs       外觀層檢查（入口網、OS、DSA）
 ```
 
 沒有建置步驟。
@@ -61,7 +75,7 @@ tests/ai-review.cjs         AI LAB 端對端檢查
 1. 建立 `<課程>/assets/content.js`：`{ units, lessons, glossary, formulas }`。每章必要欄位為 `id`（穩定識別碼，進度依此儲存）、`unit`、`title`、`lab`、`quiz`（`[題目, 選項, 正解索引, 提示, 解析]`）；選用欄位 `short`、`minutes`、`goals`、`ask`、`analogy`、`why`、`details`（`[標題, 說明]` 或字串）、`steps`、`worked`、`caveat`、`code`（`[語言, 程式碼]`）、`summary`、`terms`。陣列順序就是顯示順序。
 2. 建立 `course.js`：`window.CSLAB_COURSE = { id, name, mark, title, storageKey, eyebrow, heroTitle, heroLead, footer, disclaimer, data }`。沿用舊版的 localStorage 鍵即可保留學習者的已完成章節、筆記與主題；舊版若把進度分存在多個鍵，就在 `course.js` 裡於第一次載入時匯入（範例見 `dsa/assets/course.js`）。
 3. 實驗以 `CSLab.register(type, { title, prompt, init, view, act, set, auto })` 註冊；「輸入 → 一串步驟畫面」型的實驗可直接用 `CSLab.frameLab(type, { title, inputs, frames })`。純計算函式掛在 `CSLab.sim` 方便測試。
-4. 頁面依序載入 `content.js`、`course.js`、`../shared/cslab-ui.js`、實驗檔、`../shared/cslab-app.js`。
+4. 頁面依序載入 `content.js`、`course.js`、`../shared/cslab-ui.js`、實驗檔、`../shared/cslab-app.js`，要楓之谷外觀再加 `../shared/cslab-skin.js`（以及 `<head>` 的 `skin-maple.css` 與一行外觀程式，照 `os/index.html` 複製）。
 
 ## 本機預覽與測試
 
@@ -74,13 +88,23 @@ node tests/dsa-review.cjs
 node tests/ai-review.cjs
 ```
 
+只開本儲存庫時是學術外觀。要預覽楓之谷外觀，把 os-lab 與 self-research 放在同一個目錄，從那一層啟動伺服器（網址對應 GitHub Pages 的 `/os-lab/` 與 `/self-research/`）：
+
+```sh
+cd ..            # 同時有 os-lab/ 與 self-research/
+python -m http.server 8000
+TEST_URL=http://localhost:8000/os-lab/os/ node os-lab/tests/os-review.cjs   # 其他課程同理
+node os-lab/tests/skin-review.cjs
+```
+
 可用 `CHROMIUM_PATH` 指定瀏覽器、`TEST_URL` 指定網址、`SHOT_DIR` 輸出截圖（OS）。
 
 - **OS**：原始教材保留、每章欄位完整、演算法與教科書手算結果一致（SRTF、Banker、FIFO/LRU/OPT、Belady、磁碟排程…）、全部 21 個實驗的按鈕操作、84 題作答、正解位置均衡（全課程與每章）且重新整理不變、錯題本流程、路由與上一頁、播放與回看、搜尋、重新整理後保留進度、手機版無水平溢位。
 - **DM**：舊版單檔的 24 章與 72 題逐字保留、舊版 localStorage 進度 / 筆記 / 主題相容、24 個逐步實驗、正解位置均衡（全課程與每章）且重新整理不變、自動播放、錯題本、搜尋、手機版無水平溢位。
 - **DSA**：舊版單檔的 18 章與 54 題逐字保留、舊版四個 `dsa.*` 鍵的進度 / 筆記 / 主題 / 答錯紀錄會匯入、18 章各有不同的實驗（選型、Dijkstra 距離、快取未命中數另有計算檢查）、提示後才給解析、正解位置均衡（全課程與每章）且重新整理不變、自動播放、錯題本、搜尋、手機版無水平溢位。
 - **AI**：舊版單檔的 24 章與 72 題逐字保留（每題另有提示）、舊版四個 `ailab.*` 鍵的進度 / 筆記 / 主題 / 錯題與 `#/chapter/…` 舊網址相容、24 個實驗都至少 5 步、小數參數不被取整、正解位置均衡（全課程與每章）且重新整理不變、自動播放、錯題本、搜尋、手機版每個實驗步驟都無水平溢位。
-- 全部都要求沒有任何瀏覽器錯誤。
+- **外觀**：圖片路徑全部指向 self-research 且檔案存在、本儲存庫沒有遊戲圖檔、預設楓之谷、鍵盤切換、切換前後測驗作答次數 / 錯題本 / 實驗狀態 / 課程資料不變、重新整理後維持選擇、只下載 NPC 與任務圖示、離開畫面暫停、減少動態效果時不動、沒有素材時退回學術外觀、兩種外觀在 390px 與 1280px 的入口網與 OS、DSA 每一頁都沒有水平溢位。
+- 全部都要求沒有任何瀏覽器錯誤（只開 os-lab 時，選用的楓之谷素材載入失敗不算）。
 
 ## 發布到 GitHub Pages
 
