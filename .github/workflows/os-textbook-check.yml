@@ -200,6 +200,10 @@ jobs:
   cross-browser:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, firefox, webkit]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -215,13 +219,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install Chromium, Firefox and WebKit
+      - name: Install one Playwright engine
         working-directory: os-lab
         run: |
           npm install --no-save --no-package-lock playwright@1.58.2
-          npx playwright install --with-deps chromium firefox webkit
+          npx playwright install --with-deps ${{ matrix.engine }}
       - name: Validate L2/L3 MathML, interaction and mobile layouts
         working-directory: os-lab
+        env:
+          ENGINE: ${{ matrix.engine }}
         run: |
           node tests/poc-server.cjs "$GITHUB_WORKSPACE" 8000 >/tmp/os-crossbrowser-server.log 2>&1 &
           for i in $(seq 1 30); do
