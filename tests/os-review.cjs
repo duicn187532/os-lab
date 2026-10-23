@@ -17,11 +17,13 @@ const original = JSON.parse(execFileSync('git', ['show', 'c5e9eb7:os/index.html'
 const ctx = { window: {} }; vm.runInNewContext(fs.readFileSync(path.join(root, 'os/assets/content.js'), 'utf8'), ctx);
 vm.runInNewContext(fs.readFileSync(path.join(root, 'os/assets/depth.js'), 'utf8'), ctx);
 vm.runInNewContext(fs.readFileSync(path.join(root, 'os/assets/advanced-content.js'), 'utf8'), ctx);
+vm.runInNewContext(fs.readFileSync(path.join(root, 'os/assets/code-examples.js'), 'utf8'), ctx);
 const D = JSON.parse(JSON.stringify(ctx.window.OS_DATA)); // 跨 realm 陣列需正規化才能 deepStrictEqual
 for (const o of original) {
   const n = D.lessons.find(l => l.id === o.id);
   assert(n, `lesson ${o.id} kept`);
-  for (const k of ['unit', 'title', 'short', 'minutes', 'icon', 'ask', 'analogy', 'why', 'steps', 'caveat', 'code']) assert.deepEqual(n[k], o[k], `lesson ${o.id}.${k} preserved`);
+  for (const k of ['unit', 'title', 'short', 'minutes', 'icon', 'ask', 'analogy', 'why', 'steps', 'caveat']) assert.deepEqual(n[k], o[k], `lesson ${o.id}.${k} preserved`);
+  if(!ctx.window.OS_RUNNABLE_EXAMPLES.includes(o.id)) assert.deepEqual(n.code,o.code,`lesson ${o.id}.code preserved`);
   assert.deepEqual(n.details.slice(0, o.details.length), o.details, `lesson ${o.id} original details preserved`);
   assert.deepEqual(n.quiz.slice(0, o.quiz.length), o.quiz, `lesson ${o.id} original quiz preserved`);
 }
