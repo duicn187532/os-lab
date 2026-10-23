@@ -251,3 +251,41 @@ i.net { background: var(--blue); } i.cpu { background: var(--green); } i.queue {
   .pt { grid-template-columns: repeat(2, 1fr); }
   .bits span { width: 19px; font-size: 14px; }
 }
+
+
+/* OS advanced simulator tables and smartphone textbook reading layouts. */
+.nx-scroll { max-width:100%; min-width:0; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.nx-table { min-width:260px; max-width:100%; border-collapse:collapse; margin:8px auto; font-size:13px; line-height:1.5; }
+.nx-table td, .nx-table th { border:1px solid var(--line); padding:7px 10px; white-space:normal; overflow-wrap:anywhere; }
+.detail-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.detail-grid > .detail { min-width:0; overflow-wrap:anywhere; }
+#stage, #content, .card, .lab { min-width:0; }
+@media (max-width:640px) {
+ .detail-grid { grid-template-columns:minmax(0,1fr); }
+ .frame-visual, .nx-scroll { max-width:100%; }
+}
+
+/* Structured university-level L2/L3 textbook supplement; applies only to OS LAB. */
+.os-textbook { margin:24px 0; padding:clamp(14px,2vw,24px); border:1px solid var(--line); border-radius:15px; background:var(--panel,var(--surface,#fff)); min-width:0; overflow-wrap:break-word; }
+.os-textbook>header { margin-bottom:20px; }
+.os-textbook>header h2 { font-size:1.22rem; line-height:1.45; }
+.os-textbook>header p { color:var(--muted); font-size:.9rem; }
+.os-textbook-section { margin-top:18px; padding-top:12px; border-top:1px solid var(--line); min-width:0; }
+.os-textbook-section h3 { margin:16px 0 8px; font-size:1.08rem; }
+.os-textbook-section h4 { margin:14px 0 6px; font-size:.95rem; }
+.os-textbook-section p,.os-textbook-section li { font-size:.97rem; line-height:1.85; overflow-wrap:anywhere; }
+.os-textbook-section li { margin:4px 0; }
+.os-steps { padding-left:1.6rem; }
+.os-math { margin:12px 0; max-width:100%; overflow-x:auto; padding:14px 6px; border:1px solid var(--line); border-radius:10px; text-align:center; }
+.os-math math { font-size:1.24rem; min-width:max-content; }
+.os-table-scroll { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; margin:12px 0 18px; border-radius:9px; outline-offset:2px; }
+.os-state-table { min-width:400px; width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; font-size:.91rem; }
+.os-state-table th,.os-state-table td { text-align:left; padding:10px; border:1px solid var(--line); vertical-align:top; overflow-wrap:anywhere; }
+.os-state-table th { font-weight:700; background:var(--bg-subtle,rgba(120,120,120,.08)); }
+.os-state-table tr:nth-child(even) td { background:rgba(120,120,120,.035); }
+.os-invariant { border-left:3px solid #5e9e92; padding-left:12px; }
+.os-counter { border-left:3px solid #cb9653; padding-left:12px; }
+.os-io { max-width:100%; min-width:0; overflow-x:auto; margin:8px 0 12px; padding:10px 12px; border:1px solid var(--line); border-radius:9px; font-family:ui-monospace,Consolas,monospace; white-space:pre; font-size:.86rem; line-height:1.6; }
+.os-two { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; min-width:0; }
+.os-two>pre { min-width:0; }
+@media(max-width:640px) { .os-two { grid-template-columns:minmax(0,1fr); }.os-textbook {padding:12px;} .os-math math {font-size:1.04rem;} }

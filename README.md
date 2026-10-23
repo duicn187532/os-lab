@@ -10,7 +10,7 @@
 
 ## OS LAB 內容
 
-**21 章 · 21 個專屬模擬器 · 84 題測驗 · 97 個術語 · 公式速查**
+**29 章 · 29 個專屬模擬器 · 174 題測驗 · 127 個術語 · 27 項 MathML 公式 · 37 題四語言程式挑戰**
 
 | 單元 | 章節與互動實驗 |
 | --- | --- |
@@ -24,6 +24,12 @@
 | 整合 / 實驗 / 複習 | API 請求延遲分解 · fork() 行程樹與輸出預測 · 跨章節混合練習 |
 
 粗體為本次新增章節。原有 16 章的教材文字與 32 題全部保留，並為每章補上學習目標、重點回顧、關鍵術語與兩題以上的新測驗。
+
+## OS LAB 資工系教材深化
+
+原有 21 章均補充 L2 演算法、狀態表、計算推導、正式 MathML 公式與 L3 可執行驗證規格；另新增 8 章（Boot/ELF、IPC、Atomic/Condition Variable、COW/mmap、多層頁表/Clock、VFS/Journaling、epoll/NVMe、procfs/perf/cgroups）。每章新增可在瀏覽器評測的 C/C++/Python/JavaScript 程式挑戰，並有 8 題進階演算法綜合專題；真正涉及 POSIX API 的實驗另提供 4 份可在 Linux/WSL2 編譯執行的範例。
+
+課程規劃、學習評量、系統模擬假設、Linux 作業及 RFC／Kernel 文件對照詳見 [OS LAB 進階講義](os/TEXTBOOK-EXTENSION.md)。保留原有 21 章 ID、測驗、筆記與 localStorage 進度鍵。
 
 ## 學習功能
 
@@ -77,8 +83,14 @@ shared/code/                編輯器、評測、執行環境（沙箱 iframe �
 shared/code/tools/vendor.sh 下載執行環境到 shared/code/vendor/（不進 git，部署時執行）
 challenge-poc/              四語言 Coding Challenge 原型與安全評估（說明見其 README.md）
 .claude/skills/maple-skin/  maple-skin Skill（規範、參考頁面、建圖腳本；不含遊戲圖檔）
-os/index.html               OS LAB 頁面（只載入下列檔案）
-os/assets/content.js        教材資料：章節、測驗、術語、公式
+os/index.html               OS LAB 頁面（原模組外加進階教材、模擬器和程式判題）
+os/assets/content.js        原有教材資料：章節、測驗、術語、公式
+os/assets/depth.js          原 21 章 L2/L3 深化
+os/assets/advanced-content.js  8 個新章節、術語與公式
+os/assets/advanced-labs.js     8 個新互動模擬
+os/assets/advanced-code.js     29 題四語言 Judge（10 題改為狀態式演算法）及 8 題 capstone
+os/assets/code-examples.js     21 章可獨立執行的 C/Python/Bash 範例
+os/assets/textbook-rigor.js  29 章 L2/L3 結構與 MathML 公式
 os/assets/course.js         課程設定：名稱、localStorage 鍵、首頁文案
 os/assets/labs-core.js      執行、排程、並行類實驗
 os/assets/labs-more.js      記憶體、儲存、系統、整合類實驗
@@ -141,7 +153,7 @@ node os-lab/tests/code-review.cjs dsa                    # 程式實作頁籤（
 
 可用 `CHROMIUM_PATH` 指定瀏覽器、`TEST_URL` 指定網址、`SHOT_DIR` 輸出截圖（OS）。
 
-- **OS**：原始教材保留、每章欄位完整、演算法與教科書手算結果一致（SRTF、Banker、FIFO/LRU/OPT、Belady、磁碟排程…）、全部 21 個實驗的按鈕操作、84 題作答、正解位置均衡（全課程與每章）且重新整理不變、錯題本流程、路由與上一頁、播放與回看、搜尋、重新整理後保留進度、手機版無水平溢位。
+- **OS**：原始教材保留、每章欄位完整、演算法與教科書手算結果一致（SRTF、Banker、FIFO/LRU/OPT、Belady、磁碟排程…）、全部 29 個實驗的按鈕操作、174 題作答、正解位置均衡（全課程與每章）且重新整理不變、錯題本流程、路由與上一頁、播放與回看、搜尋、重新整理後保留進度、手機版無水平溢位。
 - **ICS**：20 章欄位齊全且程式範例都是 C++、術語都在術語表、19 個實驗的每一個選項都能產生步驟、模擬器結果與課文一致（進位轉換、二補數溢位、迷你 CPU、子網路、fib 呼叫次數、凱薩密碼、cin 讀取陷阱）、80 題作答、正解位置均衡、錯題本、搜尋、工具頁、兩種外觀的手機版無水平溢位；程式實作 20 題的 C++ / Python / JavaScript 參考解全部通過、四語言起始程式碼都能編譯執行（WA）、試除法與 O(n²) 去重逾時。
 - **NET**：22 章欄位齊全且程式範例都是 Python、術語都在術語表、21 個實驗的每一個選項（含兩兩組合）都能產生步驟、模擬器結果與課文一致（GBN 10 次 / SR 7 次、Reno 與 Tahoe 的 cwnd、VLSM、最長前綴匹配、Dijkstra 轉送表、距離向量回合數、分段位移、CRC 餘數、Diffie-Hellman）、88 題作答、正解位置均衡、錯題本、搜尋、工具頁、兩種外觀的手機版無水平溢位；程式實作 22 題的 C++ / Python / JavaScript 參考解全部通過、四語言起始程式碼都能編譯執行（WA）、逐筆比對的最長前綴匹配與 Bellman-Ford 逾時。
 - **DM**：舊版單檔的 24 章與 72 題逐字保留、舊版 localStorage 進度 / 筆記 / 主題相容、24 個逐步實驗、正解位置均衡（全課程與每章）且重新整理不變、自動播放、錯題本、搜尋、手機版無水平溢位。

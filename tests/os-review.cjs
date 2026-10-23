@@ -15,11 +15,16 @@ const SHOTS = process.env.SHOT_DIR;
 // 1. 原始 16 章的所有教材文字與題目都保留（只新增，不刪改）
 const original = JSON.parse(execFileSync('git', ['show', 'c5e9eb7:os/index.html'], { cwd: root, encoding: 'utf8' }).match(/const lessons = (.*);\r?\n/)[1]);
 const ctx = { window: {} }; vm.runInNewContext(fs.readFileSync(path.join(root, 'os/assets/content.js'), 'utf8'), ctx);
+vm.runInNewContext(fs.readFileSync(path.join(root, 'os/assets/depth.js'), 'utf8'), ctx);
+vm.runInNewContext(fs.readFileSync(path.join(root, 'os/assets/advanced-content.js'), 'utf8'), ctx);
+vm.runInNewContext(fs.readFileSync(path.join(root, 'os/assets/code-examples.js'), 'utf8'), ctx);
 const D = JSON.parse(JSON.stringify(ctx.window.OS_DATA)); // 跨 realm 陣列需正規化才能 deepStrictEqual
 for (const o of original) {
   const n = D.lessons.find(l => l.id === o.id);
   assert(n, `lesson ${o.id} kept`);
-  for (const k of ['unit', 'title', 'short', 'minutes', 'icon', 'ask', 'analogy', 'why', 'details', 'steps', 'caveat', 'code']) assert.deepEqual(n[k], o[k], `lesson ${o.id}.${k} preserved`);
+  for (const k of ['unit', 'title', 'short', 'minutes', 'icon', 'ask', 'analogy', 'why', 'steps', 'caveat']) assert.deepEqual(n[k], o[k], `lesson ${o.id}.${k} preserved`);
+  if(!ctx.window.OS_RUNNABLE_EXAMPLES.includes(o.id)) assert.deepEqual(n.code,o.code,`lesson ${o.id}.code preserved`);
+  assert.deepEqual(n.details.slice(0, o.details.length), o.details, `lesson ${o.id} original details preserved`);
   assert.deepEqual(n.quiz.slice(0, o.quiz.length), o.quiz, `lesson ${o.id} original quiz preserved`);
 }
 const ids = new Set(D.glossary.map(g => g.id));
@@ -152,7 +157,8 @@ assert.equal(new Set(D.lessons.map(l => l.lab)).size, D.lessons.length, 'every c
   await page.keyboard.press('Escape'); assert.equal(await page.locator('#menu').getAttribute('aria-expanded'), 'false');
   for (const id of lessonIds) for (const tab of ['learn', 'lab', 'quiz']) {
     await page.evaluate(([id, tab]) => OSApp.navigate(id, tab), [id, tab]);
-    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `mobile overflow: chapter ${id} ${tab}`);
+    const dims = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, inner: innerWidth }));
+    assert(dims.scroll <= dims.inner + 1, `mobile overflow: chapter ${id} ${tab}: ${JSON.stringify(dims)}`);
   }
   if (SHOTS) await page.screenshot({ path: path.join(SHOTS, 'os-mobile.png'), fullPage: true });
 

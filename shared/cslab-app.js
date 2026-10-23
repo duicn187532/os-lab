@@ -226,6 +226,30 @@
     if (Labs.challenge && (state.tab === 'learn' || state.tab === 'lab')) Labs.challenge.mount($('challengeSlot'), l.id, { store, save: () => save(true) });
   }
 
+  /* OS textbook supplement: structured L2 derivations and reproducible L3 lab contracts.
+   * Data is repository-authored; escaped text stays distinct from trusted MathML.
+   */
+  function renderTextbook(l) {
+    const x=l.textbook;
+    if(!x || C.id!=='os')return '';
+    const bullets=items=>'<ol class="os-steps">'+items.map(y=>'<li>'+h(y)+'</li>').join('')+'</ol>';
+    const mathBlock=x.formula?'<div class="os-math" role="group" aria-label="本章數學表示式">'+x.formula+'</div>':'';
+    const stateTable='<div class="os-table-scroll" tabindex="0" aria-label="演算法狀態追蹤表"><table class="os-state-table"><thead><tr>'+x.stateHeaders.map(y=>'<th scope="col">'+h(y)+'</th>').join('')+'</tr></thead><tbody>'+x.stateRows.map(row=>'<tr>'+row.map(y=>'<td>'+h(y)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+    const lab=x.l3;
+    return '<section class="os-textbook" aria-label="L2 演算法、推導與 L3 實作">'+
+      '<header><h2>進階講義｜演算法推導與實作驗證</h2><p>從狀態、不變量及反例建立工程推理，而非只記憶定義。</p></header>'+
+      '<article class="os-textbook-section"><h3>L2｜前提與符號</h3><p>'+h(x.preconditions)+'</p><p><strong>符號定義：</strong>'+h(x.symbols)+'</p>'+mathBlock+
+      '<h3>L2｜演算法及狀態轉移</h3>'+bullets(x.algorithm)+stateTable+
+      '<h3>L2｜完整計算與邊界</h3><p>'+h(x.worked)+'</p><p class="os-invariant"><b>不變量：</b>'+h(x.invariant)+'</p><p class="os-counter"><b>反例：</b>'+h(x.counterexample)+'</p></article>'+
+      '<article class="os-textbook-section"><h3>L3｜可執行規格與驗收</h3><p>'+h(lab.title)+'</p>'+
+      '<h4>輸入資料（標準輸入）</h4><pre class="os-io"><code>'+h(lab.input)+'</code></pre>'+
+      '<h4>預期輸出（標準輸出）</h4><pre class="os-io"><code>'+h(lab.expected)+'</code></pre>'+
+      '<h4>邊界／反例輸入與預期輸出</h4><div class="os-two"><pre class="os-io"><code>'+h(lab.counterInput)+'</code></pre><pre class="os-io"><code>'+h(lab.counterExpected)+'</code></pre></div>'+
+      '<h4>執行指令</h4><pre class="os-io"><code>'+h(lab.command)+'</code></pre>'+
+      '<h4>驗收條件</h4><ul>'+lab.checks.map(y=>'<li>'+h(y)+'</li>').join('')+'</ul>'+
+      '<h4>重現與作業繳交步驟</h4>'+bullets(lab.steps)+'</article></section>';
+  }
+
   function renderLearn(l) {
     const code = Array.isArray(l.code) ? l.code : l.code ? [l.codeLang || 'Code', l.code] : null;
     const details = (l.details || []).map(d => Array.isArray(d) ? d : [null, d]);
@@ -236,6 +260,7 @@
       l.analogy && card('analogy', '✦ 生活類比（ELI5）', `<p>${h(l.analogy)}</p>`),
       l.why && card('', l.whyLabel || '⚙ 正式原理：這個概念到底是什麼？', `<p>${h(l.why)}</p>`),
       details.length && `<h2 class="section-title">深入原理</h2>` + (details.every(d => d[0]) ? `<div class="detail-grid">${details.map(d => `<article class="detail"><h3>${h(d[0])}</h3><p>${h(d[1])}</p></article>`).join('')}</div>` : `<section class="card"><ul class="concepts">${details.map(d => `<li>${d[0] ? `<b>${h(d[0])}</b>：` : ''}${h(d[1])}</li>`).join('')}</ul></section>`),
+      l.textbook && renderTextbook(l),
       l.steps?.length && card('', '▤ 一步一步還原流程', `<ol class="timeline">${l.steps.map(s => `<li>${h(s)}</li>`).join('')}</ol>`),
       l.worked && card('worked', '✍ 範例演練', `<p>${h(l.worked)}</p>`),
       l.caveat && `<aside class="callout warn"><b>⚠ 常見誤解 / 適用界線</b><p>${h(l.caveat)}</p></aside>`,
@@ -387,7 +412,7 @@
   function renderFormulas() {
     crumbFor('公式速查');
     $('content').innerHTML = `<header class="page-head"><h1>公式與符號速查</h1><p class="lead">考前快速複習。每個公式都標出所屬章節，建議到該章的實驗中實際代入數字驗算一次。</p></header>
-    ${formulas.map(g => `<section class="formula-group"><h2 class="section-title">${h(g.group)}</h2><div class="formula-grid">${g.items.map(f => `<article class="formula-card"><h3>${h(f.name)}</h3><div class="math">${f.tex}</div>${f.note ? `<p class="muted small">${f.note}</p>` : ''}${byId[f.ch] ? `<a class="small" href="#/ch/${f.ch}/lab">在${h(chapterLabel(f.ch))}中練習 →</a>` : ''}</article>`).join('')}</div></section>`).join('')}`;
+    ${formulas.map(g => `<section class="formula-group"><h2 class="section-title">${h(g.group)}</h2><div class="formula-grid">${g.items.map(f => `<article class="formula-card"><h3>${h(f.name)}</h3><div class="math">${C.id==='os'&&f.mathml?f.mathml:f.tex}</div>${f.note ? `<p class="muted small">${f.note}</p>` : ''}${byId[f.ch] ? `<a class="small" href="#/ch/${f.ch}/lab">在${h(chapterLabel(f.ch))}中練習 →</a>` : ''}</article>`).join('')}</div></section>`).join('')}`;
   }
   function renderNotes() {
     crumbFor('我的筆記');
