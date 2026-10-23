@@ -15,6 +15,7 @@ int main(void){
     int status;
     if(waitpid(c,&status,0)<0){perror("waitpid");return 4;}
     printf("parent=%d\n",*p);
+    int unchanged=(*p==5);
     if(munmap(p,4096)<0){perror("munmap");return 5;}
-    return (*p==5 && WIFEXITED(status) && WEXITSTATUS(status)==0)?0:1;
+    return (unchanged && WIFEXITED(status) && WEXITSTATUS(status)==0)?0:1;
 }
