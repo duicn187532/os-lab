@@ -14,6 +14,8 @@ on:
       - 'tests/os-ofd-model.cjs'
       - 'tests/os-pthread-queue.cjs'
       - 'tests/os-mastery-evidence.cjs'
+      - 'tests/os-working-set-model.cjs'
+      - 'tests/os-linux-pagefault.cjs'
       - 'tests/os-capstone-student.cjs'
       - 'tests/os-capstone-native-ac.cjs'
       - 'tests/os-all-python-ac.cjs'
@@ -48,6 +50,7 @@ jobs:
           node tests/os-scheduling-model.cjs
           node tests/os-banker-model.cjs
           node tests/os-replacement-model.cjs
+          node tests/os-working-set-model.cjs
           node tests/os-paging-model.cjs
           node tests/os-mlfq-model.cjs
           node tests/os-ofd-model.cjs
@@ -92,6 +95,8 @@ jobs:
           cc -std=c11 -Wall -Wextra -Werror -pthread os/linux-labs/condvar-demo.c -o /tmp/os-lab-bins/condvar-demo
           cc -std=c11 -Wall -Wextra -Werror os/linux-labs/cow-demo.c -o /tmp/os-lab-bins/cow-demo
           cc -std=c11 -Wall -Wextra -Werror os/linux-labs/durable-replace.c -o /tmp/os-lab-bins/durable-replace
+      - name: Verify real Linux anonymous memory faults
+        run: node tests/os-linux-pagefault.cjs
       - name: Run eight actual Linux bounded pthread producer consumer stress trials
         run: node tests/os-pthread-queue.cjs
       - name: Verify native Linux hardlinks, dup and fork shared OFD

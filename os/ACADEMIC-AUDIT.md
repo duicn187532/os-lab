@@ -44,7 +44,7 @@
 | 22 | IPC/Pipe/Signal | 2,9 | 證明 fd 引用、EOF 與 partial I/O | 有/部分/部分 | EOF 概念題 + pipe C；需要 nonblocking/partial/error 注入 | P1 |
 | 23 | CAS/Condvar/Ordering | 3,5,16 | 驗證 predicate 循環與 happens-before | 有/部分/部分 | 已補 condvar while/if spurious wake 逐事件表，pthread bounded queue；仍欠 C11 atomic memory-order 對照 | P1 |
 | 24 | Multilevel PT/COW/mmap | 6,7 | 推導 PTE、fault、private/shared 寫入 | 有/部分/部分 | 已補四級 Page Walk、權限違規與 MAP_PRIVATE/MAP_SHARED COW 父子可見性逐步追蹤；仍欠 Linux Page Fault handler 觀測證據 | P1 |
-| 25 | Working Set/Clock | 7,24 | 追蹤 reference bits 與 thrashing | 有/部分/部分 | Clock 每次 cleared bit/victim/next hand 狀態表、315 組隨機檢查已補；仍缺 working-set size/sliding-window 實作 | P1 |
+| 25 | Working Set/Clock | 7,24 | 追蹤 reference bits 與 thrashing | 有/部分/部分 | Clock 每輪狀態表加上 Δ-window Working Set/WSS 雙行程需求估算與動態測資已補；Linux minor/major faults 觀測範例新增，真實 thrashing 仍需 PSI/swap I/O 証據 | P1 |
 | 26 | VFS/Journaling/Crash | 8,22 | 定義 durable commit 與可恢復性 | 有/部分/部分 | 簡化 WAL 模型；fsync+rename C 範例未涵蓋受控崩潰注入 | P1 |
 | 27 | epoll/NVMe | 9,22 | 解釋 LT/ET、EAGAIN、backpressure | 有/部分/部分 | 新增真實 Linux socketpair/epoll LT/ET partial-read 與 EAGAIN C 實驗；仍缺背壓與多 fd 壓力測試 | P1 |
 | 28 | Linux Observability | 4,12,13 | 結合 /proc、perf、cgroup/PSI 推理 | 有/部分/部分 | 工具分類題太淺；L4 開始提供可重現取證 | P1 |
@@ -105,3 +105,10 @@
 | 17 Banker | `assets/banker-masterclass.js` 已插入正式網頁，5 行程 × 3 資源的 Need、Work/Finish、完整安全序列及 4 種 Request（GRANTED/ILLEGAL/WAIT/UNSAFE） | `tests/os-banker-model.cjs`：人工驗證 5 輪安全序列、4 種請求，以及 250 組小規模 exhaustive safety + 250 次 Request/rollback 參照比對 | L2 深化已實作；待 CI、人工教材審核與更大型的 L3 Judge |
  
 **注意：** 以上不表示整門課已完整；上述新增測試在 GitHub CI 成功之前不得標示「通過」，依各 commit 的執行紀錄為準。既有 29 題初階 Judge 不會因加入延伸內容而自動變成 L2 演算法題。
+
+
+## 本輪工作集與真實 Page Fault 實驗
+
+- `os/assets/working-set-masterclass.js`：明確區分 Clock victim 與 WS(t,Δ) 的滑動視窗；第 25 章另外呈現完整 10×5 Working Set 狀態表與 10×6 雙行程需求表。工作集大小相對 Δ 單調，但沿 t 不單調。
+- `tests/os-working-set-model.cjs`：用獨立 last-seen oracle 與 350 組新序列，逐 Δ 比對 Working Set 集合、大小及包含關係；不得將 D>F 誤判為已量測 thrashing。
+- `os/linux-labs/pagefault-observe.c`、`tests/os-linux-pagefault.cjs`：Linux `mmap` 首次觸碰與再次存取，直接讀 `getrusage` 的 minor/major faults；minor fault 非磁碟交換、測量受 kernel/thp/environment 影響，不以固定數量當通用斷言。

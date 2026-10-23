@@ -235,12 +235,18 @@
     const bullets=items=>'<ol class="os-steps">'+items.map(y=>'<li>'+h(y)+'</li>').join('')+'</ol>';
     const mathBlock=x.formula?'<div class="os-math" role="group" aria-label="本章數學表示式">'+x.formula+'</div>':'';
     const stateTable='<div class="os-table-scroll" tabindex="0" aria-label="演算法狀態追蹤表"><table class="os-state-table"><thead><tr>'+x.stateHeaders.map(y=>'<th scope="col">'+h(y)+'</th>').join('')+'</tr></thead><tbody>'+x.stateRows.map(row=>'<tr>'+row.map(y=>'<td>'+h(y)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+    const extraTables=(x.extraTables||[]).map(tbl=>
+      '<article class="os-textbook-section"><h3>'+h(tbl.title)+'</h3><p>'+h(tbl.description||'')+'</p>'+
+      '<div class="os-table-scroll" tabindex="0" aria-label="'+h(tbl.title)+'">'+
+      '<table class="os-state-table"><thead><tr>'+tbl.headers.map(y=>'<th scope="col">'+h(y)+'</th>').join('')+
+      '</tr></thead><tbody>'+tbl.rows.map(row=>'<tr>'+row.map(y=>'<td>'+h(y)+'</td>').join('')+'</tr>').join('')+
+      '</tbody></table></div></article>').join('');
     const lab=x.l3;
     return '<section class="os-textbook" aria-label="L2 演算法、推導與 L3 實作">'+
       '<header><h2>進階講義｜演算法推導與實作驗證</h2><p>從狀態、不變量及反例建立工程推理，而非只記憶定義。</p></header>'+
       '<article class="os-textbook-section"><h3>L2｜前提與符號</h3><p>'+h(x.preconditions)+'</p><p><strong>符號定義：</strong>'+h(x.symbols)+'</p>'+mathBlock+
       '<h3>L2｜演算法及狀態轉移</h3>'+bullets(x.algorithm)+stateTable+
-      '<h3>L2｜完整計算與邊界</h3><p>'+h(x.worked)+'</p><p class="os-invariant"><b>不變量：</b>'+h(x.invariant)+'</p><p class="os-counter"><b>反例：</b>'+h(x.counterexample)+'</p></article>'+
+      '<h3>L2｜完整計算與邊界</h3><p>'+h(x.worked)+'</p>'+extraTables<p class="os-invariant"><b>不變量：</b>'+h(x.invariant)+'</p><p class="os-counter"><b>反例：</b>'+h(x.counterexample)+'</p></article>'+
       '<article class="os-textbook-section"><h3>L3｜可執行規格與驗收</h3><p>'+h(lab.title)+'</p>'+
       '<h4>輸入資料（標準輸入）</h4><pre class="os-io"><code>'+h(lab.input)+'</code></pre>'+
       '<h4>預期輸出（標準輸出）</h4><pre class="os-io"><code>'+h(lab.expected)+'</code></pre>'+
