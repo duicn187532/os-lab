@@ -581,3 +581,6 @@
   if (!location.hash) history.replaceState(null, '', hashFor(initial));
   applyRoute(initial, { keepScroll: true });
 })();
+
+/* Optional study sync overlay: loaded after the existing page app. */
+(function(){var s=document.createElement('script');s.src=new URL('../shared/study-sync.js',document.currentScript.src).href;document.head.appendChild(s);})();
