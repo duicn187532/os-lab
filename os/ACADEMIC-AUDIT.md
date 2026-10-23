@@ -124,3 +124,8 @@
 - 第 25 章：Working Set 的 Δ-window、每步 WSS、雙行程 D(t) 與 frame 缺額，含可呈現的第二、三張狀態表。不能只以 D(t)>F 推斷真正 swap thrashing，後者須有 fault-rate、swap I/O、memory pressure 時序佐證。
 - 第 26 章：`wal-recovery-demo.py` 模擬的是使用者行程 `os._exit` 之後的恢復；同步發生在 log `fsync`，非實際斷電破壞實驗。舊題目的簡化 WAL 狀態機不能直接推導出 Linux filesystem 的實體持久性保證。
 - 靜態程式品質：`os-static-syntax.cjs` 檢查 HTML 所引用 JavaScript 的語法與順序；`os-crossbrowser` 特別核對第 25 章必須三張正確資料表，並保留 375/390/1280 寬度、兩種主題與 WebKit/Chromium 觀察。
+
+
+### P0 教學資料與正式考試分離
+
+靜態 GitHub Pages 全部編譯後程式碼可下載，`visible:false` 只控制畫面顯示，沒有保密效果。前端 Judge 依舊使用原有 37 題題目 ID、測試群組與本機進度格式，但將 OS 界面標示為「額外練習」而非正式 hidden judge。任何聲稱由前端資料直接證明考生無作弊、核發 Mastered 的方式皆屬 P0 誤導。**正式題庫應儲存於不打包至 public repository 或瀏覽器的獨立伺服器端環境，目前未建立，故只提供教學練習。**

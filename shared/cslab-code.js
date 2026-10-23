@@ -58,6 +58,7 @@
     stage.innerHTML = `
     <section class="card code-brief" data-problem="${h(p.id)}">
       <h2 class="label"><span class="code-label">⌨ 程式實作</span></h2>
+      ${env.course === 'os' ? '<p class="os-practice-integrity" role="note"><strong>教學練習判題，非正式保密評量。</strong>本頁全部測資與正確輸出均隨 JavaScript 傳送到瀏覽器；「額外練習」只是不在畫面直接揭露輸入輸出，不能防止查看來源、修改紀錄或作弊。通過只代表本機練習，正式能力評定需教師或可信伺服器另行驗收。</p>' : ''}
       ${list.length > 1 ? `<div class="seg code-picks" role="group" aria-label="本章的實作題">${list.map((x, i) => `<button type="button" data-code-pick="${h(x.id)}" aria-pressed="${x === p}">${i + 1}. ${h(x.title)}${rec(x).solved ? ' ✓' : ''}</button>`).join('')}</div>` : ''}
       <h3 class="code-title">${h(p.title)}</h3>
       <p class="code-task">${h(p.statement)}</p>
@@ -146,10 +147,12 @@
   }
   const lineOf = t => t === undefined ? '（沒有這一行）' : t === '' ? '（空行）' : `<code>${h(t)}</code>`;
   function caseRow(row) {
-    const head = `<span class="code-case-name">#${row.index + 1} ${h(row.name)}</span>`;
+    const displayName = env.course === 'os' && !casesOf(ui.p)[row.index]?.visible
+      ? '額外練習：輸入與答案存在本機程式碼中' : row.name;
+    const head = `<span class="code-case-name">#${row.index + 1} ${h(displayName)}</span>`;
     if (!row.cr) return `<li class="code-case" data-state="${row.state}">${head}<span class="muted small">${row.state === 'running' ? '執行中…' : row.state === 'skipped' ? '未執行' : '等待中'}</span></li>`;
     const cr = row.cr, r = cr.result, c = casesOf(ui.p)[row.index], V = VERDICT[cr.verdict];
-    const detail = cr.visible ? `<details${cr.verdict !== 'AC' ? ' open' : ''}><summary>input / expected / actual</summary><div class="code-iox"><div><b>input</b><pre>${h(clip(c.input)) || '<span class="muted">（空）</span>'}</pre></div><div><b>expected</b><pre>${h(clip(c.output))}</pre></div><div><b>actual</b><pre>${h(clip(r.stdout)) || '<span class="muted">（沒有輸出）</span>'}</pre></div></div>${r.stderr ? `<b>stderr</b><pre>${h(clip(r.stderr))}</pre>` : ''}</details>` : '<span class="muted small">隱藏測資：只顯示結果</span>';
+    const detail = cr.visible ? `<details${cr.verdict !== 'AC' ? ' open' : ''}><summary>input / expected / actual</summary><div class="code-iox"><div><b>input</b><pre>${h(clip(c.input)) || '<span class="muted">（空）</span>'}</pre></div><div><b>expected</b><pre>${h(clip(c.output))}</pre></div><div><b>actual</b><pre>${h(clip(r.stdout)) || '<span class="muted">（沒有輸出）</span>'}</pre></div></div>${r.stderr ? `<b>stderr</b><pre>${h(clip(r.stderr))}</pre>` : ''}</details>` : (env.course === 'os' ? '<span class="muted small">本機額外練習：介面不顯示輸入輸出，但網站程式碼含完整測資；不是秘密評測</span>' : '<span class="muted small">隱藏測資：只顯示結果</span>');
     return `<li class="code-case" data-state="done" data-verdict="${cr.verdict}">${head}<span class="tag ${cr.verdict === 'AC' ? 'ok' : 'warn'}">${V[0]}</span><span class="muted small">${ms(r)}</span>${cr.diff && cr.visible ? `<p class="small">第 ${cr.diff.line} 行不同：期望 ${lineOf(cr.diff.expected)}，實際 ${lineOf(cr.diff.actual)}</p>` : ''}${r.note ? `<p class="small">${h(r.note)}</p>` : ''}${detail}</li>`;
   }
   function paintCases(rows) { live[ui.p.id].rows = rows; const el = $('.code-cases'); if (el) el.innerHTML = rows ? rows.map(caseRow).join('') : ''; }
