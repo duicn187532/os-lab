@@ -12,6 +12,7 @@ on:
       - 'tests/os-posix-process-io.cjs'
       - 'tests/os-mastery-evidence.cjs'
       - 'tests/os-capstone-student.cjs'
+      - 'tests/os-all-python-ac.cjs'
       - '.github/workflows/pages.yml'
       - 'tests/os-examples-compile.cjs'
       - 'tests/os-crossbrowser-semantic.cjs'
@@ -52,6 +53,8 @@ jobs:
         run: node tests/os-judge-native.cjs
       - name: Compile and grade four real student-language FIFO implementations (reject mutants)
         run: node tests/os-student-verify.cjs
+      - name: Grade real Python reference source submissions for all 29 OS chapters
+        run: node tests/os-all-python-ac.cjs
       - name: Compile and execute eight real advanced capstone solutions
         run: node tests/os-capstone-student.cjs
       - name: Compile and run all repaired textbook code snippets
