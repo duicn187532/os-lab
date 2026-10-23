@@ -96,6 +96,7 @@ jobs:
           node tests/os-review.cjs
           node tests/os-maple-review.cjs
           node tests/os-browser-judge.cjs
+          node tests/os-mastery-evidence.cjs
           ENGINE=chromium node tests/os-crossbrowser-semantic.cjs
 
   deploy:
