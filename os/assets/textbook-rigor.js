@@ -7,11 +7,33 @@
 const D=window.OS_DATA;
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const tag=(name,body)=>'<'+name+'>'+body+'</'+name+'>';
-const v=x=>tag('mi',esc(x)), n=x=>tag('mn',esc(x)), o=x=>tag('mo',esc(x)), t=x=>tag('mtext',esc(x));
+const v=x=>{ const match=String(x).match(/^([A-Za-z\u0370-\u03ff]+)_\{?([^}]+)\}?$/);
+ return match ? '<msub>'+tag('mi',esc(match[1]))+tag('mi',esc(match[2]))+'</msub>':tag('mi',esc(x)); };
+const n=x=>tag('mn',esc(x)),o=x=>tag('mo',esc(x)),t=x=>tag('mtext',esc(x));
 const row=(...xs)=>tag('mrow',xs.join('')),frac=(a,b)=>'<mfrac>'+a+b+'</mfrac>',sub=(a,b)=>'<msub>'+a+b+'</msub>',sup=(a,b)=>'<msup>'+a+b+'</msup>';
 const math=(...xs)=>'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block" aria-label="數學公式">'+row(...xs)+'</math>';
 const eq=(lhs,rhs)=>math(lhs,o('='),rhs);
-const specs={};
+const trace=window.OS_TEXTBOOK_TRACES||[];
+if(trace.length!==29)throw Error('29 authored textbook chapter traces required; got '+trace.length);
+const exercises=CSLab.code.list();
+if(exercises.length!==29)throw Error('29 code exercises required for executable L3');
+const specs=Object.fromEntries(trace.map(z=>{
+ const item=exercises.find(p=>p.lesson===z.id);
+ if(!item)throw Error('L3 code exercise missing: '+z.id);
+ const tests=CSLab.code.cases(item);
+ const first=tests.find(c=>c.visible), edge=tests.find(c=>!c.visible)||tests[1];
+ if(!first||!edge)throw Error('L3 sample/edge missing: '+z.id);
+ return [z.id,{l2:z,symbols:z.symbols,l3:{
+  title:'L3｜可重現驗證與反例',input:first.input.trimEnd(),expected:first.output.trimEnd(),
+  counterInput:edge.input.trimEnd(),counterExpected:edge.output.trimEnd(),
+  counterexample:z.counterexample,
+  command:'node os/linux-labs/l3-verify.cjs --chapter '+z.id,
+  checks:[z.invariant,'每一筆輸入都有一行輸出，公開及隱藏測資均由獨立模型驗證。','提交可執行程式、輸入、輸出、反例、系統版本與解釋，不得只複製參考答案。'],
+  steps:['在 repository 根目錄安裝 Node.js 22 以上並開啟終端機。',
+   '先用紙筆根據狀態表手動推導本章輸入及預期輸出。',
+   '執行 node os/linux-labs/l3-verify.cjs --chapter '+z.id+'，核對輸出與獨立檢查器。',
+   '新增一組能驗證邊界或反例的輸入，記錄錯誤實作為何失敗。']
+ }}]}));
 for(const [key,s] of Object.entries(specs)){
  const l=D.lessons.find(z=>z.id===Number(key));
  if(!l)throw Error('Textbook material targets missing chapter '+key);
@@ -50,10 +72,9 @@ for(const [key,s] of Object.entries(specs)){
  l.textbook={
   algorithm:s.l2.algorithm,preconditions:s.l2.preconditions,symbols:s.symbols,
   formula:formula,
-  stateHeaders:s.l2.headers,stateRows:s.l2.rows,worked:s.l2.worked,
+  stateHeaders:s.l2.headers,stateRows:s.l2.rows,worked:s.l2.worked,invariant:s.l2.invariant,counterexample:s.l2.counterexample,
   l3:s.l3
  };
 }
-// Correct and self-describing formula sheet: retain existing published formulas,
-// but provide formal MathML and symbol definitions in every chapter.
+window.OS_TEXTBOOK_READY=true;
 })();
