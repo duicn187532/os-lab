@@ -42,6 +42,7 @@ jobs:
           node tests/os-scheduling-model.cjs
           node tests/os-banker-model.cjs
           node tests/os-replacement-model.cjs
+          node tests/os-paging-model.cjs
 
   judge-native:
     runs-on: ubuntu-latest
