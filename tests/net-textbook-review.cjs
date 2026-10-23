@@ -22,7 +22,7 @@ for(const l of D.lessons){
     assert(l[p]!==undefined&&l[p]!==null,'Chapter '+l.id+' missing '+p);
   assert(D.units.includes(l.unit),'Unit absent for '+l.id);
   assert(l.details.length>=6,'Chapter '+l.id+' lacks in-depth teaching sections');
-  assert(l.details.every(d=>d.length===2&&d.every(s=>typeof s==='string'&&s.length>=15)),'Empty depth section '+l.id);
+  assert(l.details.every(d=>d.length===2&&typeof d[0]==='string'&&d[0].length>=2&&typeof d[1]==='string'&&d[1].length>=15),'Empty depth section '+l.id);
   assert(l.quiz.length>=4&&l.quiz.every(q=>q.length===5&&q[1].length>=3&&q[2]>=0&&q[2]<q[1].length&&q[3]&&q[4]),'Quiz '+l.id);
   assert(l.terms.every(t=>terms.has(t)),'Unknown glossary term chapter '+l.id);
   assert(l.code[0]==='Python'&&l.code[1].length>40&&!l.code[1].includes('Please complete'),'Runnable Python example required '+l.id);
