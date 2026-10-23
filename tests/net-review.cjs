@@ -121,7 +121,15 @@ assert(D.glossary.every(g => D.lessons.some(l => l.id === g.ch)), 'glossary chap
     for (const id of ids) for (const tab of ['learn', 'lab', 'quiz']) {
       await page.evaluate(([id, tab]) => CSApp.navigate(id, tab), [id, tab]);
       if (tab === 'lab' && await page.locator('#labBody [data-act=end]').count() && await page.locator('#labBody [data-act=end]').isEnabled()) await page.locator('#labBody [data-act=end]').click();
-      assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `mobile overflow (${skin}): chapter ${id} ${tab}`);
+      const layout = await page.evaluate(() => {
+        const max = innerWidth;
+        const suspects = [...document.querySelectorAll('body *')].map(el => {
+          const r = el.getBoundingClientRect(); const css = getComputedStyle(el);
+          return {tag:el.tagName, cls:String(el.className?.baseVal || el.className || '').slice(0,90),text:(el.textContent||'').slice(0,40),right:Math.round(r.right),left:Math.round(r.left),width:Math.round(r.width),overflowX:css.overflowX};
+        }).filter(x=>x.right>max+1 && x.width>0 && x.left<max).sort((a,b)=>b.right-a.right).slice(0,12);
+        return {scroll:document.documentElement.scrollWidth,inner:max,suspects};
+      });
+      assert(layout.scroll <= layout.inner+1, `mobile overflow (${skin}): chapter ${id} ${tab} ${JSON.stringify(layout)}`);
     }
   }
   assert.deepEqual(errors, []);
