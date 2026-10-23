@@ -13,6 +13,7 @@ const URL = process.env.TEST_URL || 'http://localhost:8000/os-lab/net/';
 
 // 1. 教材資料：每章欄位齊全、術語都在術語表、每題選項與正解合法、程式範例是 Python
 const ctx = { window: {} }; vm.runInNewContext(fs.readFileSync(path.join(root, 'net/assets/content.js'), 'utf8'), ctx);
+vm.runInNewContext(fs.readFileSync(path.join(root, 'net/assets/advanced-content.js'), 'utf8'), ctx);
 const D = JSON.parse(JSON.stringify(ctx.window.NET_DATA));
 const terms = new Set(D.glossary.map(g => g.id));
 assert.equal(new Set(D.lessons.map(l => l.id)).size, D.lessons.length, 'unique lesson ids');
@@ -111,7 +112,7 @@ assert(D.glossary.every(g => D.lessons.some(l => l.id === g.ch)), 'glossary chap
   for (const p of ['labs', 'notes', 'formulas', 'glossary']) { await page.goto(URL + '#/' + p); assert((await page.locator('#content').innerText()).length > 40, p); }
   assert.equal(await page.locator('.term').count(), D.glossary.length, 'glossary lists every term');
   await page.goto(URL + '#/'); const home = await page.locator('#content').innerText();
-  assert(home.includes('22') && home.includes('程式實作'), 'home shows the coding problem count');
+  assert(home.includes(String(D.lessons.length)) && home.includes('程式實作'), 'home shows the dynamic lesson count and coding link');
 
   // 6. 手機版面（學術外觀與楓之谷外觀）
   await page.setViewportSize({ width: 375, height: 812 });
