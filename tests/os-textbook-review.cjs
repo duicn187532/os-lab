@@ -13,7 +13,7 @@ vm.runInNewContext(read('os/assets/code-examples.js'),ctx,{filename:'code-exampl
 const codeForTextbook=[];
 ctx.CSLab={code:{add:p=>codeForTextbook.push(p),list:()=>codeForTextbook,cases:p=>p.cases}};
 vm.runInNewContext(read('os/assets/advanced-code.js'),ctx,{filename:'advanced-code.js'});
-for(const file of ['textbook-traces-1.js','textbook-traces-2.js','textbook-rigor.js','formula-mathml.js','assessment-rigor.js'])
+for(const file of ['textbook-traces-1.js','textbook-traces-2.js','textbook-rigor.js','formula-mathml.js','assessment-rigor.js','assessment-quality.js'])
  vm.runInNewContext(read('os/assets/'+file),ctx,{filename:file});
 const D=JSON.parse(JSON.stringify(ctx.window.OS_DATA));
 assert.equal(D.lessons.length,29,'29 textbook chapters');
@@ -35,6 +35,12 @@ assert(D.glossary.length>=120,'Vocabulary > 120');
 assert(D.formulas.reduce((n,g)=>n+g.items.length,0)===27,'27 formulas');
 assert(D.formulas.every(g=>g.items.every(f=>f.mathml?.startsWith('<math ')&&f.note?.length>=10)),'Every formula uses MathML and symbol definitions');
 assert.equal(D.lessons.reduce((n,l)=>n+l.quiz.length,0),174,'174 knowledge questions including 58 new scenarios');
+assert.equal(ctx.window.OS_ASSESSMENT_QUALITY?.revised,58,'All 58 advanced scenarios must have revised distractors');
+for(const l of D.lessons)for(const q of l.quiz){
+ assert(q[1][q[2]]&&new Set(q[1].map(s=>s.trim())).size===q[1].length,'No duplicate answer choices '+l.id);
+ assert(!q[1].some(s=>/只影響程式碼顏色|只改變字型|瀏覽器 Cookie|硬碟變成藍色/.test(s)),
+   'No implausible distractors in published exam practice '+l.id);
+}
 for(const l of D.lessons){
  assert(D.units.includes(l.unit),'Unknown unit '+l.id);
  for(const field of ['title','short','why','analogy','ask','caveat'])

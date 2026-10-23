@@ -69,12 +69,22 @@
     return () => { seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; // mulberry32
   }
   const shuffle = (a, rand) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  // OS formative quizzes: fresh, session-scoped entropy instead of predictable
+  // FNV seeded answer positions. This does NOT hide client-side answer keys.
+  const osRandom = () => {
+    try {
+      const words = new Uint32Array(1);
+      crypto.getRandomValues(words);
+      return words[0] / 4294967296;
+    } catch (_) { return Math.random(); }
+  };
+  const osOrders = new Map();
   let answerSlots = null;
   function answerSlot(lid, qi) {
     if (!answerSlots) {
       answerSlots = {}; const total = [];
       for (const l of lessons) {
-        const rand = seeded(`${C.id}:${l.id}`), local = [];
+        const rand = C.id==='os' ? osRandom : seeded(`${C.id}:${l.id}`), local = [];
         for (const i of shuffle(l.quiz.map((_, i) => i), rand)) {
           const slots = [...l.quiz[i][1].keys()], score = p => (local[p] || 0) * 1e6 + (total[p] || 0);
           const min = Math.min(...slots.map(score)), best = slots.filter(p => score(p) === min), p = best[Math.floor(rand() * best.length)];
@@ -86,8 +96,12 @@
   }
   function choiceOrder(lid, qi) {
     const [, options, answer] = byId[lid].quiz[qi];
-    const others = shuffle([...options.keys()].filter(i => i !== answer), seeded(`${C.id}:${lid}:${qi}`));
+    const key=lid+':'+qi;
+    if(C.id==='os' && osOrders.has(key))return osOrders.get(key).slice();
+    const others = shuffle([...options.keys()].filter(i => i !== answer),
+      C.id==='os' ? osRandom : seeded(`${C.id}:${lid}:${qi}`));
     others.splice(answerSlot(lid, qi), 0, answer);
+    if(C.id==='os')osOrders.set(key,others.slice());
     return others;
   }
   const chapterLabel = id => `第 ${pos(id) + 1} 章 · ${byId[id].title}`;
