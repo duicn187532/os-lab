@@ -1,0 +1,26 @@
+name: NET LAB Textbook Validation
+
+on:
+  pull_request:
+    paths:
+      - 'net/**'
+      - 'tests/net-review.cjs'
+      - 'tests/net-textbook-review.cjs'
+      - '.github/workflows/net-textbook-check.yml'
+  push:
+    branches:
+      - 'feat/net-textbook-depth-20261023'
+    paths:
+      - 'net/**'
+      - 'tests/net-textbook-review.cjs'
+
+jobs:
+  textbook-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate NET LAB curriculum and lab models
+        run: node tests/net-textbook-review.cjs
