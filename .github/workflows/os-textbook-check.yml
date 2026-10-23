@@ -34,6 +34,7 @@ jobs:
         run: |
           node tests/os-textbook-review.cjs
           node os/linux-labs/l3-verify.cjs --all
+          node tests/os-scheduling-model.cjs
 
   judge-native:
     runs-on: ubuntu-latest
