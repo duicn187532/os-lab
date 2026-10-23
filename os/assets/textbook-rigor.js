@@ -15,7 +15,7 @@ const math=(...xs)=>'<math xmlns="http://www.w3.org/1998/Math/MathML" display="b
 const eq=(lhs,rhs)=>math(lhs,o('='),rhs);
 const trace=window.OS_TEXTBOOK_TRACES||[];
 if(trace.length!==29)throw Error('29 authored textbook chapter traces required; got '+trace.length);
-const exercises=CSLab.code.list();
+const exercises=CSLab.code.list().filter(p=>p.id.startsWith("os.textbook."));
 if(exercises.length!==29)throw Error('29 code exercises required for executable L3');
 const specs=Object.fromEntries(trace.map(z=>{
  const item=exercises.find(p=>p.lesson===z.id);
