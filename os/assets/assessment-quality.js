@@ -45,5 +45,15 @@ for(const fix of baseEdits){
  if(new Set(q[1]).size!==q[1].length)throw Error('New quiz option duplicates '+fix.id+':'+fix.index);
 }
 window.OS_ASSESSMENT_QUALITY.baseRevised=baseEdits.length;
+const explanations={"21":["ELF program header 的 PT_LOAD 描述執行期需映射的 segments；section header 主要支援連結與符號組織，不能把它當成執行期裝載的唯一依據。","Kernel module 通常以核心特權執行，可直接影響 kernel address space；不是一般瀏覽器或獨立 VM 的使用者態隔離。","典型 Linux 會在完成核心初始化後建立第一個 userspace init 行程（PID 1）；DNS 和 GPU 韌體不會取代 kernel 的行程建立責任。","Monolithic 與 microkernel 的主要取捨在服務放置、權限邊界與 IPC；不是 CPU 指令集或是否支援硬碟的區別。"],"22":["Pipe 為 byte stream；當所有 writer FD 均關閉且 buffer 內容讀盡後，read 才回傳 0 表示 EOF。只關閉一個 writer 不足。","write 與 read 不存在一對一訊息邊界：一次 write 的資料可以被多次 read 取走，多次 write 也可能由一次 read 一併讀取。","Signal handler 只應使用 async-signal-safe 的函式；一般 stdio printf 可能使用鎖或共享狀態，不能視為任意 signal handler 中安全。","MAP_SHARED 只表示多個映射可以看到同一共享內容，不會自動使 x++ 等複合操作原子化；仍需 mutex 或正確的 atomic synchronization。"],"23":["pthread_cond_wait 被通知或虛假喚醒後應重新持鎖檢查共享 predicate，因為另一個 consumer 可能已先取走資源。","memory_order_relaxed 保證該 atomic 物件的原子操作與其 modification order，但不建立其他普通記憶體存取的同步先後。","CAS 的 compare 值與目前值不同會導致交換失敗；失敗表示必須依回傳的實際值重新判斷，不代表 RAM 故障。","Condition Variable 不保存真正的 ready predicate；signal 只是通知，狀態需要在 mutex 或 atomic 協議下由共享資料維持。"],"24":["4KiB=4096=2^12 bytes，頁內 offset 固定使用 12 bits；四層頁表各級索引 9 bits，不能把索引寬度當 offset。","TLB miss 僅表示轉譯資訊不在快取；page walk 若找到 present 且有權限的映射，仍能正常存取，不必發生 page fault。","Copy-on-Write 讓 fork 後父子暫時共享實體頁，只有合法私有寫入才需配置並複製頁面，降低立即複製成本。","非法寫入不等於合法 COW：唯有 PTE 與 VMA 語意允許私有可寫映射，kernel 才能藉 page fault 完成 COW。"],"25":["Clock 遇 reference bit=1 時給第二次機會：清成0再前進；第一次遇到 R=0 才能選擇 victim。","Working Set 是最近觀測窗口 Δ 中實際參照過的不同虛擬頁集合；集合大小可估計近期頁框需求，但不是所有已分配頁。","Minor page fault 可能由首次按需配置匿名頁、COW 等純記憶體事件造成；不等於必須執行 SSD 或 swap 讀取。","Thrashing 涉及持續頻繁的 page faults、記憶體壓力與工作進展低落；不能單靠某次 minor fault 或瞬間 D>F 宣告。"],"26":["同一個 inode 可以由多個 hard links 指向，每個目錄項使用不同名稱；unlink 一個名稱只使 nlink 減一。","write() 成功通常只證明資料已被核心接受，未必經穩定儲存同步；持久性需考量 fsync、writeback、FS 與裝置語意。","fsync(file) 不必然將 rename 涉及的父目錄 entry 持久化；在適用的 POSIX/Linux 路徑下常需另 fsync(parent directory)。","Journaling/WAL recovery 必須能辨識完整的已提交交易，否則不能區分未完成修改與可重播的 durable state。"],"27":["ET 通知應搭配 nonblocking 模式反覆 read 到 EAGAIN，否則殘留已就緒資料未必產生新 edge。","非阻塞讀取遇 EAGAIN 表示當前無法立即取得資料，之後等待新就緒事件可再試；不可直接等同永久 I/O 失敗。","NVMe 使用多組 submission/completion queues，支援大量併行與多核心；這與 HDD 的機械 seek 模型不同。","DMA 將資料搬運交由裝置/控制器處理，不表示繞過全部權限；IOMMU 與正確的 DMA 映射限制裝置可觸及的地址。"],"28":["CPU busy 低但 p99 高時，應固定工作負載並量測 I/O、mutex、queue、throttling 等路徑，以獨立證據判斷瓶頸。","Linux cgroups 管控並統計 CPU、memory 等資源；namespaces 則隔離可見性，兩者不是取代 DAC 或 capabilities 的同義功能。","strace 追蹤 syscall 與 errno，並不能逐條看到一般 userspace ALU 指令；需 perf 等剖析 CPU hotspots。","高頻 tracing 會增加執行、資料複製與排程負擔；應記錄工具版本、採樣頻率及對被測系統造成的 overhead。"]};
+for(const [chapter,notes] of Object.entries(explanations)){
+ const l=lessons.find(x=>x.id===Number(chapter));
+ if(!l||notes.length!==4)throw Error('Missing advanced original explanations '+chapter);
+ for(let i=0;i<4;i++){
+  if(notes[i].length<30)throw Error('Insufficient OS reasoning '+chapter+':'+i);
+  l.quiz[i][4]=notes[i];
+ }
+}
+window.OS_ASSESSMENT_QUALITY.legacyExplanationsRevised=32;
 
 })();
