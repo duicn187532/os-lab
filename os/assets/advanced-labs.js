@@ -32,7 +32,21 @@
  f('再次讀取及驗證','比較最後父子看到的資料，切換 MAP_SHARED / MAP_PRIVATE 觀察差異。',grid([['Process','最後值'],['Parent',parent],['Child',child]]))];}},
  'os-clock':{title:'Clock Page Replacement 第二次機會',prompt:'Reference bit=1 的 frame 在 hand 到達時會立刻被換出嗎？',
  inputs:[['bits','R bits 模式','select','110',[['110','1 1 0'],['111','1 1 1'],['000','0 0 0'],['101','1 0 1']]],['hand','起始 hand','number',0,[0,2,1]],['page','新 page number','number',4,[0,99,1]]],
- frames(v){const bs=v.bits.split('').map(Number),out=[],old=bs.slice(),head=+v.hand;out.push(f('初始化','三個 frame 已滿，需要選擇 victim。',grid([['Frame',0,1,2],['Reference',...bs],['Hand',head,'','']])));let cur=head;for(let step=0;step<6;step++){if(bs[cur]===0){out.push(f('找到可換出的頁','R=0，可用此 frame 接納 page '+v.page+'，最後 hand 前進。',chips('Victim frame '+cur,'New page '+v.page,'New hand '+((cur+1)%3))));return out}bs[cur]=0;out.push(f('給第二次機會','R=1，先清成 0 並繼續掃描。',grid([['Frame',0,1,2],['Reference',...bs],['Next hand',(cur+1)%3,'','']]));cur=(cur+1)%3}return out;}},
+ frames(v){
+   const bits=v.bits.split('').map(Number), output=[], start=+v.hand;
+   output.push(f('初始化','三個頁框已滿，現在從 hand 指向的位置尋找 victim。',chips('bits='+bits.join(''),'hand='+start)));
+   let hand=start;
+   for(let step=0;step<7;step++){
+     if(bits[hand]===0){
+       output.push(f('選定 Victim','找到 reference bit = 0 的 frame，可以在該位置載入新頁面。',chips('victim='+hand,'incoming page='+v.page)));
+       return output;
+     }
+     bits[hand]=0;
+     output.push(f('給第二次機會','R=1 → 清為 0，hand 繼續掃描下一個 frame。',chips('cleared frame='+hand,'R bits='+bits.join(''))));
+     hand=(hand+1)%3;
+   }
+   return output;
+ }},
  'os-journal':{title:'Journaling 與 Crash Recovery',prompt:'斷電發生在 transaction commit 前後，恢復時應如何處理？',
  inputs:[['crash','Crash 時機','select','after_commit',[['before_log','寫日誌前'],['after_log','日誌尚未 commit'],['after_commit','Commit 已持久'],['after_apply','寫回主資料後']]],['old','原值','number',100,[0,999,1]],['new','交易值','number',150,[0,999,1]]],
  frames(v){const commit=['after_commit','after_apply'].includes(v.crash),recovered=commit?+v.new:+v.old;return [
