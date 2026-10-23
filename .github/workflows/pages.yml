@@ -37,6 +37,7 @@ jobs:
           node tests/os-paging-model.cjs
           node tests/os-mlfq-model.cjs
           node tests/os-ofd-model.cjs
+          node tests/os-concurrency-model.cjs
           node tests/os-judge-native.cjs
           node tests/os-examples-compile.cjs
       - name: Verify real student code across four native languages
