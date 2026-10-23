@@ -31,7 +31,7 @@
 | 9 | I/O/Interrupt | 1,8 | 解釋 blocking/partial I/O 與事件 | 有/部分/部分 | 僅 readyBytes/nonblocking 分類；EOF/EINTR/fd ready 尚未整合 | P1 |
 | 10 | Protection/Security | 1,8 | 檢查 DAC/ACL/存取與目錄 traverse | 有/部分/部分 | mode bit 判定受簡化假設限制；未與使用者身分、ACL 結合 | P1 |
 | 11 | VM/Container | 6,10 | 區分 namespace/cgroup/hypervisor | 有/部分/部分 | 主要題目偏 quota 百分比，缺失敗隔離、資源控制取證 | P2 |
-| 12 | Performance/Queueing | 4,9 | 推導 Little/M/M/1 與假設 | 有/部分/部分 | Little's Law 例題有，但尚無穩態/分位數反例的數據作業 | P1 |
+| 12 | Performance/Queueing | 4,9 | 推導 Little/M/M/1 與假設 | 有/部分/部分 | 新增四工作 FCFS queue 逐行 start/CT/WT/W、完成窗 Little identity、nearest-rank p95/p99、M/M/1 穩定與飽和案例及 700 組隨機驗收；仍需真實服務樣本數／分布評價 | P1 |
 | 13 | Request Journey | 2,9,12 | 解讀端到端追蹤與重疊時間 | 有/部分/部分 | 區間聯集有題；缺真實服務工具證據，L4 補充中 | P1 |
 | 14 | Linux/C 工具 | 2,22 | 觀察程序樹、退出與系統呼叫 | 有/部分/部分 | 新增 fork→exec→waitpid 及 ENOENT 錯誤路徑的 Linux 原生驗收；仍缺可控殭屍／訊號案例 | P1 |
 | 15 | Integration Review | 0–14 | 跨子系統定位症狀 | 有/部分/部分 | 分類題不能證明跨層能力；需 L4 證據與教師審核 | P1 |
