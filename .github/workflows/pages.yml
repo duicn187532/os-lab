@@ -48,8 +48,46 @@ jobs:
           "$dir/durable" "$dir/fs"
           test "$(cat "$dir/fs/file.txt")" = "durable demo"
 
+  chromium-publish-gate:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.58.2-noble
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: os-lab
+      - uses: actions/checkout@v4
+        with:
+          repository: duicn187532/self-research
+          path: self-research
+          sparse-checkout: |
+            assets/maple
+          sparse-checkout-cone-mode: true
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test dependency
+        working-directory: os-lab
+        run: npm install --no-save --no-package-lock playwright@1.58.2
+      - name: Verify OS browser routing, Maple, judge and semantic state
+        working-directory: os-lab
+        run: |
+          set -eu
+          node tests/poc-server.cjs "$GITHUB_WORKSPACE" 8000 >/tmp/os-deploy-e2e.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8000/os-lab/os/ >/dev/null; then break; fi
+            sleep 1
+          done
+          export TEST_URL=http://localhost:8000/os-lab/os/
+          node tests/os-review.cjs
+          node tests/os-maple-review.cjs
+          node tests/os-browser-judge.cjs
+          ENGINE=chromium node tests/os-crossbrowser-semantic.cjs
+
   deploy:
-    needs: [academic-quality-gate]
+    needs: [academic-quality-gate, chromium-publish-gate]
     runs-on: ubuntu-latest
 
     steps:
