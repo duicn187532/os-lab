@@ -2,8 +2,9 @@
 const {chromium,firefox,webkit}=require('playwright');
 const assert=require('node:assert/strict');
 const URL=process.env.TEST_URL||'http://localhost:8000/os-lab/os/';
+if(process.env.ENGINE&&!['chromium','firefox','webkit'].includes(process.env.ENGINE))throw Error('Unsupported ENGINE '+process.env.ENGINE);
 (async()=>{
- for(const [engine,launcher] of Object.entries({chromium,firefox,webkit})){
+ for(const [engine,launcher] of Object.entries({chromium,firefox,webkit}).filter(([engine])=>!process.env.ENGINE || engine===process.env.ENGINE)){
   const browser=await launcher.launch({args:engine==='chromium'?['--no-sandbox']:[]});
   const context=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce',isMobile:engine!=='firefox',hasTouch:true});
   const page=await context.newPage();const errors=[];
