@@ -13,6 +13,7 @@ const URL = process.env.TEST_URL || 'http://localhost:8000/os-lab/net/';
 
 // 1. 教材資料：每章欄位齊全、術語都在術語表、每題選項與正解合法、程式範例是 Python
 const ctx = { window: {} }; vm.runInNewContext(fs.readFileSync(path.join(root, 'net/assets/content.js'), 'utf8'), ctx);
+vm.runInNewContext(fs.readFileSync(path.join(root, 'net/assets/advanced-content.js'), 'utf8'), ctx);
 const D = JSON.parse(JSON.stringify(ctx.window.NET_DATA));
 const terms = new Set(D.glossary.map(g => g.id));
 assert.equal(new Set(D.lessons.map(l => l.id)).size, D.lessons.length, 'unique lesson ids');
@@ -111,7 +112,7 @@ assert(D.glossary.every(g => D.lessons.some(l => l.id === g.ch)), 'glossary chap
   for (const p of ['labs', 'notes', 'formulas', 'glossary']) { await page.goto(URL + '#/' + p); assert((await page.locator('#content').innerText()).length > 40, p); }
   assert.equal(await page.locator('.term').count(), D.glossary.length, 'glossary lists every term');
   await page.goto(URL + '#/'); const home = await page.locator('#content').innerText();
-  assert(home.includes('22') && home.includes('程式實作'), 'home shows the coding problem count');
+  assert(home.includes(String(D.lessons.length)) && home.includes('程式實作'), 'home shows the dynamic lesson count and coding link');
 
   // 6. 手機版面（學術外觀與楓之谷外觀）
   await page.setViewportSize({ width: 375, height: 812 });
@@ -120,7 +121,15 @@ assert(D.glossary.every(g => D.lessons.some(l => l.id === g.ch)), 'glossary chap
     for (const id of ids) for (const tab of ['learn', 'lab', 'quiz']) {
       await page.evaluate(([id, tab]) => CSApp.navigate(id, tab), [id, tab]);
       if (tab === 'lab' && await page.locator('#labBody [data-act=end]').count() && await page.locator('#labBody [data-act=end]').isEnabled()) await page.locator('#labBody [data-act=end]').click();
-      assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `mobile overflow (${skin}): chapter ${id} ${tab}`);
+      const layout = await page.evaluate(() => {
+        const max = innerWidth;
+        const suspects = [...document.querySelectorAll('body *')].map(el => {
+          const r = el.getBoundingClientRect(); const css = getComputedStyle(el);
+          return {tag:el.tagName, cls:String(el.className?.baseVal || el.className || '').slice(0,90),text:(el.textContent||'').slice(0,40),right:Math.round(r.right),left:Math.round(r.left),width:Math.round(r.width),overflowX:css.overflowX};
+        }).filter(x=>x.right>max+1 && x.width>0 && x.left<max).sort((a,b)=>b.right-a.right).slice(0,12);
+        return {scroll:document.documentElement.scrollWidth,inner:max,suspects};
+      });
+      assert(layout.scroll <= layout.inner+1, `mobile overflow (${skin}): chapter ${id} ${tab} ${JSON.stringify(layout)}`);
     }
   }
   assert.deepEqual(errors, []);

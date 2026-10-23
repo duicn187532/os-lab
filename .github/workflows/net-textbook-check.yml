@@ -1,0 +1,63 @@
+name: NET LAB Textbook Validation
+
+on:
+  pull_request:
+    paths:
+      - 'net/**'
+      - 'tests/net-review.cjs'
+      - 'tests/net-maple-review.cjs'
+      - 'tests/net-textbook-review.cjs'
+      - '.github/workflows/net-textbook-check.yml'
+  push:
+    branches:
+      - 'feat/net-textbook-depth-20261023'
+    paths:
+      - 'net/**'
+      - 'tests/net-textbook-review.cjs'
+      - 'tests/net-maple-review.cjs'
+      - '.github/workflows/net-textbook-check.yml'
+
+jobs:
+  textbook-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate NET LAB curriculum and lab models
+        run: node tests/net-textbook-review.cjs
+
+  chromium-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: os-lab
+      - uses: actions/checkout@v4
+        with:
+          repository: duicn187532/self-research
+          path: self-research
+          sparse-checkout: |
+            assets/maple
+          sparse-checkout-cone-mode: true
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test dependencies
+        working-directory: os-lab
+        run: |
+          npm install --no-save --no-package-lock playwright@1.58.2
+          npx playwright install --with-deps chromium
+      - name: Run NET LAB Chromium and Maple regression
+        working-directory: os-lab
+        run: |
+          node tests/poc-server.cjs "$GITHUB_WORKSPACE" 8000 >/tmp/net-poc-server.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -fsS http://localhost:8000/os-lab/net/ >/dev/null && break
+            sleep 1
+          done
+          node tests/net-review.cjs
+          node tests/net-maple-review.cjs
