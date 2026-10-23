@@ -267,7 +267,7 @@
     setTimeout(() => { if (hero.spr.isConnected) S.swapAct(hero.spr, hero.name, 'stand'); fx.remove(); }, 560);
     setTimeout(() => { if (foe.spr.isConnected) S.swapAct(foe.spr, foe.name, 'stand'); }, 540);
   }
-  const MAP_SCENES = ['ludibrium', 'clocktower', 'orbis', 'el-nath', 'leafre', 'lachelein'];
+  const MAP_SCENES = ['henesys', 'ellinia-town', 'perion', 'kerning', 'lith-harbor', 'sleepywood', 'nautilus', 'edelstein', 'mu-lung', 'ariant', 'ludibrium', 'clocktower', 'orbis', 'el-nath', 'leafre', 'lachelein'];
   const mapScene = key => { document.body.dataset.mapScene = MAP_SCENES[seedOf(key) % MAP_SCENES.length]; };
   // 主角歡呼；升級時播放光柱與 LEVEL UP 字樣
   function cheer(hero, up) {

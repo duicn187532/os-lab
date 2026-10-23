@@ -38,6 +38,16 @@ html:root[data-skin="maple"] {
 :root[data-skin="maple"] body[data-map-scene="el-nath"]::before { background-image: url("../../self-research/assets/maple/scene-el-nath.jpg"); }
 :root[data-skin="maple"] body[data-map-scene="leafre"]::before { background-image: url("../../self-research/assets/maple/scene-leafre.jpg"); }
 :root[data-skin="maple"] body[data-map-scene="lachelein"]::before { background-image: url("../../self-research/assets/maple/scene-lachelein.jpg"); }
+:root[data-skin="maple"] body[data-map-scene="henesys"]::before { background-image: url("../../self-research/assets/maple/scene-henesys.jpg"); }
+:root[data-skin="maple"] body[data-map-scene="ellinia-town"]::before { background-image: url("../../self-research/assets/maple/scene-ellinia-town.jpg"); }
+:root[data-skin="maple"] body[data-map-scene="perion"]::before { background-image: url("../../self-research/assets/maple/scene-perion.jpg"); }
+:root[data-skin="maple"] body[data-map-scene="kerning"]::before { background-image: url("../../self-research/assets/maple/scene-kerning.jpg"); }
+:root[data-skin="maple"] body[data-map-scene="lith-harbor"]::before { background-image: url("../../self-research/assets/maple/scene-lith-harbor.jpg"); }
+:root[data-skin="maple"] body[data-map-scene="sleepywood"]::before { background-image: url("../../self-research/assets/maple/scene-sleepywood.jpg"); }
+:root[data-skin="maple"] body[data-map-scene="nautilus"]::before { background-image: url("../../self-research/assets/maple/scene-nautilus.jpg"); }
+:root[data-skin="maple"] body[data-map-scene="edelstein"]::before { background-image: url("../../self-research/assets/maple/scene-edelstein.jpg"); }
+:root[data-skin="maple"] body[data-map-scene="mu-lung"]::before { background-image: url("../../self-research/assets/maple/scene-mu-lung.jpg"); }
+:root[data-skin="maple"] body[data-map-scene="ariant"]::before { background-image: url("../../self-research/assets/maple/scene-ariant.jpg"); }
 @media (max-width: 600px) {
   :root[data-skin="maple"] body::before { background-image: url("../../self-research/assets/maple/scene-day-sm.jpg"); }
   :root[data-skin="maple"][data-scene="ellinia"] body::before { background-image: url("../../self-research/assets/maple/scene-ellinia-sm.jpg"); }
@@ -48,6 +58,16 @@ html:root[data-skin="maple"] {
   :root[data-skin="maple"] body[data-map-scene="el-nath"]::before { background-image: url("../../self-research/assets/maple/scene-el-nath-sm.jpg"); }
   :root[data-skin="maple"] body[data-map-scene="leafre"]::before { background-image: url("../../self-research/assets/maple/scene-leafre-sm.jpg"); }
   :root[data-skin="maple"] body[data-map-scene="lachelein"]::before { background-image: url("../../self-research/assets/maple/scene-lachelein-sm.jpg"); }
+  :root[data-skin="maple"] body[data-map-scene="henesys"]::before { background-image: url("../../self-research/assets/maple/scene-henesys-sm.jpg"); }
+  :root[data-skin="maple"] body[data-map-scene="ellinia-town"]::before { background-image: url("../../self-research/assets/maple/scene-ellinia-town-sm.jpg"); }
+  :root[data-skin="maple"] body[data-map-scene="perion"]::before { background-image: url("../../self-research/assets/maple/scene-perion-sm.jpg"); }
+  :root[data-skin="maple"] body[data-map-scene="kerning"]::before { background-image: url("../../self-research/assets/maple/scene-kerning-sm.jpg"); }
+  :root[data-skin="maple"] body[data-map-scene="lith-harbor"]::before { background-image: url("../../self-research/assets/maple/scene-lith-harbor-sm.jpg"); }
+  :root[data-skin="maple"] body[data-map-scene="sleepywood"]::before { background-image: url("../../self-research/assets/maple/scene-sleepywood-sm.jpg"); }
+  :root[data-skin="maple"] body[data-map-scene="nautilus"]::before { background-image: url("../../self-research/assets/maple/scene-nautilus-sm.jpg"); }
+  :root[data-skin="maple"] body[data-map-scene="edelstein"]::before { background-image: url("../../self-research/assets/maple/scene-edelstein-sm.jpg"); }
+  :root[data-skin="maple"] body[data-map-scene="mu-lung"]::before { background-image: url("../../self-research/assets/maple/scene-mu-lung-sm.jpg"); }
+  :root[data-skin="maple"] body[data-map-scene="ariant"]::before { background-image: url("../../self-research/assets/maple/scene-ariant-sm.jpg"); }
 }
 :root[data-skin="maple"][data-theme="dark"] body::before { box-shadow: inset 0 0 0 100vmax rgba(10, 16, 52, 0.68); }
 @media (prefers-color-scheme: dark) { :root[data-skin="maple"]:not([data-theme="light"]) body::before { box-shadow: inset 0 0 0 100vmax rgba(10, 16, 52, 0.68); } }

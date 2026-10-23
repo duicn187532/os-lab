@@ -105,7 +105,9 @@
   // NPC 名單：sprites.js 裡 kind 為 npc 的角色（名牌用台灣版名稱或角色描述）；依鍵值固定挑選，同一章每次都是同一位
   const npcs = () => Object.keys(window.MAPLE_SPRITES || {}).filter(k => spec(k).kind === 'npc');
   function pickNpc(key, avoid) {
-    const list = npcs().filter(n => n !== avoid); if (!list.length) return null;
+    const all = window.MAPLE_SPRITES || {};
+    const featured = npcs().filter(n => all[n].featured);
+    const list = (featured.length ? featured : npcs()).filter(n => n !== avoid); if (!list.length) return null;
     let h = 7; for (const ch of String(key)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
     return list[h % list.length];
   }
