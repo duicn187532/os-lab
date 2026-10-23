@@ -25,7 +25,7 @@ const URL=process.env.TEST_URL||'http://localhost:8000/os-lab/os/';
    OSApp.store.learn[7]={at:'2026-01-01'};
    OSApp.store.lab[7]={at:'2026-01-01'};
    OSApp.store.done[7]={first:6,total:6,at:'2026-01-01'};
-   OSApp.store.code['os.textbook.7']={solved:true};
+   for(const task of CSLab.code.forLesson(7))OSApp.store.code[task.id]={solved:true};
    localStorage.setItem('os_lab_2026_v1',JSON.stringify(OSApp.store));
    return OS_ACADEMIC.status(7);
   });
