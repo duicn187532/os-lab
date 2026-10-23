@@ -7,13 +7,13 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),
   os=require('node:os'),path=require('node:path'),{spawnSync}=require('node:child_process');
 const root=path.resolve(__dirname,'..');
 const template=fs.readFileSync(path.join(root,'os/linux-labs/python-reference.py'),'utf8');
-assert.equal((template.match(/CHAPTER = -1/g)||[]).length,1);
+assert.equal((template.match(/^CHAPTER = -1$/gm)||[]).length,1);
 const runner=path.join(root,'os/linux-labs/student-verify.cjs');
 const dir=fs.mkdtempSync(path.join(os.tmpdir(),'os-python-reference-'));
 try{
  for(let id=0;id<29;id++){
   const file=path.join(dir,'os-'+id+'.py');
-  fs.writeFileSync(file,template.replace('CHAPTER = -1','CHAPTER = '+id));
+  fs.writeFileSync(file,template.replace(/^CHAPTER = -1$/m,'CHAPTER = '+id));
   const run=spawnSync('node',[runner,'--chapter',String(id),'--language','python','--source',file],
    {encoding:'utf8',timeout:20000,maxBuffer:1024*1024});
   assert.equal(run.status,0,'Chapter '+id+' must AC on real student verifier: '+run.stdout+' '+run.stderr);
