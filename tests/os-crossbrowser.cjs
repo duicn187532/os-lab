@@ -6,7 +6,9 @@ const URL=process.env.TEST_URL||'http://localhost:8000/os-lab/os/';
  for(const [engine,launcher] of Object.entries({chromium,firefox,webkit})){
   const browser=await launcher.launch({args:engine==='chromium'?['--no-sandbox']:[]});
   const context=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce',isMobile:engine!=='firefox',hasTouch:true});
-  const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  const page=await context.newPage();const errors=[];
+  // WebKit/Firefox guard history.pushState frequency. Every viewport, skin and chapter remains tested.
+  const navigatePaced=async id=>{await page.evaluate(i=>OSApp.navigate(i,'learn'),id);await page.waitForTimeout(220);};page.on('pageerror',e=>errors.push(e.message));
   await page.goto(URL+'#/');
   await page.waitForFunction(()=>Boolean(window.OSApp&&window.OS_TEXTBOOK_READY),null,{timeout:30000});
   const ids=await page.evaluate(()=>OSApp.lessons.map(l=>l.id));
@@ -17,7 +19,7 @@ const URL=process.env.TEST_URL||'http://localhost:8000/os-lab/os/';
    for(const width of [375,390,1280]){
     await page.setViewportSize({width,height:844});
     for(const id of ids){
-     await page.evaluate(id=>OSApp.navigate(id,'learn'),id);
+     await navigatePaced(id);
      const result=await page.evaluate(()=>{
       const doc=document.documentElement, math=[...document.querySelectorAll('#stage .os-textbook math')];
       const tables=[...document.querySelectorAll('#stage .os-state-table')];
