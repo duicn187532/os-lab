@@ -35,7 +35,9 @@ for(let count=0;count<300;count++){
   if(active.length&&random(3)===0){
    const k=random(active.length);ops.push({type:'FREE',id:active.splice(k,1)[0]});
   }else{
-   const id='X'+ids++,size=1+random(30);
+   const id='X'+String(ids);
+   ids += 1;
+   const size=1+random(30);
    ops.push({type:'ALLOC',id,size});active.push(id);
   }
  }
