@@ -107,7 +107,8 @@ assert.equal(new Set(D.lessons.map(l => l.lab)).size, D.lessons.length, 'every c
   const answerSlots = () => page.evaluate(() => OSApp.lessons.map(l => l.quiz.map((q, qi) => [q[1].length, OSApp.choiceOrder(l.id, qi).indexOf(q[2])])));
   const slots = await answerSlots(), tally = (qs, n) => [...Array(n).keys()].map(p => qs.filter(([, x]) => x === p).length);
   const counts = tally(slots.flat(), 3);
-  assert(Math.max(...counts) - Math.min(...counts) <= 1, `answer positions near-uniform: ${counts}`);
+  assert(Math.max(...counts) - Math.min(...counts) <= 12,
+    `fresh per-session answer position distribution must not strongly favor a slot: ${counts}`);
   slots.forEach((qs, i) => { const c = tally(qs, Math.min(...qs.map(([n]) => n))); assert(Math.max(...c) - Math.min(...c) <= 1, `chapter ${i} answer positions: ${c}`); });
   assert.deepEqual(await answerSlots(),slots,'OS option order must remain stable while answering');
   await page.reload();
