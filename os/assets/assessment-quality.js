@@ -23,4 +23,17 @@ for(const pair of revisions){
  }
 }
 window.OS_ASSESSMENT_QUALITY={revised:changed,version:1};
+const legacy={"21":[["Section header","Dynamic symbol table"],["Kernel mode 經由特權 CPU 指令切換，但只在 user space 處理 driver","User mode 但透過單一系統呼叫取得全部核心權限"],["Systemd 等使用者態服務在 Kernel 初始化之前先啟動 PID1","Initramfs 的 shell 在完全沒有 kernel 啟動時建立 PID1"],["Monolithic 一律不能使用 IPC，而 microkernel 一律不能呼叫系統服務","Microkernel 將所有 user processes 直接搬進 kernel mode"]],"22":[["Writer 已關閉，但 buffer 仍有未讀位元組便立即 EOF","只要其中一個 writer 關閉，即使另有 writer 仍開啟也立刻 EOF"],["每個 write 的界線在 byte stream 中必定保留","當讀取緩衝區大於 write 長度時才保證一一對應"],["可以，只要 handler 是 C 語言函式就自動 async-signal-safe","printf 只有在 signal 採 SIGUSR1 時才受限制"],["MAP_SHARED 自動使 x++ 成為跨行程原子 read-modify-write","MAP_SHARED 能傳送資料但無法讓兩行程映射同一區域"]],"23":[["因為收到 signal，應直接使用資料，predicate 只需 wait 前檢查","Condition Variable 喚醒後應先釋放 mutex，再以非原子讀取 predicate"],["relaxed atomic 會同時建立所有普通記憶體的 happens-before","relaxed atomic 對同一物件只保證原子性，但完全不允許讀到先前的修改"],["CAS 失敗證明其他執行緒一定正在持有 pthread mutex","CAS 失敗表示比較與交換都已成功，只是回傳值會是 false"],["Condition Variable 的內部計數保證記住每次 signal 作為未來 predicate","即使沒有共享狀態，condvar 也能代表有多少資料可消費"]],"24":[["9，因為四層頁表各取9-bit 就不需 offset","21，因為 PD 層涵蓋2MiB 映射所以所有頁都固定用21 bits"],["一定，因為 TLB miss 就是 PTE present bit=0","只有 virtual address 在 code segment 時才會發生 TLB miss"],["立即在 fork 時複製每一頁，因此完全省去未來任何 page fault","共用同一可寫頁給父子，讓 child 寫入可以直接改變 parent"],["只要 page fault 產生，OS 就可無條件將唯讀頁改成可寫","只要頁表 entry 的 present=1，對任意寫入都必須視為合法 COW"]],"25":[["直接把 R=1 的頁換出，因為它較近期被引用","在所有 page bits 清零之前禁止 hand 前進"],["自系統開機以來所有曾使用的 page 集合","某個行程目前所有已分配但不論是否參照的 page 集合"],["一定，因為任何 page fault 都必須先從 swap 裝入","minor fault 代表磁碟尋址出錯，需重新讀取 sector"],["只要 Working Set 的 page 數少於 frame 數就能判定 thrashing","單次 major fault 就足以證明整個工作集在持續抖動"]],"26":[["不能，同一 inode 永遠只允許唯一的 dentry","只有重複 open 同一 fd 才能建立第二個 inode 名稱"],["可以，只要 write 回傳完整 byte count 就自動代表 fsync 成功","不能，但只有 inode metadata 不保證持久，file data 已必定落盤"],["能，因為 fsync(file) 自動同步同目錄所有 entry","不能，因為 fsync(file) 不會同步檔案內任何 data blocks"],["目前可見 page cache 的值即是已提交的全部交易集合","只需記住最後一次未完成的 SET，無需 COMMIT 邊界"]],"27":[["收到一次事件後只讀一部分，下一次 epoll_wait 必然再次返回可讀","在 ET 模式下仍應使用 blocking read 直到剛好要求的 bytes"],["表示 peer 關閉所有連線，且 buffer 一定已被清空","表示本次 read 已經成功回傳要求的所有 bytes"],["主要特色是磁頭最短尋道排程與單個全域佇列","主要特色是將裝置中斷完全取消，不需要 completion queue"],["只要由 DMA 寫記憶體，IOMMU 與授權映射都不會作用","DMA 只能在 CPU 關閉記憶體保護時使用，故不可能在 Linux 進行"]],"28":[["CPU usage 低就可排除 cgroup throttling，不需量測 queue","只要 p99 上升，唯一合理診斷就是提高 CPU 主頻"],["重新分配每個 process 的 PID，避免 namespace 競爭","取代 Unix 文件權限與 Linux capabilities 的全部授權機制"],["能，只要加上 -f 就可追蹤所有 user-space ALU 指令","能，但必須先以 root 對每個 CPU instruction 設定 breakpoint"],["不會，只要 tracer 僅執行 read syscall 就零成本","只有取樣頻率低於100Hz才完全沒有觀測成本"]]};
+for(const [chapter,items] of Object.entries(legacy)){
+ const l=lessons.find(x=>x.id===Number(chapter));
+ if(!l||items.length!==4)throw Error('Legacy assessment coverage missing '+chapter);
+ for(let i=0;i<4;i++){
+  const q=l.quiz[i],positions=q[1].map((_,n)=>n).filter(n=>n!==q[2]);
+  if(positions.length!==items[i].length)throw Error('Original option arity changed '+chapter+':'+i);
+  for(let n=0;n<positions.length;n++)q[1][positions[n]]=items[i][n];
+  if(new Set(q[1]).size!==q[1].length)throw Error('Duplicate advanced-original question '+chapter+':'+i);
+ }
+}
+window.OS_ASSESSMENT_QUALITY.legacyRevised=32;
+
 })();
