@@ -49,7 +49,7 @@ for(const [key,s] of Object.entries(specs)){
  })[Number(key)];
  l.textbook={
   algorithm:s.l2.algorithm,preconditions:s.l2.preconditions,symbols:s.symbols,
-  formula:eq?formula:formula,
+  formula:formula,
   stateHeaders:s.l2.headers,stateRows:s.l2.rows,worked:s.l2.worked,
   l3:s.l3
  };
