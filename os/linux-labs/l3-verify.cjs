@@ -19,7 +19,7 @@ function answer(id,t) {
  case 1: return v(0)<0?'ERROR':v(0)===0?'ZERO':'SUCCESS';
  case 2: case 14: return String(2**v(0));
  case 3: return ['STACK','PC','REG'].includes(t[0])?'PRIVATE':'SHARED';
- case 4: { let time=0,out=[]; for(let i=0;i<6;i+=2){const at=v(i),bt=v(i+1),start=Math.max(time,at);out.push(start-at);time=start+bt;} return out.join(' '); }
+ case 4: {const jobs=[0,1,2].map(i=>({i,at:v(i*2),bt:v(i*2+1)})).sort((x,y)=>x.at-y.at||x.i-y.i);let time=0,out=[];for(const j of jobs){const start=Math.max(time,j.at);out[j.i]=start-j.at;time=start+j.bt;}return out.join(' ');}
  
  case 5: return String(v(0)+1);
  case 6: return String(Math.floor(v(0)/v(1))+' '+v(0)%v(1));
