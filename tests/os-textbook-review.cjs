@@ -9,6 +9,7 @@ const base=JSON.parse(JSON.stringify(ctx.window.OS_DATA));
 assert.equal(base.lessons.length,21,'Original curriculum baseline');
 vm.runInNewContext(read('os/assets/depth.js'),ctx,{filename:'depth.js'});
 vm.runInNewContext(read('os/assets/advanced-content.js'),ctx,{filename:'advanced-content.js'});
+vm.runInNewContext(read('os/assets/code-examples.js'),ctx,{filename:'code-examples.js'});
 const codeForTextbook=[];
 ctx.CSLab={code:{add:p=>codeForTextbook.push(p),list:()=>codeForTextbook,cases:p=>p.cases}};
 vm.runInNewContext(read('os/assets/advanced-code.js'),ctx,{filename:'advanced-code.js'});
@@ -21,8 +22,9 @@ assert.deepEqual(D.units,base.units,'Original subject units preserved');
 for(const old of base.lessons){
  const now=D.lessons.find(l=>l.id===old.id);
  assert(now,'Original lesson id '+old.id+' must remain');
- for(const k of ['title','short','unit','minutes','icon','ask','analogy','why','steps','summary','terms','lab','code','goals','caveat'])
+ for(const k of ['title','short','unit','minutes','icon','ask','analogy','why','steps','summary','terms','lab','goals','caveat'])
   assert.deepEqual(now[k],old[k],'Original lesson '+old.id+' field '+k+' preserved');
+ if(!ctx.window.OS_RUNNABLE_EXAMPLES.includes(old.id))assert.deepEqual(now.code,old.code,'Original code preserved '+old.id);
  assert.deepEqual(now.details.slice(0,old.details.length),old.details,'Original details preserved '+old.id);
  assert.deepEqual(now.quiz.slice(0,old.quiz.length),old.quiz,'Original four quiz items preserved '+old.id);
  assert(now.details.length>=old.details.length+2,'Two L2/L3 expansions '+old.id);
