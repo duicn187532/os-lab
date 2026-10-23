@@ -37,6 +37,8 @@ jobs:
           node tests/os-examples-compile.cjs
       - name: Verify real student code across four native languages
         run: node tests/os-student-verify.cjs
+      - name: Grade all eight advanced OS programming submissions
+        run: node tests/os-capstone-student.cjs
       - name: Verify L4 integration experiment on Linux
         run: python3 os/linux-labs/l4/selftest.py
       - name: Build and run Linux POSIX labs
