@@ -1,0 +1,86 @@
+/* Coding Challenge PoC：版面與編輯器。共用元件（.card、.lab、.btn、.seg、.tag、.note）沿用 shared/cslab.css 與
+   shared/skin-maple.css，所以學術外觀與楓之谷外觀都直接適用；這裡只放這一頁特有的部分。 */
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+body { background: var(--bg); }
+.poc-top { display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-bottom: 1px solid var(--line); background: var(--surface); position: relative; z-index: 1; }
+.poc-brand { font-weight: 850; font-size: 19px; letter-spacing: .05em; color: var(--text); text-decoration: none; }
+.poc-brand b { color: var(--accent); }
+.poc-sub { color: var(--muted); font-size: 14px; display: inline-flex; gap: 8px; align-items: center; }
+.poc-tools { margin-left: auto; display: inline-flex; gap: 8px; }
+.poc { display: grid; grid-template-columns: minmax(260px, 360px) minmax(0, 1fr); gap: 20px; max-width: 1360px; margin: 0 auto; padding: 20px; align-items: start; position: relative; z-index: 1; }
+.poc-side { display: grid; gap: 16px; min-width: 0; }
+.poc-side .card, .poc-work { margin: 0; }
+.poc-work { min-width: 0; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.poc-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.poc-item { width: 100%; display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.poc-item:hover:not(:disabled) { border-color: var(--accent); }
+.poc-item[aria-current="true"] { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.poc-item:disabled { opacity: .6; cursor: not-allowed; }
+.poc-num { font-family: var(--mono); color: var(--muted); font-size: 13px; }
+.poc-name { flex: 1; }
+.poc-statement h3 { font-size: 15px; margin: 14px 0 4px; }
+.poc-statement p { margin: 4px 0; }
+.poc-sample { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.poc-sample b, .poc-io b { font-size: 13px; }
+.poc-sample pre, .poc-io pre, .poc-case pre { margin: 4px 0 0; padding: 8px 10px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; font-family: var(--mono); font-size: 13px; white-space: pre-wrap; word-break: break-all; max-height: 220px; overflow: auto; }
+.poc-bar { gap: 10px; margin-bottom: 10px; }
+.poc-actions { gap: 8px; margin: 10px 0; align-items: center; }
+.poc-stdin summary { cursor: pointer; font-size: 14px; color: var(--text-2); }
+.poc-stdin textarea { width: 100%; margin-top: 6px; font-family: var(--mono); font-size: 13px; min-height: 80px; }
+.poc-result:empty { display: none; }
+.poc-verdict b { font-size: 17px; }
+.poc-out { margin-top: 12px; }
+.poc-out .seg button.has::after { content: " •"; color: var(--rose); }
+.poc-pre { margin: 6px 0 0; min-height: 64px; max-height: 280px; overflow: auto; padding: 10px 12px; background: #0f172a; color: #e2e8f0; border-radius: 10px; font-family: var(--mono); font-size: 13px; white-space: pre-wrap; word-break: break-word; }
+.poc-cases { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 6px; }
+.poc-case { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.poc-case[data-verdict="AC"] { border-color: color-mix(in srgb, var(--green) 40%, var(--line)); }
+.poc-case[data-verdict]:not([data-verdict="AC"]) { border-color: color-mix(in srgb, var(--rose) 40%, var(--line)); }
+.poc-case[data-state="running"] { border-style: dashed; }
+.poc-case-name { font-weight: 650; min-width: 9em; }
+.poc-case > p, .poc-case > details { flex-basis: 100%; margin: 2px 0 0; }
+.poc-case summary { cursor: pointer; font-size: 13px; color: var(--text-2); }
+.poc-io { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.poc-foot { max-width: 1360px; margin: 0 auto; padding: 0 20px 32px; color: var(--muted); font-size: 13px; line-height: 1.8; position: relative; z-index: 1; }
+
+/* ---------- 編輯器：textarea 疊在語法上色的 pre 上，字型與行高必須完全一樣 ---------- */
+.ed { --ed-font: 13.5px/1.6 var(--mono); position: relative; display: flex; height: min(56vh, 480px); min-height: 240px; border: 1px solid var(--line-strong); border-radius: 10px; overflow: hidden; background: #0f172a; color: #e2e8f0; }
+.ed-gutter { flex: none; width: 3.2em; overflow: hidden; padding: 10px 0; background: #0b1222; color: #64748b; text-align: right; font: var(--ed-font); user-select: none; }
+.ed-lines { white-space: pre; padding-right: 8px; }
+.ed-main { position: relative; flex: 1; min-width: 0; overflow: hidden; }
+.ed-hl, .ed-input { margin: 0; padding: 10px 12px; font: var(--ed-font); tab-size: 4; white-space: pre; letter-spacing: normal; word-spacing: normal; }
+.ed-hl { position: absolute; inset: 0 auto auto 0; pointer-events: none; min-width: 100%; }
+.ed-hl code { font: inherit; }
+.ed .ed-input { position: absolute; inset: 0; width: 100%; height: 100%; resize: none; border: 0; border-radius: 0; outline: none; box-shadow: none; background: transparent; color: transparent; caret-color: #f8fafc; overflow: auto; }
+.ed .ed-input::selection { background: rgb(148 163 184 / .35); color: transparent; }
+.ed:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); }
+.tk-kw { color: #c792ea; } .tk-str { color: #c3e88d; } .tk-com { color: #7f8ea3; font-style: italic; } .tk-num { color: #f78c6c; } .tk-pre { color: #89ddff; }
+
+@media (max-width: 900px) {
+  .poc { grid-template-columns: minmax(0, 1fr); padding: 12px 16px; gap: 14px; }
+  .poc-io { grid-template-columns: minmax(0, 1fr); }
+  .ed { height: 50vh; }
+}
+@media (max-width: 520px) {
+  .poc-top { padding: 10px 16px; flex-wrap: wrap; }
+  .poc-sample { grid-template-columns: minmax(0, 1fr); }
+  .poc-actions .btn { flex: 1 1 calc(50% - 8px); }
+  .poc-case-name { min-width: 0; }
+}
+
+/* ---------- 楓之谷外觀：工作區是遊戲視窗（底部藍帶標 CODING CHALLENGE），其餘沿用 skin-maple.css ---------- */
+:root[data-skin="maple"] body { background: #3366cc; }
+:root[data-skin="maple"] .poc-top { background: rgb(20 36 68 / .88); border-bottom: 2px solid #ffb21e; }
+:root[data-skin="maple"] .poc-brand, :root[data-skin="maple"] .poc-sub { color: #ffffff; text-shadow: var(--outline); }
+:root[data-skin="maple"] .poc-brand b { color: #ffd34a; }
+:root[data-skin="maple"] .poc-work { padding: 4px 12px 8px; margin-bottom: 48px; }
+:root[data-skin="maple"] .poc-work::after { content: "CODING CHALLENGE"; }
+:root[data-skin="maple"] .poc-item { border-radius: 2px; background: #ffffff; border-color: #b9b9a4; }
+:root[data-skin="maple"] .poc-item[aria-current="true"] { background: #fff4c8; border-color: #f07a00; }
+:root[data-skin="maple"] .poc-case { border-radius: 2px; }
+:root[data-skin="maple"] :is(.poc-sample pre, .poc-io pre, .poc-case pre) { border-radius: 0; background: #f6f6ee; }
+:root[data-skin="maple"] .ed, :root[data-skin="maple"] .poc-pre { border-radius: 0; border: 1px solid #1d3550; }
+:root[data-skin="maple"] .ed .ed-input { background: transparent; border: 0; box-shadow: none; color: transparent; }
+:root[data-skin="maple"] .ed .ed-input:focus { outline: none; }
+:root[data-skin="maple"] .poc-foot { color: #ffffff; text-shadow: var(--outline); }
+:root[data-skin="maple"] .poc-foot a { color: #ffe39a; }

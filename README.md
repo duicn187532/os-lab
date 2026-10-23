@@ -67,6 +67,7 @@ shared/cslab-skin.js        外觀切換、素材探測、NPC 精靈圖；擴充
 shared/cslab-challenge.js   互動挑戰的共用 API（CSLab.challenge）：卡片、提示、失誤、看解答的條件、紀錄
 shared/cslab-game.js        遊戲層：經驗值與等級、狀態列、章節怪物、測驗討伐、怪物挑戰（window.CSLabGame）
 docs/interactive-challenges.md  互動挑戰的設計、API、四個原型、87 章規劃與 LA / CO / ASM 方案
+challenge-poc/              四語言 Coding Challenge 原型（C / C++ / Python / JavaScript 在瀏覽器裡編譯、執行、評測；說明見其 README.md）
 .claude/skills/maple-skin/  maple-skin Skill（規範、參考頁面、建圖腳本；不含遊戲圖檔）
 os/index.html               OS LAB 頁面（只載入下列檔案）
 os/assets/content.js        教材資料：章節、測驗、術語、公式
@@ -85,6 +86,7 @@ tests/ai-review.cjs         AI LAB 端對端檢查
 tests/skin-review.cjs       外觀層檢查（入口網、OS、DSA、DM、AI）
 tests/game-review.cjs       遊戲層檢查（經驗值、討伐、狀態列）
 tests/challenge-review.cjs  互動挑戰檢查（四個原型的驗證規則、多解、誤差、紀錄、經驗值、兩種外觀）
+tests/coding-poc.cjs        Coding Challenge 原型的功能與安全檢查（tests/poc-server.cjs 模仿 GitHub Pages 標頭，coding-poc-perf.cjs 量效能）
 ```
 
 沒有建置步驟。
@@ -116,6 +118,7 @@ TEST_URL=http://localhost:8000/os-lab/os/ node os-lab/tests/os-review.cjs   # �
 node os-lab/tests/skin-review.cjs
 node os-lab/tests/game-review.cjs
 node os-lab/tests/challenge-review.cjs   # TEST_ROOT=http://localhost:8001/ 可測只開 os-lab（沒有素材）的情況
+bash os-lab/challenge-poc/tools/vendor.sh && node os-lab/tests/coding-poc.cjs   # Coding Challenge 原型（自己啟動伺服器）
 ```
 
 可用 `CHROMIUM_PATH` 指定瀏覽器、`TEST_URL` 指定網址、`SHOT_DIR` 輸出截圖（OS）。

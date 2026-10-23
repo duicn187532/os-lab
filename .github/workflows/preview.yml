@@ -1,0 +1,37 @@
+name: Deploy branch preview to GitHub Pages
+
+# 開發分支的測試部署：發布到 gh-pages 的 preview/<分支>/，不動正式站的其他檔案。
+# 網址：https://<帳號>.github.io/os-lab/preview/<分支>/。main 下一次部署（force_orphan）會清掉所有預覽。
+on:
+  push:
+    branches: [ maple-skin-refactor ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Coding Challenge runtimes (Pyodide, YoWASP Clang)
+        run: |
+          bash challenge-poc/tools/vendor.sh
+          rm challenge-poc/.gitignore
+
+      - name: Deploy to gh-pages/preview/<branch>
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: .
+          destination_dir: preview/${{ github.ref_name }}
+          keep_files: true
+          exclude_assets: '.github,tests'
