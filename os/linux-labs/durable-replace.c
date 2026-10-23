@@ -1,7 +1,7 @@
 /* POSIX/Linux durable rename pattern in a throwaway directory.
  * cc -std=c11 -Wall -Wextra -Werror durable-replace.c -o durable-replace
  * ./durable-replace /tmp/os-lab-test-directory  */
-#define _POSIX_C_SOURCE 200809L
+#define _GNU_SOURCE
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
