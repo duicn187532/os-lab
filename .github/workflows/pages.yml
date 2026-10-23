@@ -132,7 +132,9 @@ jobs:
           ENGINE=chromium node tests/os-crossbrowser-semantic.cjs
 
   deploy:
-    if: github.event_name != 'pull_request'
+    # Only a tested push to main may publish. Manual dispatch on a feature
+    # branch must never overwrite the production gh-pages branch.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [academic-quality-gate, chromium-publish-gate]
     permissions:
       contents: write
