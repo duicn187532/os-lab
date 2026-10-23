@@ -65,7 +65,18 @@ const frameCtx={CSLab:{
 vm.runInNewContext(read('os/assets/advanced-labs.js'),frameCtx,{filename:'advanced-labs.js'});
 vm.runInNewContext(read('os/assets/advanced-code.js'),frameCtx,{filename:'advanced-code.js'});
 assert.equal(labs.size,8,'Eight new interactive simulators');
-assert.equal(problems.length,29,'Every chapter has one coding problem');
+const capstones=[];
+const capstoneCtx={CSLab:{code:{add:p=>capstones.push(p)}}};
+vm.runInNewContext(read('os/assets/algorithm-capstones.js'),capstoneCtx,{filename:'algorithm-capstones.js'});
+assert.equal(capstones.length,8,'Eight advanced algorithmic programming challenges');
+assert.equal(new Set(capstones.map(p=>p.id)).size,8,'Unique capstone IDs');
+for(const p of capstones){
+ assert(p.statement.length>=80&&p.hints.length>=2,'Capstone algorithm description '+p.id);
+ assert(['cpp','python','javascript','c'].every(lang=>p.starter[lang]?.length>=60),'Capstone languages '+p.id);
+ assert(p.cases.length>=3&&p.cases.some(c=>!c.visible),'Capstone hidden tests '+p.id);
+ for(const c of p.cases){const rows=c.input.trim().split('\n');assert.equal(Number(rows[0]),rows.length-1,p.id+' input length');assert.equal(rows.length-1,c.output.trim().split('\n').length,p.id+' output length');}
+}
+assert.equal(problems.length,29,'Every chapter has one introductory coding problem');
 const problemIds=new Set(problems.map(p=>p.lesson));
 assert.equal(problemIds.size,29,'One code quest per chapter');
 let variants=0;
@@ -107,4 +118,4 @@ assert(html.indexOf('assets/advanced-content.js')<html.indexOf('assets/course.js
 assert(html.indexOf('assets/labs-more.js')<html.indexOf('assets/advanced-labs.js'),'Load existing labs before advanced');
 assert(html.indexOf('../shared/cslab-code.js')<html.indexOf('assets/advanced-code.js'),'Register Judge after shared core');
 assert(html.indexOf('assets/advanced-code.js')<html.indexOf('../shared/cslab-app.js'),'Register Judge before app');
-console.log('PASS: 29 chapters, 174 quizzes, 29 coding challenges, 8 interactive labs ('+variants+' validated frames), '+D.glossary.length+' glossary, preserved original IDs/content and module order.');
+console.log('PASS: 29 chapters, 174 quizzes, 37 coding challenges including 8 algorithm capstones, 8 interactive labs ('+variants+' validated frames), '+D.glossary.length+' glossary, preserved original IDs/content and module order.');
