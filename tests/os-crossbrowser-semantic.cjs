@@ -8,6 +8,9 @@ const PW=require('playwright'),engine=process.env.ENGINE||'chromium',URL=process
 const browser=await PW[engine].launch({headless:true,args:engine==='chromium'?['--no-sandbox']:[]});
 const ctx=await browser.newContext({viewport:{width:1280,height:900},reducedMotion:'reduce'});
 const page=await ctx.newPage(),errs=[];
+// Real browsers throttle rapid history.pushState calls (e.g. 100 within 10 seconds).
+// Preserve every assertion and case; pace only programmatic navigation.
+const navigatePaced=async(id,tab)=>{await page.evaluate(([i,t])=>OSApp.navigate(i,t),[id,tab]);await page.waitForTimeout(220);};
 page.on('pageerror',e=>errs.push(e.message));
 try{
  await page.goto(URL+'#/');
@@ -20,7 +23,7 @@ try{
  let formulas=0,mathCards=0,rows=0;
  const chapterIds=await page.evaluate(()=>OSApp.lessons.map(l=>l.id));
  for(const id of chapterIds){
-   await page.evaluate(id=>OSApp.navigate(id,'learn'),id);
+   await navigatePaced(id,'learn');
    const status=await page.evaluate(()=>{
      const root=document.querySelector('.os-textbook'),math=root?.querySelector('math'),state=root?.querySelector('.os-state-table');
      return {section:!!root,math:!!math,visible:math?.getBoundingClientRect().height||0,
@@ -64,7 +67,7 @@ try{
    await page.evaluate(s=>CSLabSkin.set(s),skin);
    for(const id of [0,4,6,17,22,23,24,25,26,27,28]){
     for(const tab of ['learn','lab','quiz','code']){
-     await page.evaluate(([id,tab])=>OSApp.navigate(id,tab),[id,tab]);
+     await navigatePaced(id,tab);
      const widthCheck=await page.evaluate(()=>({doc:document.documentElement.scrollWidth,view:innerWidth}));
      assert(widthCheck.doc<=widthCheck.view+1,'Overflow '+engine+' '+skin+' '+id+' '+tab+' width='+width+JSON.stringify(widthCheck));
      screens++;
