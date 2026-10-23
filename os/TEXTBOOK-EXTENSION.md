@@ -4,7 +4,7 @@
 
 ## 課程規模與相容性
 
-- **29 章、174 題選擇測驗（每章六題）、29 個章節模擬實驗、29 道 C / C++ / Python / JavaScript 判題**。21 個原始章節的穩定 ID 0–20、原有教材與測驗、實驗 ID 與 `os_lab_2026_v1` 進度鍵均不改動。
+- **29 章、174 題選擇測驗（每章六題）、29 個章節模擬實驗、37 道 C / C++ / Python / JavaScript 判題（29 入門＋8 綜合）**。21 個原始章節的穩定 ID 0–20、原有教材與測驗、實驗 ID 與 `os_lab_2026_v1` 進度鍵均不改動。
 - 加入 **21 章 × L2/L3 延伸講義**；原先 21 章每章四個子題，新增對底層機制、邊界案例、可驗證推導的深入章節。
 - 新增 **8 章**：開機/ELF、IPC、Atomic/Condition Variable、四級頁表/COW、Working Set/Clock、VFS/Journaling、epoll/NVMe、Linux 觀測/cgroups。新章在對應主題單元插入，總複習仍維持最末章。
 - 所有新章節都包含 3 項學習目標、導入問題、類比、機制說明、L2 分析、L3 作業、分步流程、限制、重點回顧、程式示例、術語、互動模擬與四題測驗。
@@ -85,7 +85,7 @@ cat /tmp/os-lab-durable-test/file.txt
 
 ## 程式挑戰
 
-29 題均由 `os/assets/advanced-code.js` 註冊至既有 `CSLab.code`，每題有公開與隱藏測資和四語言 starter。題目聚焦演算法與推導模型，包括 FCFS、Banker、FIFO、Clock、First Fit、位址拆解、Unix 權限、Pipe EOF、COW 可見性及 WAL recovery。**純抽象的 Judge 題不等於操作真實 kernel**；實際 POSIX 操作請以 Linux 範例作業驗收。
+29 題由 `os/assets/advanced-code.js` 註冊，另 8 道演算法專題由 `os/assets/algorithm-capstones.js` 註冊至既有 `CSLab.code`，每題有公開與隱藏測資和四語言 starter。題目聚焦演算法與推導模型，包括 FCFS、Banker、FIFO、Clock、First Fit、位址拆解、Unix 權限、Pipe EOF、COW 可見性及 WAL recovery。**純抽象的 Judge 題不等於操作真實 kernel**；實際 POSIX 操作請以 Linux 範例作業驗收。
 
 
 ## 第二輪教科書深度補強（本 PR）
@@ -94,7 +94,7 @@ cat /tmp/os-lab-durable-test/file.txt
 
 **L3 可執行契約：**每章提供標準輸入、預期輸出、邊界測資、重現命令與至少三項驗收條件。由 `os/linux-labs/l3-verify.cjs --chapter <ID>` 或 `--all` 計算獨立模型；它是檢查器，不應直接取代學生交付的演算法程式。
 
-**題庫難度：**每章保留前四題的進度／錯題相容性，另加兩題情境判斷／反例除錯，共 **174 題**。29 道程式題中有 **10 題**重新設計為狀態式實作（FCFS、FIFO、DAC、區間聯集、Banker、First Fit、FCFS/SSTF、Condition Variable、Clock、WAL）；其他題維持較基礎的入門難度，不能宣稱 29 題全部達高難度。
+**題庫難度：**每章保留前四題的進度／錯題相容性，另加兩題情境判斷／反例除錯，共 **174 題**。29 道入門程式題中有 **10 題**重新設計為狀態式實作，另新增 **8 道** SRTF、LRU、Banker、COW 等演算法綜合專題（FCFS、FIFO、DAC、區間聯集、Banker、First Fit、FCFS/SSTF、Condition Variable、Clock、WAL）；其他題維持較基礎的入門難度，不能宣稱 29 題全部達高難度。
 
 **數學式：**27 項公式均以原生 MathML 排版，獨立補充符號與適用前提；避免將函數或系統呼叫流程誤當可直接代入的數值公式。
 
