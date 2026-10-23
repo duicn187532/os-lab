@@ -39,7 +39,7 @@
 | 17 | Deadlock/Banker | 5,16 | 逐維計算 Need/Work/Finish/Request | 有/部分/部分 | 五行程三資源 Safety/Request Trial 的 ILLEGAL/WAIT/UNSAFE/GRANTED 全部分流及回滾檢核已補；實際死結回復機制仍缺 | P1 |
 | 18 | Allocation/Fragmentation | 6 | 模擬 First/Best/Worst Fit 與 coalescing | 有/部分/部分 | 現有 First Fit 可驗算；缺完整 free/coalesce 事件序列 | P1 |
 | 19 | Disk Scheduling/Storage | 8,9 | 計算 seek 及排程策略 | 有/部分/部分 | FCFS/SSTF 存在；SSD/NVMe 與實際 latency 不可類推 | P2 |
-| 20 | MLFQ/Multicore | 4 | 維護多級隊列、boost、aging | 有/部分/部分 | 單個 priority transition 不等於完整排程器，待加入多工作狀態 | P1 |
+| 20 | MLFQ/Multicore | 4 | 維護多級隊列、boost、aging | 有/部分/部分 | 新增 Q0/Q1/Q2 quantum=1/2/4 多工作搶先、降級、全局 priority boost 完整 tick trace 及 1200 組 randomized property 測試；尚待驗證 aging 與 Linux CFS/EEVDF 對照 | P1 |
 | 21 | Kernel/Boot/ELF | 0,1 | 分析 boot chain/ELF 故障點 | 有/部分/部分 | stage 分類有模型；缺 readelf/execve 工具證據驗收 | P2 |
 | 22 | IPC/Pipe/Signal | 2,9 | 證明 fd 引用、EOF 與 partial I/O | 有/部分/部分 | EOF 概念題 + pipe C；需要 nonblocking/partial/error 注入 | P1 |
 | 23 | CAS/Condvar/Ordering | 3,5,16 | 驗證 predicate 循環與 happens-before | 有/部分/部分 | while/spurious wake 加上真實 pthread condvar bounded queue，可重現 predicate shutdown；仍欠 C11 atomic memory-order 對照 | P1 |
