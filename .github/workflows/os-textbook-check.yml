@@ -8,6 +8,8 @@ on:
       - 'tests/os-maple-review.cjs'
       - 'tests/os-textbook-review.cjs'
       - 'tests/os-judge-native.cjs'
+      - 'tests/os-crossbrowser-semantic.cjs'
+      - 'tests/os-browser-wasm.cjs'
       - 'tests/os-browser-judge.cjs'
       - '.github/workflows/os-textbook-check.yml'
   push:
@@ -18,6 +20,8 @@ on:
       - 'tests/os-maple-review.cjs'
       - 'tests/os-textbook-review.cjs'
       - 'tests/os-judge-native.cjs'
+      - 'tests/os-crossbrowser-semantic.cjs'
+      - 'tests/os-browser-wasm.cjs'
       - 'tests/os-browser-judge.cjs'
       - '.github/workflows/os-textbook-check.yml'
 
@@ -30,7 +34,9 @@ jobs:
         with:
           node-version: '22'
       - name: Validate 29 chapters, labs, questions and Judge data
-        run: node tests/os-textbook-review.cjs
+        run: |
+          node tests/os-textbook-review.cjs
+          node os/linux-labs/l3-verify.cjs --all
 
   judge-native:
     runs-on: ubuntu-latest
@@ -97,3 +103,71 @@ jobs:
           TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-review.cjs
           TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-maple-review.cjs
           TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-browser-judge.cjs
+
+  cross-browser-semantic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: os-lab
+      - uses: actions/checkout@v4
+        with:
+          repository: duicn187532/self-research
+          path: self-research
+          sparse-checkout: |
+            assets/maple
+          sparse-checkout-cone-mode: true
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright engine
+        working-directory: os-lab
+        run: |
+          npm install --no-save --no-package-lock playwright@1.58.2
+          npx playwright install --with-deps ${{ matrix.engine }}
+      - name: Test semantic correctness, MathML and touch-sized responsive layouts
+        working-directory: os-lab
+        env:
+          ENGINE: ${{ matrix.engine }}
+          TEST_URL: http://localhost:8000/os-lab/os/
+        run: |
+          node tests/poc-server.cjs "$GITHUB_WORKSPACE" 8000 >/tmp/os-cross-browser.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8000/os-lab/os/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node tests/os-crossbrowser-semantic.cjs
+
+  browser-wasm-languages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: os-lab
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Download required WASM compiler and Pyodide runtimes
+        working-directory: os-lab
+        run: bash shared/code/tools/vendor.sh
+      - name: Install browser runner
+        working-directory: os-lab
+        run: |
+          npm install --no-save --no-package-lock playwright@1.58.2
+          npx playwright install --with-deps chromium
+      - name: Execute SRTF, LRU, Banker and COW in real C, C++ and Python browser sandboxes
+        working-directory: os-lab
+        run: |
+          node tests/poc-server.cjs "$GITHUB_WORKSPACE" 8000 >/tmp/os-wasm-server.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8000/os-lab/os/ >/dev/null; then break; fi
+            sleep 1
+          done
+          TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-browser-wasm.cjs
