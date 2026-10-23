@@ -12,6 +12,7 @@ on:
       - 'tests/os-crossbrowser-semantic.cjs'
       - 'tests/os-browser-wasm.cjs'
       - 'tests/os-browser-judge.cjs'
+      - 'tests/os-browser-multilang.cjs'
       - '.github/workflows/os-textbook-check.yml'
   push:
     branches:
@@ -25,6 +26,7 @@ on:
       - 'tests/os-crossbrowser-semantic.cjs'
       - 'tests/os-browser-wasm.cjs'
       - 'tests/os-browser-judge.cjs'
+      - 'tests/os-browser-multilang.cjs'
       - '.github/workflows/os-textbook-check.yml'
 
 jobs:
@@ -175,3 +177,31 @@ jobs:
             sleep 1
           done
           TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-browser-wasm.cjs
+
+  browser-multilang:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: os-lab
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium / Playwright
+        working-directory: os-lab
+        run: |
+          npm install --no-save --no-package-lock playwright@1.58.2
+          npx playwright install --with-deps chromium
+      - name: Download integrity-verified WASM runtimes
+        working-directory: os-lab
+        run: bash shared/code/tools/vendor.sh
+      - name: Judge C, C++ and Python in the actual browser sandbox
+        working-directory: os-lab
+        run: |
+          node tests/poc-server.cjs "$GITHUB_WORKSPACE" 8000 >/tmp/os-lab-multilang-server.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -fsS http://localhost:8000/os-lab/os/ >/dev/null && break
+            sleep 1
+          done
+          TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-browser-multilang.cjs
