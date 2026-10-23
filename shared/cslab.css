@@ -386,6 +386,36 @@ dialog::backdrop { background: rgb(8 12 24 / .5); backdrop-filter: blur(2px); }
   .content { padding: 20px 18px 72px; }
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
 }
+/* 互動挑戰（shared/cslab-challenge.js）：每章頁尾的互動自我檢測 */
+.challenge-slot { margin-top: 28px; }
+.challenge { border-top: 3px solid var(--accent); }
+.ch-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ch-head .label { margin: 0 !important; }
+.ch-title { font-size: 19px; margin: 8px 0 4px; }
+.ch-task { color: var(--text-2); }
+.ch-rounds { display: flex; align-items: center; gap: 6px; margin: 10px 0 2px; }
+.ch-rounds i { width: 22px; height: 6px; border-radius: 3px; background: var(--surface-3); }
+.ch-rounds i.on { background: var(--green); } .ch-rounds i.cur { background: var(--accent); }
+.ch-body { margin-top: 12px; }
+.ch-goal { font-size: 15.5px; margin: 10px 0; }
+.ch-claim { font-size: 15px; padding: 2px 8px; border-radius: 7px; background: var(--surface-2); white-space: normal; overflow-wrap: anywhere; }
+.ch-msg:empty { padding: 0; margin: 0; border: 0; }
+.ch-hints { margin: 10px 0; padding: 10px 14px 10px 34px; border-radius: 11px; background: var(--amber-soft); font-size: 14.5px; }
+.ch-hints li + li { margin-top: 4px; }
+.ch-record { margin: 4px 0 0; }
+.ch-explain { margin-top: 14px; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); }
+.ch-explain h4 { font-size: 15px; margin: 0 0 8px; }
+.ch-explain p, .ch-explain li { font-size: 14.5px; }
+.ch-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.ch-toggle[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-strong); }
+.ch-truth tr.sel td { background: var(--rose-soft); }
+.ch-log { padding-left: 20px; }
+.ch-lr { align-items: center; }
+.ch-lr .field.inline { flex: 1 1 220px; }
+.ch-lr .field.inline > span { white-space: nowrap; }
+.ch-lr .range { min-width: 140px; }
+.ch-plot { margin: 10px 0; }
+.ch-plot .ai-legend { text-align: center; }
 @media (max-width: 640px) {
   body { font-size: 15.5px; }
   .home-grid { grid-template-columns: 1fr; }

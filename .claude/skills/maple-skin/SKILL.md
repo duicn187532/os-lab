@@ -174,10 +174,18 @@ CS LAB reuses its art and techniques, not its paper logic:
   digits, a miss the monster's lunge and a heart popping off, a lost question MISS; a full win
   knocks the monster down, otherwise it runs away; then the hero cheers with the EXP gain and the
   level-up light. The notice line cycles the page's key points (goals, the question, the summary,
-  the lab's prediction). All of it is `aria-hidden`, unfocusable and
-  hidden in classic; `tests/game-review.cjs` covers it.
+  the lab's prediction). The chapter-footer challenge (`shared/cslab-challenge.js`, see
+  `docs/interactive-challenges.md`) becomes a monster challenge: the card joins the quiz rules
+  (dialog frame with an NPC, MONSTER CHALLENGE band, `.has-arena`), a small mob other than the
+  chapter's monster stands on it with a `.bt-bar[data-tier="challenge"]` whose HP is the number of
+  rounds; a mistake is the mob's lunge, MISS and the card's shake, a round a hit, solving knocks it
+  down, opening the answer makes it run away. The heading's accessible text stays 互動自我檢測; the
+  maple name is a `::before` with empty alt text. The game layer only reads the card's `data-*` and
+  `cslab:challenge`; challenge EXP comes from the stored record once (60 / 40 / 20, 0 if revealed).
+  All of it is `aria-hidden`, unfocusable and hidden in classic; `tests/game-review.cjs` and
+  `tests/challenge-review.cjs` cover it.
 - **Extension points**: `cslab-app.js` dispatches `cslab:render`, `cslab:quiz-view`,
-  `cslab:answer` and `cslab:progress` on `document`; `window.CSLabSkin` exposes `skin`, `active`,
+  `cslab:answer` and `cslab:progress` on `document`, `cslab-challenge.js` dispatches `cslab:challenge`; `window.CSLabSkin` exposes `skin`, `active`,
   `set()`, `url()`, `npc(host, key, quest)`, `onChange()` and `sprite`; `window.CSLabGame` exposes
   the EXP table, `levelOf`, `jobOf`, the chapter tiers and the current level.
 - **Adding a course**: a shell course needs only the stylesheet link, the head snippet and

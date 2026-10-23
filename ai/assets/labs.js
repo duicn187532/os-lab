@@ -76,12 +76,16 @@ def('vector', '內積、長度與餘弦相似度', [['x', '向量 x（兩個數�
   return { frames: F, summary: `dot=${round(dot)}，cosine=${round(cos)}；向量的語意由訓練而來，不會由公式直接決定。` };
 });
 
+// L(w) = (w − 3)²：梯度下降實驗與第 3 章的學習率挑戰共用
+const GD = { opt: 3, loss: w => (w - 3) ** 2, grad: w => 2 * (w - 3) };
+GD.trail = (start, lr, n) => { const t = [start]; for (let i = 0; i < n; i++) t.push(t[i] - lr * GD.grad(t[i])); return t; };
 def('gradient', '梯度下降：一步一步走下坡', [['start', '起始 w', 'range', -4, [-12, 12, .5]], ['lr', '學習率 η', 'range', .2, [0, 1.5, .05]], ['steps', '更新次數', 'range', 12, [1, 28, 1]]], o => {
   const { F, push } = make();
-  let w = clamp(o.start, -12, 12, -4); const lr = clamp(o.lr, 0, 1.5, .2), n = clamp(o.steps, 1, 28, 12), lim = [-8, 6, 0, 144], trail = [w];
-  const plot = () => { let s = ''; trail.forEach((v, i) => { const [x, y] = xy([Math.max(-8, Math.min(6, v)), Math.min(144, (v - 3) ** 2)], lim); s += `<circle class="${i === trail.length - 1 ? 'hot' : 'trail'}" cx="${x}" cy="${y}" r="${i === trail.length - 1 ? 7 : 3}"/>`; }); return curvePlot(v => (v - 3) ** 2, lim) .replace('</svg>', s + '</svg>') + legend(`w=${round(w)}　Loss=${round((w - 3) ** 2)}`); };
+  const lr = clamp(o.lr, 0, 1.5, .2), n = clamp(o.steps, 1, 28, 12), lim = [-8, 6, 0, 144], all = GD.trail(clamp(o.start, -12, 12, -4), lr, n), trail = [all[0]];
+  let w = all[0];
+  const plot = () => { let s = ''; trail.forEach((v, i) => { const [x, y] = xy([Math.max(-8, Math.min(6, v)), Math.min(144, GD.loss(v))], lim); s += `<circle class="${i === trail.length - 1 ? 'hot' : 'trail'}" cx="${x}" cy="${y}" r="${i === trail.length - 1 ? 7 : 3}"/>`; }); return curvePlot(GD.loss, lim) .replace('</svg>', s + '</svg>') + legend(`w=${round(w)}　Loss=${round(GD.loss(w))}`); };
   push('起點', `起點 w=${round(w)}，Loss=(w−3)²。`, plot());
-  for (let i = 0; i < n; i++) { const g = 2 * (w - 3), nw = w - lr * g; const text = `第 ${i + 1} 次：梯度 ${round(g)}；w ← ${round(w)} − ${round(lr)} × ${round(g)} = ${round(nw)}。`; w = nw; trail.push(w); push(`第 ${i + 1} 次更新`, text, plot()); }
+  for (let i = 0; i < n; i++) { const g = GD.grad(w), nw = all[i + 1]; const text = `第 ${i + 1} 次：梯度 ${round(g)}；w ← ${round(w)} − ${round(lr)} × ${round(g)} = ${round(nw)}。`; w = nw; trail.push(w); push(`第 ${i + 1} 次更新`, text, plot()); }
   return { frames: F, summary: `終點 w=${round(w)}，Loss=${round((w - 3) ** 2)}；若 η>1，本例的迭代會發散。` };
 });
 
@@ -423,5 +427,5 @@ Object.entries(LABS).forEach(([type, spec]) => {
     return base(s, key, value, ...rest);
   };
 });
-CSLab.sim.ai = { labs: LABS, frames: framesFor, svmBest, gini, mseOf, softmax };
+CSLab.sim.ai = { labs: LABS, frames: framesFor, svmBest, gini, mseOf, softmax, gd: GD };
 })();

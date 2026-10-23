@@ -42,7 +42,7 @@
 
   /* ───────────── 本機儲存（各課沿用舊鍵值，舊進度與筆記不會遺失） ───────────── */
   const KEY = C.storageKey;
-  const blank = () => ({ done: {}, notes: {}, last: lessons[0].id, learn: {}, lab: {}, wrong: {}, guess: {}, theme: null });
+  const blank = () => ({ done: {}, notes: {}, last: lessons[0].id, learn: {}, lab: {}, wrong: {}, guess: {}, challenge: {}, theme: null });
   function load() { try { const s = Object.assign(blank(), JSON.parse(localStorage.getItem(KEY)) || {}); if (s.theme !== 'light' && s.theme !== 'dark') s.theme = null; return s; } catch (_) { return blank(); } }
   const store = load();
   let saveTimer = null;
@@ -215,8 +215,11 @@
     </header>
     <nav class="tabs" role="tablist" aria-label="本章學習階段">${TABS.map(([k, t]) => `<a role="tab" id="tab-${k}" href="#/ch/${l.id}/${k}" aria-selected="${state.tab === k}" aria-controls="stage" tabindex="${state.tab === k ? 0 : -1}" class="${chapterStatus(l)[k] ? 'complete' : ''}">${t}</a>`).join('')}</nav>
     <div id="stage" role="tabpanel" aria-labelledby="tab-${state.tab}"></div>
+    <div id="challengeSlot" class="challenge-slot" hidden></div>
     <nav class="pager" aria-label="章節切換">${prev ? `<a class="pager-link" href="#/ch/${prev.id}/learn"><small>← 上一章</small><b>${h(prev.title)}</b></a>` : '<span></span>'}${next ? `<a class="pager-link next" href="#/ch/${next.id}/learn"><small>下一章 →</small><b>${h(next.title)}</b></a>` : `<a class="pager-link next" href="#/review"><small>全部讀完了 →</small><b>前往錯題複習</b></a>`}</nav>`;
     ({ learn: renderLearn, lab: renderLab, quiz: renderQuiz })[state.tab](l);
+    // 頁尾的互動挑戰（shared/cslab-challenge.js）：觀念與實驗頁籤顯示，測驗頁籤專心作答
+    if (Labs.challenge && state.tab !== 'quiz') Labs.challenge.mount($('challengeSlot'), l.id, { store, save: () => save(true) });
   }
 
   function renderLearn(l) {

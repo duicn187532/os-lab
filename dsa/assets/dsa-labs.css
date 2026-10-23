@@ -69,3 +69,10 @@
   .dz-node { width: 44px; height: 44px; font-size: 14px; }
   .dz-hbar { grid-template-columns: 5.5em 1fr auto; font-size: 13px; }
 }
+/* Binary Search 挑戰：陣列格子是按鈕 */
+.ch-array .dz-row { padding-bottom: 24px; }
+.ch-cell { cursor: pointer; font: 800 17px var(--mono); }
+.ch-cell:hover:not([disabled]) { border-color: var(--accent); }
+.ch-cell:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.ch-cell.out { opacity: .38; cursor: default; }
+.ch-cell[disabled]:not(.out):not(.active) { cursor: default; }

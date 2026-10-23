@@ -94,12 +94,12 @@ assert(!fs.existsSync(path.join(root, 'shared/maple')) && !fs.readdirSync(root, 
     const early = await page.evaluate(async u => { const r = await fetch(u); return (await r.text()).includes("localStorage.getItem('cslab.art')==='1'"); }, URL);
     assert(early, `${course}: head snippet applies the skin before first paint`);
 
-    // 7. 只下載畫面上用得到的精靈圖：NPC、任務圖示、走過的章節的怪物、主角與寵物、特效、傳送門，不會整批下載
+    // 7. 只下載畫面上用得到的精靈圖：NPC、任務圖示、走過的章節的怪物（和頁尾怪物挑戰的小怪）、主角與寵物、特效、傳送門，不會整批下載
     const spr = requests.filter(u => u.includes('/spr-'));
     const ok = /spr-(npc|quest|mob|elite|boss|hero|pet|fx|portal)-/;
     assert(spr.length > 0 && spr.every(u => ok.test(u)), `${course}: unexpected strips fetched: ${spr.filter(u => !ok.test(u))}`);
     const foes = new Set(spr.map(u => (u.match(/spr-((?:mob|elite|boss)-[a-z0-9]+)-/) || [])[1]).filter(Boolean));
-    assert(foes.size <= 2, `${course}: only the visited chapters' monsters fetched: ${[...foes]}`);
+    assert(foes.size <= 3, `${course}: only the visited chapters' monsters (and a chapter's challenge monster) fetched: ${[...foes]}`);
     requests.length = 0;
   }
 

@@ -1,7 +1,7 @@
 /* CS LAB 遊戲層：經驗值與等級、底部狀態列、章節怪物、測驗討伐、主角與升級特效。
  * 做法沿用 self-research（assets/site.js 的經驗值、狀態列與怪物，assets/battle.js 的討伐），只在楓之谷外觀啟用時出現。
  * - 不讀寫課程的進度鍵值，也不改測驗規則：兩次機會、錯題本與測驗紀錄照舊，這裡只把同一個測驗畫成打怪。
- * - 經驗值完全由各課既有的進度推算（讀完觀念、第一次做實驗、完成測驗、題目答對且不在錯題本、寫了筆記），
+ * - 經驗值完全由各課既有的進度推算（讀完觀念、第一次做實驗、完成測驗、題目答對且不在錯題本、寫了筆記、完成頁尾的互動挑戰），
  *   不逐次累加：還原備份、清除進度，經驗值跟著變。
  * - 各課把自己的總和與稱號快取在 localStorage 的 cslab.exp（{ 課程 id: { exp, title } }），
  *   入口網與其他課加總成同一位角色。和 self-research 的角色分開，不讀寫 study:*。
@@ -17,7 +17,10 @@
 
   /* ───────────── 經驗值與等級 ─────────────
    * 一門課全部完成約 LV.10，四門約 LV.18；等級沒有上限，稱號在轉職的等級換。 */
-  const EXP = { learn: 30, lab: 30, quiz: 100, elite: 100, boss: 200, right: 10, note: 20, course: 500 };
+  const EXP = { learn: 30, lab: 30, quiz: 100, elite: 100, boss: 200, right: 10, note: 20, course: 500, challenge: [60, 40, 20] };
+  // 互動挑戰：依存下來的紀錄算一次（失誤加提示 0 次 60、1–2 次 40、更多 20；先看了解答 0），再挑戰不會再加
+  const challengeExp = r => !r || !r.solved || r.revealed ? 0 : EXP.challenge[r.mistakes + r.hints === 0 ? 0 : r.mistakes + r.hints <= 2 ? 1 : 2];
+  const Challenges = window.CSLab && window.CSLab.challenge;
   const needFor = lv => Math.round((45 * Math.pow(lv, 1.5) + 55) / 10) * 10;
   function levelOf(exp) {
     let lv = 1, into = Math.max(0, exp);
@@ -59,6 +62,7 @@
       e += EXP.right * l.quiz.filter((_, qi) => !st.wrong[`${l.id}:${qi}`]).length;
     });
     if (lessons.length && lessons.every(l => st.done[l.id])) e += EXP.course;
+    if (Challenges) Challenges.list().forEach(c => { e += challengeExp((st.challenge || {})[c.id]); });
     return e;
   }
   const bossDown = () => !!(lessons.length && App.store.done[lessons[lessons.length - 1].id]);
@@ -136,6 +140,10 @@
         const f = foeFor(l.id);
         if (f) lines.push(['戰鬥', `${label(f.name)}守在這一章。答對一題打掉一格 HP；每題兩顆心，答錯會被反擊。`]);
       }
+      if (st.tab !== 'quiz' && Challenges) Challenges.forLesson(l.id).forEach(c => {
+        const r = (App.store.challenge || {})[c.id];
+        lines.push(['挑戰', `頁尾的怪物挑戰「${c.title}」：${r && r.solved ? '已通過。' : `先自己操作，驗證後才看得到解析；不看解答、沒有失誤過關得 EXP +${EXP.challenge[0]}。`}`]);
+      });
     } else {
       const next = lessons.find(l => !App.store.done[l.id]);
       lines.push(['公告', `歡迎來到 ${C.name}。讀觀念、做實驗、完成測驗都能獲得經驗值。`]);
@@ -427,6 +435,58 @@
     setTimeout(() => { if (victory.told !== hero) cheer(hero, false); }, 0);
   }
 
+  /* ───────────── 怪物挑戰 ─────────────
+   * 頁尾的互動挑戰（shared/cslab-challenge.js）在這個外觀是一場怪物挑戰：NPC 在肖像欄出題，卡片上緣站著一隻小怪
+   * （和守在章節的怪物不同），HP＝關數。失誤時牠擋下這一步、卡片震一下，過一關打掉一格 HP，完成時倒下，先看解答則逃走。
+   * 只讀挑戰卡片的 data-* 與 cslab:challenge 事件，題目、驗證與紀錄都不經過這裡。 */
+  const duels = new WeakMap(); // 卡片 → { foe, perch }
+  function duel(card) {
+    if (!Skin.active || !window.MAPLE_SPRITES || !card || !card.isConnected) return null;
+    let d = duels.get(card);
+    if (!d || !d.perch.wrap.isConnected) {
+      const lid = App.state.lesson, chapterFoe = foeFor(lid), mobs = S.kind('mob').filter(m => !chapterFoe || m !== chapterFoe.name);
+      const name = pick(mobs.length ? mobs : S.kind('mob'), `${C.id}:${lid}:${card.dataset.challenge}`);
+      if (!name) return null;
+      card.querySelectorAll(':scope > .perch, :scope > .bt-bar').forEach(el => el.remove());
+      d = { foe: name, perch: perch(card, [name], 'foe') };
+      card.style.setProperty('--perch-h', tallest(name));
+      card.classList.add('has-arena');
+      ['hit', 'die', 'move'].forEach(act => S.warm(name, act));
+      duels.set(card, d);
+      Skin.npc(card, `${C.id}:${lid}:challenge`, card.dataset.status === 'solved' ? 'done' : 'open');
+      if (card.dataset.over) d.perch.wrap.hidden = true;
+    }
+    return d;
+  }
+  function paintDuel(card, d, ev) {
+    const el = bar(card), foeName = label(d.foe) || '怪物', over = card.dataset.over, round = +card.dataset.round || 0, rounds = +card.dataset.rounds || 1;
+    el.dataset.tier = 'challenge';
+    el.classList.toggle('is-over', !!over);
+    el.classList.toggle('is-win', over === 'win');
+    el.querySelector('.bt-tier').textContent = '挑戰';
+    el.querySelector('.bt-foe').textContent = over === 'win' ? `挑戰成功！打倒了${foeName}` : over ? `${foeName}逃走了` : foeName;
+    el.querySelector('.bt-hp i').style.width = `${100 * (over === 'win' ? 0 : rounds - round) / rounds}%`;
+    el.querySelector('.bt-hearts').textContent = '';
+    el.querySelector('.bt-say').textContent = over === 'win' ? (ev.fresh ? '用這一章學到的方法通過了，經驗值記在紀錄上。' : '挑戰完成。') : over ? '看過解答了，這次不算討伐；按「再挑戰一次」可以再練。'
+      : ev.event === 'mistake' ? `${foeName}擋下了這一步！看看回饋，想清楚再出手。` : ev.event === 'round' ? `命中！還剩 ${rounds - round} 關。` : `${foeName}出現了。照本章的方法一步一步做，每過一關就打掉牠一格 HP。`;
+  }
+  function onChallenge(ev) {
+    const card = ev.card, d = duel(card);
+    if (!d) return;
+    paintDuel(card, d, ev);
+    const m = d.perch.cast[0];
+    if (ev.event === 'mistake') {
+      lunge(m.walker, -26);
+      setTimeout(() => popText(m.walker, 'MISS', 'fx-miss'), 130);
+      if (!reduce()) { card.classList.remove('is-struck'); void card.offsetWidth; card.classList.add('is-struck'); }
+    } else if (ev.event === 'round' && !card.dataset.over) {
+      S.swapAct(m.spr, d.foe, 'hit');
+      damage(m.walker, false);
+      setTimeout(() => { if (m.spr.isConnected) S.swapAct(m.spr, d.foe, 'stand'); }, 450);
+    } else if (ev.event === 'solved') knockDown(d.perch);
+    else if (ev.event === 'revealed') flee(d.perch);
+  }
+
   /* ───────────── 收到 app 的事件：重算經驗值、播特效、更新公告 ───────────── */
   // 經驗值出現在畫面上的隊伍身上：測驗視窗上的主角，否則頁尾（或首頁）的主角
   const liveParty = () => arenaNow && arenaNow.party.wrap.isConnected ? arenaNow.party : scene.party && scene.party.wrap.isConnected ? scene.party : null;
@@ -464,6 +524,12 @@
       noteTimer = setTimeout(() => { const g = award(); if (g.gain) celebrate(g, '寫了筆記'); }, 800);
     });
     document.addEventListener('cslab:quiz-view', e => { if (Skin.active) S.whenTable(() => battle(e.detail.target)); });
+    document.addEventListener('cslab:challenge', e => {
+      const ev = e.detail;
+      if (ev.event === 'retry' && ev.card) { duels.delete(ev.card); ev.card.querySelectorAll(':scope > .perch, :scope > .bt-bar').forEach(el => el.remove()); }
+      if (Skin.active) S.whenTable(() => onChallenge(ev));
+      if (ev.event === 'solved' && ev.fresh) { const g = award(); setTimeout(() => celebrate(g, '通過互動挑戰'), 0); }
+    });
   }
   function decorate() {
     if (!Skin.active) return;
@@ -476,7 +542,10 @@
       if (!window.MAPLE_SPRITES || !Skin.active) return;
       if (!App) { stagePortal(); return; }
       scene = {}; arenaNow = null;
-      if (App.state.page === 'lesson') { stageHead(); stagePager(); }
+      if (App.state.page === 'lesson') {
+        stageHead(); stagePager();
+        document.querySelectorAll('#challengeSlot > .challenge').forEach(card => onChallenge({ card, event: 'view' }));
+      }
       if (App.state.page === 'home') stageHome();
       const t = document.querySelector('#stage, #reviewStage');
       if (t && t._quiz) battle(t);
