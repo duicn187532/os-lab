@@ -45,7 +45,7 @@
 | 23 | CAS/Condvar/Ordering | 3,5,16 | 驗證 predicate 循環與 happens-before | 有/部分/部分 | 已補 condvar while/if spurious wake 逐事件表，pthread bounded queue；仍欠 C11 atomic memory-order 對照 | P1 |
 | 24 | Multilevel PT/COW/mmap | 6,7 | 推導 PTE、fault、private/shared 寫入 | 有/部分/部分 | 已補四級 Page Walk、權限違規與 MAP_PRIVATE/MAP_SHARED COW 父子可見性逐步追蹤；仍欠 Linux Page Fault handler 觀測證據 | P1 |
 | 25 | Working Set/Clock | 7,24 | 追蹤 reference bits 與 thrashing | 有/部分/部分 | Clock 每輪狀態表加上 Δ-window Working Set/WSS 雙行程需求估算與動態測資已補；Linux minor/major faults 觀測範例新增，真實 thrashing 仍需 PSI/swap I/O 証據 | P1 |
-| 26 | VFS/Journaling/Crash | 8,22 | 定義 durable commit 與可恢復性 | 有/部分/部分 | 簡化 WAL 模型；fsync+rename C 範例未涵蓋受控崩潰注入 | P1 |
+| 26 | VFS/Journaling/Crash | 8,22 | 定義 durable commit 與可恢復性 | 有/部分/部分 | 已補 2 crash points 的 WAL durable/volatile log、COMMIT/fsync/redo 狀態表及 600 組受控邏輯 crash 驗證；Linux fsync+rename 範例是另一個非 WAL 模型，尚無真實磁碟斷電測試 | P1 |
 | 27 | epoll/NVMe | 9,22 | 解釋 LT/ET、EAGAIN、backpressure | 有/部分/部分 | 新增真實 Linux socketpair/epoll LT/ET partial-read 與 EAGAIN C 實驗；仍缺背壓與多 fd 壓力測試 | P1 |
 | 28 | Linux Observability | 4,12,13 | 結合 /proc、perf、cgroup/PSI 推理 | 有/部分/部分 | 工具分類題太淺；L4 開始提供可重現取證 | P1 |
 

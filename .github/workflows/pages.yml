@@ -41,6 +41,7 @@ jobs:
           node tests/os-concurrency-model.cjs
           node tests/os-allocation-model.cjs
           node tests/os-queueing-model.cjs
+          node tests/os-wal-model.cjs
           node tests/os-judge-native.cjs
           node tests/os-examples-compile.cjs
       - name: Verify real student code across four native languages
