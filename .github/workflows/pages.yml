@@ -38,6 +38,8 @@ jobs:
           node tests/os-examples-compile.cjs
       - name: Verify real student code across four native languages
         run: node tests/os-student-verify.cjs
+      - name: Run 29 independent Python accepted source submissions
+        run: node tests/os-all-python-ac.cjs
       - name: Grade all eight advanced OS programming submissions
         run: node tests/os-capstone-student.cjs
       - name: Verify real Linux process lifecycle and epoll behavior
