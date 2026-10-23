@@ -139,3 +139,8 @@ node tests/os-quiz-quality.cjs
 ```
 
 題目鑑別度需依真實學生作答資料另行計算難度與 point-biserial，無法單從字串長度或 CI 成功認定。
+
+
+### Linux 真實系統邊界驗證
+
+System Call／I/O／Protection／Virtualization／Observability 對照 node tests/os-system-boundaries.cjs：真實測試 EAGAIN、短讀取、EOF、fchmod/fstat 的 0640、PID namespace 識別、cgroup metadata 與 getrusage。檢查 mode bits 不代表 ACL/root 等有效權限已完全驗證；只看 namespace inode 存在也不代表真正跨容器隔離。

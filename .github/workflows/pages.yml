@@ -30,6 +30,7 @@ jobs:
       - name: Validate textbook chapter semantics and exercise corpus
         run: |
           node tests/os-static-syntax.cjs
+          node tests/os-system-boundaries-model.cjs
           node tests/os-quiz-quality.cjs
           node tests/os-l2-objective.cjs
           node tests/os-textbook-review.cjs
@@ -71,6 +72,8 @@ jobs:
         run: node tests/os-linux-pagefault.cjs
       - name: Verify actual WAL process-crash recovery and fsync behavior
         run: node tests/os-wal-recovery.cjs
+      - name: Verify Linux syscall DAC I/O namespace cgroup and rusage
+        run: node tests/os-system-boundaries.cjs
       - name: Verify L4 integration experiment on Linux
         run: python3 os/linux-labs/l4/selftest.py
       - name: Build and run Linux POSIX labs
