@@ -8,6 +8,8 @@ on:
       - 'tests/os-maple-review.cjs'
       - 'tests/os-textbook-review.cjs'
       - 'tests/os-judge-native.cjs'
+      - 'tests/os-student-verify.cjs'
+      - '.github/workflows/pages.yml'
       - 'tests/os-examples-compile.cjs'
       - 'tests/os-crossbrowser-semantic.cjs'
       - 'tests/os-browser-wasm.cjs'
@@ -42,6 +44,8 @@ jobs:
           node-version: '22'
       - name: Compile C/C++ and execute Python/JavaScript starters; validate all expected outputs
         run: node tests/os-judge-native.cjs
+      - name: Compile and grade four real student-language FIFO implementations (reject mutants)
+        run: node tests/os-student-verify.cjs
       - name: Compile and run all repaired textbook code snippets
         run: node tests/os-examples-compile.cjs
 
@@ -64,6 +68,14 @@ jobs:
           test "$(/tmp/os-lab-bins/cow-demo)" = "parent=5"
           /tmp/os-lab-bins/durable-replace /tmp/os-lab-fs-test
           test "$(cat /tmp/os-lab-fs-test/file.txt)" = "durable demo"
+
+  l4-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reproduce both Linux service modes and check metrics and log integrity
+        run: python3 os/linux-labs/l4/selftest.py
 
   chromium-maple:
     runs-on: ubuntu-latest
