@@ -36,6 +36,7 @@ jobs:
           node tests/os-replacement-model.cjs
           node tests/os-paging-model.cjs
           node tests/os-mlfq-model.cjs
+          node tests/os-ofd-model.cjs
           node tests/os-judge-native.cjs
           node tests/os-examples-compile.cjs
       - name: Verify real student code across four native languages
@@ -54,6 +55,8 @@ jobs:
         run: node tests/os-capstone-student.cjs
       - name: Stress Linux bounded pthread queue and invariants
         run: node tests/os-pthread-queue.cjs
+      - name: Verify Linux inode and shared descriptor offset lifecycle
+        run: node tests/os-ofd-inode.cjs
       - name: Verify real Linux process lifecycle and epoll behavior
         run: node tests/os-posix-process-io.cjs
       - name: Verify L4 integration experiment on Linux

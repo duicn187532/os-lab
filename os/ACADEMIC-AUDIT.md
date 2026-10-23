@@ -27,7 +27,7 @@
 | 5 | Race/Deadlock | 3,23 | 構造失敗 interleaving 與 wait-for graph | 有/部分/部分 | x+1 基本題太淺；deadlock 必須驗證環、mutex owner 不變量 | P1 |
 | 6 | Paging/TLB | 0,1 | 追蹤 VPN/PFN/PTE/有效存取時間 | 有/部分/部分 | 已補四級 LA48 完整索引、路徑中任一 PTE 缺失/權限錯誤分流與 2550 次 property regression；尚欠完整 TLB invalidation/PCID 整合 | P1 |
 | 7 | Page Fault/Replacement | 6 | 推導 FIFO/LRU/OPT/Clock | 有/部分/部分 | FIFO/LRU/OPT 13 步完整表、OPT 窮舉及 Belady 反例已補；缺真實 working-set/fault handler Linux 取證 | P1 |
-| 8 | File System | 2,6 | 追蹤 FD/OFT/inode/hard link | 有/部分/部分 | link count 只有算術；缺 open file table 與持久化狀態實作 | P1 |
+| 8 | File System | 2,6 | 追蹤 FD/OFT/inode/hard link | 有/部分/部分 | hard link nlink=2→1→0、unlink 後 FD 存活、dup/fork 共享 OFD offset 已有 Linux C 實測＋完整追蹤；持久化故障模型仍不等同 inode 生命週期 | P1 |
 | 9 | I/O/Interrupt | 1,8 | 解釋 blocking/partial I/O 與事件 | 有/部分/部分 | 僅 readyBytes/nonblocking 分類；EOF/EINTR/fd ready 尚未整合 | P1 |
 | 10 | Protection/Security | 1,8 | 檢查 DAC/ACL/存取與目錄 traverse | 有/部分/部分 | mode bit 判定受簡化假設限制；未與使用者身分、ACL 結合 | P1 |
 | 11 | VM/Container | 6,10 | 區分 namespace/cgroup/hypervisor | 有/部分/部分 | 主要題目偏 quota 百分比，缺失敗隔離、資源控制取證 | P2 |

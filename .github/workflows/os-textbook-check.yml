@@ -10,6 +10,8 @@ on:
       - 'tests/os-judge-native.cjs'
       - 'tests/os-student-verify.cjs'
       - 'tests/os-posix-process-io.cjs'
+      - 'tests/os-ofd-inode.cjs'
+      - 'tests/os-ofd-model.cjs'
       - 'tests/os-pthread-queue.cjs'
       - 'tests/os-mastery-evidence.cjs'
       - 'tests/os-capstone-student.cjs'
@@ -48,6 +50,7 @@ jobs:
           node tests/os-replacement-model.cjs
           node tests/os-paging-model.cjs
           node tests/os-mlfq-model.cjs
+          node tests/os-ofd-model.cjs
 
   judge-native:
     runs-on: ubuntu-latest
@@ -88,6 +91,8 @@ jobs:
           cc -std=c11 -Wall -Wextra -Werror os/linux-labs/durable-replace.c -o /tmp/os-lab-bins/durable-replace
       - name: Run eight actual Linux bounded pthread producer consumer stress trials
         run: node tests/os-pthread-queue.cjs
+      - name: Verify native Linux hardlinks, dup and fork shared OFD
+        run: node tests/os-ofd-inode.cjs
       - name: Exercise real fork/exec/waitpid and epoll LT/ET
         run: node tests/os-posix-process-io.cjs
       - name: Verify output and deterministic exit status
