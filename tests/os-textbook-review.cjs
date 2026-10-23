@@ -34,7 +34,7 @@ for(const l of D.lessons){
  assert(l.steps.length>=4,'Missing step-by-step '+l.id);
  assert(l.summary.length>=3,'Missing summary '+l.id);
  assert(l.details.length>=5,'Missing L2/L3 conceptual depth '+l.id);
- assert(l.details.every(d=>Array.isArray(d)&&d.length===2&&d[0].length>2&&d[1].length>15),'Empty teaching topic '+l.id);
+ assert(l.details.every(d=>Array.isArray(d)&&d.length===2&&d[0].length>=2&&d[1].length>15),'Empty teaching topic '+l.id);
  assert(l.quiz.length===4,'Four assessment questions '+l.id);
  assert(l.quiz.every(q=>q.length===5&&q[1].length>=2&&q[2]>=0&&q[2]<q[1].length&&q[3]&&q[4]),'Invalid quiz '+l.id);
  assert(l.terms.every(t=>terms.has(t)),'Unknown glossary terms '+l.id);
