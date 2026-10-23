@@ -178,7 +178,7 @@
   // 這一章的怪物：精英章是精英怪，最後一章是 BOSS，其他依課程與章節固定挑一隻
   function foeFor(lid) {
     const t = tier[lid] || 'normal', key = `${C.id}:${lid}`;
-    if (t === 'boss' && S.kind('boss').length) return { name: S.kind('boss')[0], tier: t };
+    if (t === 'boss' && S.kind('boss').length) return { name: pick(S.kind('boss'), key), tier: t };
     if (t === 'elite' && S.kind('elite').length) return { name: pick(S.kind('elite'), key), tier: t };
     const m = pick(S.kind('mob'), key);
     return m ? { name: m, tier: 'normal' } : null;
