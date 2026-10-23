@@ -30,6 +30,8 @@ jobs:
       - name: Validate textbook chapter semantics and exercise corpus
         run: |
           node tests/os-static-syntax.cjs
+          node tests/os-quiz-quality.cjs
+          node tests/os-l2-objective.cjs
           node tests/os-textbook-review.cjs
           node os/linux-labs/l3-verify.cjs --all
           node tests/os-scheduling-model.cjs

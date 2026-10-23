@@ -127,3 +127,15 @@ L4 的負載、資料留存、採樣方法、p50/p95/p99 與完整報告 rubric 
 靜態 GitHub Pages **沒有保密 hidden tests**：即使題庫內 `visible:false`，其 `input`、`output` 仍包含於 `advanced-code.js` 或 `algorithm-capstones.js`，使用者可從開發者工具讀取。為保護舊題 ID、紀錄和 Judge 相容性，本次**不變更**原先 `cases` 的測試順序與 `visible` 旗標；介面改稱「額外練習」，不再將其宣稱成防作弊的正式隱藏測資。`tests/os-*ac.cjs`、`student-verify.cjs` 的公開／隱藏測資亦為儲存庫中可讀取的開放回歸測資，不是祕密考題。
 
 正式考試必須在**另行部署且具隔離執行環境的可信後端**保存不隨網站發送的保密測資，採身分驗證、提交時限、執行資源限制、稽核紀錄與教師覆核。前端 `solved` 與 `os_lab_academic_v1` 均不能核發 Mastered。反例與作業示範（例如 Belady/FIFO、WAL crash）應保持可見，絕不拿已公開的教學反例當保密成績判準。
+
+
+## L2 客觀練習（29 章）
+
+每章另有一題可客觀核對的數值／狀態推導。練習題與解析載於 `os/assets/l2-objective.js`；數字容許等值小數表示，狀態答案不分大小寫。答錯不得取得客觀練習紀錄，回答正確才記錄本機 `objective.passed`。**L2 自評總分與文字本身不構成通過**：可送審條件需同時具備客觀練習答案、逐步推導自評、首次測驗紀錄與 Judge 練習紀錄；所有紀錄仍可自行修改，因此只能供學員自檢與教師後續核查，**絕非正式通過或 Mastered**。
+
+```bash
+node tests/os-l2-objective.cjs
+node tests/os-quiz-quality.cjs
+```
+
+題目鑑別度需依真實學生作答資料另行計算難度與 point-biserial，無法單從字串長度或 CI 成功認定。

@@ -9,6 +9,11 @@ on:
       - 'tests/os-textbook-review.cjs'
       - 'tests/os-judge-native.cjs'
       - 'tests/os-student-verify.cjs'
+      - 'tests/os-quiz-quality.cjs'
+      - 'tests/os-l2-objective.cjs'
+      - 'tests/os-review.cjs'
+      - 'shared/cslab-app.js'
+      - 'shared/cslab-code.js'
       - 'tests/os-posix-process-io.cjs'
       - 'tests/os-ofd-inode.cjs'
       - 'tests/os-ofd-model.cjs'
@@ -48,6 +53,8 @@ jobs:
       - name: Validate 29 chapters, labs, questions and Judge data
         run: |
           node tests/os-static-syntax.cjs
+          node tests/os-quiz-quality.cjs
+          node tests/os-l2-objective.cjs
           node tests/os-textbook-review.cjs
           node os/linux-labs/l3-verify.cjs --all
           node tests/os-scheduling-model.cjs
