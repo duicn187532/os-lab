@@ -39,6 +39,16 @@ const URL=process.env.TEST_URL||'http://localhost:8000/os-lab/os/';
   await page.locator('.os-mastery [data-field=note]').fill(
     '輸入 FIFO 參照序列，逐步記錄 frame 狀態；再檢查 Belady anomaly 反例並附上可重現命令。');
   await page.locator('.os-mastery [data-save]').click();
+  assert.equal(await page.evaluate(()=>OS_ACADEMIC.status(7).selfEvidence),true);
+  assert.equal(await page.evaluate(()=>OS_ACADEMIC.status(7).l2),false,
+    'Self-assessed score does not award objective L2 capability');
+  await page.locator('.os-mastery [data-objective-answer]').fill('3');
+  await page.locator('.os-mastery [data-objective-grade]').click();
+  assert.equal(await page.evaluate(()=>OS_ACADEMIC.status(7).l2),false,
+    'Wrong L2 objective answer must not count');
+  await page.locator('.os-mastery [data-objective-answer]').fill('4');
+  await page.locator('.os-mastery [data-objective-grade]').click();
+  assert.equal(await page.evaluate(()=>OS_ACADEMIC.status(7).objectivePassed),true);
   assert.equal(await page.evaluate(()=>OS_ACADEMIC.status(7).l2),true);
   assert.equal(await page.evaluate(()=>OS_ACADEMIC.status(7).readyForReview),false);
   await page.evaluate(()=>{

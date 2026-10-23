@@ -29,11 +29,15 @@
   // Historical done.first was mutable / unaudited, so not silently imported.
   const quiz=Number.isInteger(e.quiz?.first)&&Number.isInteger(e.quiz?.total)&&
     e.quiz.total>0&&e.quiz.first>=Math.ceil(e.quiz.total*0.8);
-  const l2=Number.isInteger(e.l2?.total)&&e.l2.total>=8&&e.l2.total<=10&&
+  const selfEvidence=Number.isInteger(e.l2?.total)&&e.l2.total>=8&&e.l2.total<=10&&
     Number.isInteger(e.l2.derivation)&&e.l2.derivation>=3&&e.l2.derivation<=4&&
     typeof e.l2.note==='string'&&e.l2.note.trim().length>=25;
+  // A self-reported rubric score ALONE is not a passing L2 assessment.
+  // Objective checks here are still client-side practice, NOT certified grades.
+  const objectivePassed=e.objective?.passed===true;
+  const l2=selfEvidence&&objectivePassed;
   const l3=tasks.length>0&&codePassed===tasks.length;
-  return {id,viewed,completed,quiz,l2,l3,codePassed,codeTotal:tasks.length,
+  return {id,viewed,completed,quiz,l2,selfEvidence,objectivePassed,l3,codePassed,codeTotal:tasks.length,
     readyForReview:completed&&quiz&&l2&&l3,mastered:false};
  }
  const all=()=>A.lessons.map(l=>status(l.id));
@@ -41,10 +45,12 @@
   schema:'os-lab-academic-v1',exportedAt:new Date().toISOString(),
   warning:'SELF-REPORTED LOCAL DATA; NOT AN ACADEMIC CERTIFICATE',
   chapters:all().map(s=>({...s,quizRecord:entry(s.id).quiz||null,
-    l2Record:entry(s.id).l2||null}))
+    l2Record:entry(s.id).l2||null,objectivePractice:entry(s.id).objective||null}))
  },null,2);
  function panel(id){
   const s=status(id),e=entry(id),el=document.createElement('section');
+  const objective=global.OS_L2_OBJECTIVE?.get(id);
+  if(!objective)throw Error('Missing chapter-specific L2 objective item: '+id);
   el.className='card os-mastery';
   el.setAttribute('aria-label','OS 學習證據與掌握度');
   el.innerHTML='<h2>L1–L3｜學習證據與掌握度</h2>'+
@@ -54,9 +60,19 @@
     '<span>Completed：'+(s.completed?'教學流程完成':'閱讀／實驗／測驗尚未全數完成')+'</span>'+
     '<span>Mastered：待外部教師審核</span></div>'+
    '<p class="muted">首次測驗紀錄 ≥80%：'+(s.quiz?'符合':'待補／未達')+
-   '；L2 自評格式：'+(s.l2?'符合':'待補')+
+   '；L2 推導自評：'+(s.selfEvidence?'已提交':'待補')+
+   '；L2 客觀練習：'+(s.objectivePassed?'通過':'未通過')+
    '；瀏覽器程式題 AC：'+s.codePassed+'/'+s.codeTotal+
    '；送審條件：'+(s.readyForReview?'已具備本機證據':'尚未具備')+'。</p>'+
+   '<div class="os-mastery-objective" role="group" aria-label="L2 客觀練習題">'+
+     '<h3>L2｜數值／狀態推導：客觀練習（非正式考試）</h3>'+
+     '<p>'+escape(objective.prompt)+'</p>'+
+     '<label>你的答案 <input type="text" data-objective-answer autocomplete="off" spellcheck="false" placeholder="填入數字或規格指定的狀態"></label>'+
+     '<button type="button" class="btn secondary" data-objective-grade>核對客觀練習</button>'+
+     '<p role="status" class="muted" data-objective-result>'+
+       (s.objectivePassed?'本機客觀題已通過；仍需自評推導與教師查核。':'尚未通過，請先自行推導後作答。')+'</p>'+
+     '<p class="muted">答案與判分程式碼完全公開，結果只用於練習與送審證據；不能直接核發 Mastered。</p>'+
+   '</div>'+
    '<details><summary>填寫 L2 推導自評（不代表教師核可）</summary>'+
     '<div class="os-mastery-form">'+
      '<label>整體分數 0–10<input type="number" min="0" max="10" step="1" data-field="total" value="'+
@@ -69,6 +85,24 @@
       '<button type="button" class="btn ghost" data-export>複製全課送審 JSON</button></div>'+
      '<p role="status" data-message class="muted"></p>'+
     '</div></details>';
+  el.querySelector('[data-objective-grade]').addEventListener('click',()=>{
+    const answer=el.querySelector('[data-objective-answer]').value;
+    const r=global.OS_L2_OBJECTIVE.check(id,answer),previous=entry(id).objective||{};
+    if(!answer.trim()){
+      el.querySelector('[data-objective-result]').textContent='請先填寫答案。';return;
+    }
+    db.records[id]={...entry(id),objective:{
+      attempts:(Number.isInteger(previous.attempts)?previous.attempts:0)+1,
+      passed:Boolean(previous.passed)||r.correct,
+      lastCorrect:r.correct,at:new Date().toISOString()
+    }};
+    const stored=save();
+    el.querySelector('[data-objective-result]').textContent=
+      (r.correct?'✓ 客觀練習正確。':'✗ 客觀練習未通過。')+' 解析：'+r.explanation+
+      (stored?'':' 本機儲存失敗。')+' 仍需推導過程與教師核可。';
+    // Refresh only after the feedback is visible; rerendering would clear the explanation.
+    el.querySelector('[data-objective-grade]').disabled=!!r.correct;
+  });
   el.querySelector('[data-save]').addEventListener('click',()=>{
     const get=k=>el.querySelector('[data-field="'+k+'"]');
     const ts=get('total').value,ds=get('derivation').value,note=get('note').value.trim();
