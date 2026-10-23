@@ -34,6 +34,7 @@ jobs:
           node tests/os-scheduling-model.cjs
           node tests/os-banker-model.cjs
           node tests/os-replacement-model.cjs
+          node tests/os-paging-model.cjs
           node tests/os-judge-native.cjs
           node tests/os-examples-compile.cjs
       - name: Verify real student code across four native languages
