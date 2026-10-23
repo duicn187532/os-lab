@@ -42,6 +42,8 @@ jobs:
         run: node tests/os-all-python-ac.cjs
       - name: Grade all eight advanced OS programming submissions
         run: node tests/os-capstone-student.cjs
+      - name: Stress Linux bounded pthread queue and invariants
+        run: node tests/os-pthread-queue.cjs
       - name: Verify real Linux process lifecycle and epoll behavior
         run: node tests/os-posix-process-io.cjs
       - name: Verify L4 integration experiment on Linux

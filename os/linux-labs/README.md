@@ -82,6 +82,7 @@ node os/linux-labs/student-verify.cjs \
 | `process-exec-demo.c` | 2、14、21 | 真正 fork → exec → waitpid、失敗 errno/exit status |
 | `epoll-demo.c` | 9、22、27 | 真正 socketpair + Linux epoll 的 LT/ET、partial read、EAGAIN |
 | `condvar-demo.c` | 3、23 | mutex / condvar / predicate loop |
+| `bounded-queue.c` | 3、5、16、23 | Linux 8 pthread、容量 7 的 producer–consumer；exactly-once、守恆、spurious wake 防護 |
 | `cow-demo.c` | 6、24 | mmap/COW、父子位址空間 |
 | `durable-replace.c` | 8、26 | write/fsync/rename/dir fsync |
 | `l4/` | 12、13、28 | HTTP 真實服務的受控鎖競爭、延遲分布與因果診斷 |
@@ -98,6 +99,7 @@ cc -std=c11 -Wall -Wextra -Werror -pthread os/linux-labs/condvar-demo.c -o /tmp/
 # ready=1 seen=1
 
 node tests/os-posix-process-io.cjs
+node tests/os-pthread-queue.cjs
 # Linux epoll: LT 保留未讀資料就緒；ET 不再發新邊緣，需 drain 至 EAGAIN
 python3 os/linux-labs/l4/selftest.py
 ```

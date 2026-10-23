@@ -35,14 +35,14 @@
 | 13 | Request Journey | 2,9,12 | 解讀端到端追蹤與重疊時間 | 有/部分/部分 | 區間聯集有題；缺真實服務工具證據，L4 補充中 | P1 |
 | 14 | Linux/C 工具 | 2,22 | 觀察程序樹、退出與系統呼叫 | 有/部分/部分 | 新增 fork→exec→waitpid 及 ENOENT 錯誤路徑的 Linux 原生驗收；仍缺可控殭屍／訊號案例 | P1 |
 | 15 | Integration Review | 0–14 | 跨子系統定位症狀 | 有/部分/部分 | 分類題不能證明跨層能力；需 L4 證據與教師審核 | P1 |
-| 16 | Semaphore/Producer Consumer | 3,5 | 證明 0≤count≤capacity 及等待正確 | 有/部分/部分 | 計數題只驗 empty/full，缺多 producer/consumer 交錯與死結 | P1 |
+| 16 | Semaphore/Producer Consumer | 3,5 | 證明 0≤count≤capacity 及等待正確 | 有/部分/部分 | 新增 4 producer／4 consumer 真實 pthread bounded queue 及 8×8000 items exactly-once 守恆測試；仍欠故障注入／死結診斷 | P1 |
 | 17 | Deadlock/Banker | 5,16 | 逐維計算 Need/Work/Finish/Request | 有/部分/部分 | 五行程三資源 Safety/Request Trial 的 ILLEGAL/WAIT/UNSAFE/GRANTED 全部分流及回滾檢核已補；實際死結回復機制仍缺 | P1 |
 | 18 | Allocation/Fragmentation | 6 | 模擬 First/Best/Worst Fit 與 coalescing | 有/部分/部分 | 現有 First Fit 可驗算；缺完整 free/coalesce 事件序列 | P1 |
 | 19 | Disk Scheduling/Storage | 8,9 | 計算 seek 及排程策略 | 有/部分/部分 | FCFS/SSTF 存在；SSD/NVMe 與實際 latency 不可類推 | P2 |
 | 20 | MLFQ/Multicore | 4 | 維護多級隊列、boost、aging | 有/部分/部分 | 單個 priority transition 不等於完整排程器，待加入多工作狀態 | P1 |
 | 21 | Kernel/Boot/ELF | 0,1 | 分析 boot chain/ELF 故障點 | 有/部分/部分 | stage 分類有模型；缺 readelf/execve 工具證據驗收 | P2 |
 | 22 | IPC/Pipe/Signal | 2,9 | 證明 fd 引用、EOF 與 partial I/O | 有/部分/部分 | EOF 概念題 + pipe C；需要 nonblocking/partial/error 注入 | P1 |
-| 23 | CAS/Condvar/Ordering | 3,5,16 | 驗證 predicate 循環與 happens-before | 有/部分/部分 | while 與 spurious wake 教材已有；缺原生 memory order 對照實驗 | P1 |
+| 23 | CAS/Condvar/Ordering | 3,5,16 | 驗證 predicate 循環與 happens-before | 有/部分/部分 | while/spurious wake 加上真實 pthread condvar bounded queue，可重現 predicate shutdown；仍欠 C11 atomic memory-order 對照 | P1 |
 | 24 | Multilevel PT/COW/mmap | 6,7 | 推導 PTE、fault、private/shared 寫入 | 有/部分/部分 | MAP_PRIVATE C 範例可執行；欠 page-walk fault 與權限違規完整追蹤 | P1 |
 | 25 | Working Set/Clock | 7,24 | 追蹤 reference bits 與 thrashing | 有/部分/部分 | Clock 每次 cleared bit/victim/next hand 狀態表、315 組隨機檢查已補；仍缺 working-set size/sliding-window 實作 | P1 |
 | 26 | VFS/Journaling/Crash | 8,22 | 定義 durable commit 與可恢復性 | 有/部分/部分 | 簡化 WAL 模型；fsync+rename C 範例未涵蓋受控崩潰注入 | P1 |
