@@ -10,6 +10,7 @@ on:
       - 'tests/os-judge-native.cjs'
       - 'tests/os-student-verify.cjs'
       - 'tests/os-posix-process-io.cjs'
+      - 'tests/os-mastery-evidence.cjs'
       - 'tests/os-capstone-student.cjs'
       - '.github/workflows/pages.yml'
       - 'tests/os-examples-compile.cjs'
@@ -122,6 +123,7 @@ jobs:
           TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-review.cjs
           TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-maple-review.cjs
           TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-browser-judge.cjs
+          TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-mastery-evidence.cjs
 
   cross-browser-semantic:
     runs-on: ubuntu-latest
