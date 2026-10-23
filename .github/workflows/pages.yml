@@ -3,17 +3,141 @@ name: Deploy static site to GitHub Pages
 on:
   push:
     branches: [ main ]
+  pull_request:
+    paths:
+      - 'os/**'
+      - 'shared/**'
+      - 'tests/**'
+      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: gh-pages
   cancel-in-progress: false
 
 jobs:
+  academic-quality-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate textbook chapter semantics and exercise corpus
+        run: |
+          node tests/os-static-syntax.cjs
+          node tests/os-system-boundaries-model.cjs
+          node tests/os-quiz-quality.cjs
+          node tests/os-l2-objective.cjs
+          node tests/os-textbook-review.cjs
+          node os/linux-labs/l3-verify.cjs --all
+          node tests/os-scheduling-model.cjs
+          node tests/os-banker-model.cjs
+          node tests/os-replacement-model.cjs
+          node tests/os-working-set-model.cjs
+          node tests/os-paging-model.cjs
+          node tests/os-mlfq-model.cjs
+          node tests/os-ofd-model.cjs
+          node tests/os-concurrency-model.cjs
+          node tests/os-allocation-model.cjs
+          node tests/os-queueing-model.cjs
+          node tests/os-wal-model.cjs
+          node tests/os-judge-native.cjs
+          node tests/os-examples-compile.cjs
+      - name: Verify real student code across four native languages
+        run: node tests/os-student-verify.cjs
+      - name: Fuzz independent source implementations with 1200 fresh scenarios
+        run: node tests/os-python-property.cjs
+      - name: Compile and grade all 58 C11 and C++17 chapter references
+        run: node tests/os-all-native-ac.cjs
+      - name: Grade 29 JavaScript browser-compatible chapter references
+        run: node tests/os-all-js-ac.cjs
+      - name: Run 29 independent Python accepted source submissions
+        run: node tests/os-all-python-ac.cjs
+      - name: Compile and grade all eight advanced capstones in C11 C++17 Python
+        run: node tests/os-capstone-native-ac.cjs
+      - name: Grade all eight advanced OS programming submissions
+        run: node tests/os-capstone-student.cjs
+      - name: Stress Linux bounded pthread queue and invariants
+        run: node tests/os-pthread-queue.cjs
+      - name: Verify Linux inode and shared descriptor offset lifecycle
+        run: node tests/os-ofd-inode.cjs
+      - name: Verify real Linux process lifecycle and epoll behavior
+        run: node tests/os-posix-process-io.cjs
+      - name: Observe real Linux minor and major page faults
+        run: node tests/os-linux-pagefault.cjs
+      - name: Verify actual WAL process-crash recovery and fsync behavior
+        run: node tests/os-wal-recovery.cjs
+      - name: Verify Linux syscall DAC I/O namespace cgroup and rusage
+        run: node tests/os-system-boundaries.cjs
+      - name: Verify L4 integration experiment on Linux
+        run: python3 os/linux-labs/l4/selftest.py
+      - name: Build and run Linux POSIX labs
+        run: |
+          set -eu
+          dir="$(mktemp -d)"
+          trap 'rm -rf "$dir"' EXIT
+          cc -std=c11 -Wall -Wextra -Werror os/linux-labs/pipe-demo.c -o "$dir/pipe"
+          cc -std=c11 -Wall -Wextra -Werror -pthread os/linux-labs/condvar-demo.c -o "$dir/condvar"
+          cc -std=c11 -Wall -Wextra -Werror os/linux-labs/cow-demo.c -o "$dir/cow"
+          cc -std=c11 -Wall -Wextra -Werror os/linux-labs/durable-replace.c -o "$dir/durable"
+          test "$("$dir/pipe")" = "hello IPC"
+          test "$("$dir/condvar")" = "ready=1 seen=1"
+          test "$("$dir/cow")" = "parent=5"
+          "$dir/durable" "$dir/fs"
+          test "$(cat "$dir/fs/file.txt")" = "durable demo"
+
+  chromium-publish-gate:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.58.2-noble
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: os-lab
+          fetch-depth: 0 # os-review.cjs compares preserved content against historic c5e9eb7
+      - uses: actions/checkout@v4
+        with:
+          repository: duicn187532/self-research
+          path: self-research
+          sparse-checkout: |
+            assets/maple
+          sparse-checkout-cone-mode: true
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test dependency
+        working-directory: os-lab
+        run: npm install --no-save --no-package-lock playwright@1.58.2
+      - name: Verify OS browser routing, Maple, judge and semantic state
+        working-directory: os-lab
+        run: |
+          set -eu
+          node tests/poc-server.cjs "$GITHUB_WORKSPACE" 8000 >/tmp/os-deploy-e2e.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8000/os-lab/os/ >/dev/null; then break; fi
+            sleep 1
+          done
+          export TEST_URL=http://localhost:8000/os-lab/os/
+          node tests/os-review.cjs
+          node tests/os-maple-review.cjs
+          node tests/os-browser-judge.cjs
+          node tests/os-mastery-evidence.cjs
+          ENGINE=chromium node tests/os-crossbrowser-semantic.cjs
+
   deploy:
+    # Only a tested push to main may publish. Manual dispatch on a feature
+    # branch must never overwrite the production gh-pages branch.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [academic-quality-gate, chromium-publish-gate]
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
 
     steps:

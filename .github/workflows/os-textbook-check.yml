@@ -8,6 +8,30 @@ on:
       - 'tests/os-maple-review.cjs'
       - 'tests/os-textbook-review.cjs'
       - 'tests/os-judge-native.cjs'
+      - 'tests/os-student-verify.cjs'
+      - 'tests/os-quiz-quality.cjs'
+      - 'tests/os-l2-objective.cjs'
+      - 'tests/os-system-boundaries-model.cjs'
+      - 'tests/os-system-boundaries.cjs'
+      - 'tests/os-review.cjs'
+      - 'shared/cslab-app.js'
+      - 'shared/cslab-code.js'
+      - 'tests/os-posix-process-io.cjs'
+      - 'tests/os-ofd-inode.cjs'
+      - 'tests/os-ofd-model.cjs'
+      - 'tests/os-pthread-queue.cjs'
+      - 'tests/os-mastery-evidence.cjs'
+      - 'tests/os-static-syntax.cjs'
+      - 'tests/os-working-set-model.cjs'
+      - 'tests/os-linux-pagefault.cjs'
+      - 'tests/os-wal-recovery.cjs'
+      - 'tests/os-capstone-student.cjs'
+      - 'tests/os-capstone-native-ac.cjs'
+      - 'tests/os-all-python-ac.cjs'
+      - 'tests/os-all-native-ac.cjs'
+      - 'tests/os-all-js-ac.cjs'
+      - 'tests/os-python-property.cjs'
+      - '.github/workflows/pages.yml'
       - 'tests/os-examples-compile.cjs'
       - 'tests/os-crossbrowser-semantic.cjs'
       - 'tests/os-browser-wasm.cjs'
@@ -30,8 +54,23 @@ jobs:
           node-version: '22'
       - name: Validate 29 chapters, labs, questions and Judge data
         run: |
+          node tests/os-static-syntax.cjs
+          node tests/os-system-boundaries-model.cjs
+          node tests/os-quiz-quality.cjs
+          node tests/os-l2-objective.cjs
           node tests/os-textbook-review.cjs
           node os/linux-labs/l3-verify.cjs --all
+          node tests/os-scheduling-model.cjs
+          node tests/os-banker-model.cjs
+          node tests/os-replacement-model.cjs
+          node tests/os-working-set-model.cjs
+          node tests/os-paging-model.cjs
+          node tests/os-mlfq-model.cjs
+          node tests/os-ofd-model.cjs
+          node tests/os-concurrency-model.cjs
+          node tests/os-allocation-model.cjs
+          node tests/os-queueing-model.cjs
+          node tests/os-wal-model.cjs
 
   judge-native:
     runs-on: ubuntu-latest
@@ -42,6 +81,20 @@ jobs:
           node-version: '22'
       - name: Compile C/C++ and execute Python/JavaScript starters; validate all expected outputs
         run: node tests/os-judge-native.cjs
+      - name: Compile and grade four real student-language FIFO implementations (reject mutants)
+        run: node tests/os-student-verify.cjs
+      - name: Execute 1200 novel randomized Linux/Python Judge algorithm scenarios
+        run: node tests/os-python-property.cjs
+      - name: Compile, run and grade all 58 C11/C++17 reference sources
+        run: node tests/os-all-native-ac.cjs
+      - name: Run 29 JavaScript accepted chapter solutions
+        run: node tests/os-all-js-ac.cjs
+      - name: Grade real Python reference source submissions for all 29 OS chapters
+        run: node tests/os-all-python-ac.cjs
+      - name: Grade eight C C++ Python advanced capstone references
+        run: node tests/os-capstone-native-ac.cjs
+      - name: Compile and execute eight real advanced capstone solutions
+        run: node tests/os-capstone-student.cjs
       - name: Compile and run all repaired textbook code snippets
         run: node tests/os-examples-compile.cjs
 
@@ -56,6 +109,18 @@ jobs:
           cc -std=c11 -Wall -Wextra -Werror -pthread os/linux-labs/condvar-demo.c -o /tmp/os-lab-bins/condvar-demo
           cc -std=c11 -Wall -Wextra -Werror os/linux-labs/cow-demo.c -o /tmp/os-lab-bins/cow-demo
           cc -std=c11 -Wall -Wextra -Werror os/linux-labs/durable-replace.c -o /tmp/os-lab-bins/durable-replace
+      - name: Verify real Linux anonymous memory faults
+        run: node tests/os-linux-pagefault.cjs
+      - name: Verify process-crash WAL replay with actual fsync and torn-log failpoint
+        run: node tests/os-wal-recovery.cjs
+      - name: Verify Linux syscall and permission observations
+        run: node tests/os-system-boundaries.cjs
+      - name: Run eight actual Linux bounded pthread producer consumer stress trials
+        run: node tests/os-pthread-queue.cjs
+      - name: Verify native Linux hardlinks, dup and fork shared OFD
+        run: node tests/os-ofd-inode.cjs
+      - name: Exercise real fork/exec/waitpid and epoll LT/ET
+        run: node tests/os-posix-process-io.cjs
       - name: Verify output and deterministic exit status
         run: |
           set -eu
@@ -64,6 +129,14 @@ jobs:
           test "$(/tmp/os-lab-bins/cow-demo)" = "parent=5"
           /tmp/os-lab-bins/durable-replace /tmp/os-lab-fs-test
           test "$(cat /tmp/os-lab-fs-test/file.txt)" = "durable demo"
+
+  l4-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reproduce both Linux service modes and check metrics and log integrity
+        run: python3 os/linux-labs/l4/selftest.py
 
   chromium-maple:
     runs-on: ubuntu-latest
@@ -101,6 +174,7 @@ jobs:
           TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-review.cjs
           TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-maple-review.cjs
           TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-browser-judge.cjs
+          TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-mastery-evidence.cjs
 
   cross-browser-semantic:
     runs-on: ubuntu-latest

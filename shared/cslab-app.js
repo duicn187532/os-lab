@@ -69,12 +69,22 @@
     return () => { seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; // mulberry32
   }
   const shuffle = (a, rand) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  // OS formative quizzes: fresh, session-scoped entropy instead of predictable
+  // FNV seeded answer positions. This does NOT hide client-side answer keys.
+  const osRandom = () => {
+    try {
+      const words = new Uint32Array(1);
+      crypto.getRandomValues(words);
+      return words[0] / 4294967296;
+    } catch (_) { return Math.random(); }
+  };
+  const osOrders = new Map();
   let answerSlots = null;
   function answerSlot(lid, qi) {
     if (!answerSlots) {
       answerSlots = {}; const total = [];
       for (const l of lessons) {
-        const rand = seeded(`${C.id}:${l.id}`), local = [];
+        const rand = C.id==='os' ? osRandom : seeded(`${C.id}:${l.id}`), local = [];
         for (const i of shuffle(l.quiz.map((_, i) => i), rand)) {
           const slots = [...l.quiz[i][1].keys()], score = p => (local[p] || 0) * 1e6 + (total[p] || 0);
           const min = Math.min(...slots.map(score)), best = slots.filter(p => score(p) === min), p = best[Math.floor(rand() * best.length)];
@@ -86,8 +96,12 @@
   }
   function choiceOrder(lid, qi) {
     const [, options, answer] = byId[lid].quiz[qi];
-    const others = shuffle([...options.keys()].filter(i => i !== answer), seeded(`${C.id}:${lid}:${qi}`));
+    const key=lid+':'+qi;
+    if(C.id==='os' && osOrders.has(key))return osOrders.get(key).slice();
+    const others = shuffle([...options.keys()].filter(i => i !== answer),
+      C.id==='os' ? osRandom : seeded(`${C.id}:${lid}:${qi}`));
     others.splice(answerSlot(lid, qi), 0, answer);
+    if(C.id==='os')osOrders.set(key,others.slice());
     return others;
   }
   const chapterLabel = id => `第 ${pos(id) + 1} 章 · ${byId[id].title}`;
@@ -235,12 +249,18 @@
     const bullets=items=>'<ol class="os-steps">'+items.map(y=>'<li>'+h(y)+'</li>').join('')+'</ol>';
     const mathBlock=x.formula?'<div class="os-math" role="group" aria-label="本章數學表示式">'+x.formula+'</div>':'';
     const stateTable='<div class="os-table-scroll" tabindex="0" aria-label="演算法狀態追蹤表"><table class="os-state-table"><thead><tr>'+x.stateHeaders.map(y=>'<th scope="col">'+h(y)+'</th>').join('')+'</tr></thead><tbody>'+x.stateRows.map(row=>'<tr>'+row.map(y=>'<td>'+h(y)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+    const extraTables=(x.extraTables||[]).map(tbl=>
+      '<article class="os-textbook-section"><h3>'+h(tbl.title)+'</h3><p>'+h(tbl.description||'')+'</p>'+
+      '<div class="os-table-scroll" tabindex="0" aria-label="'+h(tbl.title)+'">'+
+      '<table class="os-state-table"><thead><tr>'+tbl.headers.map(y=>'<th scope="col">'+h(y)+'</th>').join('')+
+      '</tr></thead><tbody>'+tbl.rows.map(row=>'<tr>'+row.map(y=>'<td>'+h(y)+'</td>').join('')+'</tr>').join('')+
+      '</tbody></table></div></article>').join('');
     const lab=x.l3;
     return '<section class="os-textbook" aria-label="L2 演算法、推導與 L3 實作">'+
       '<header><h2>進階講義｜演算法推導與實作驗證</h2><p>從狀態、不變量及反例建立工程推理，而非只記憶定義。</p></header>'+
       '<article class="os-textbook-section"><h3>L2｜前提與符號</h3><p>'+h(x.preconditions)+'</p><p><strong>符號定義：</strong>'+h(x.symbols)+'</p>'+mathBlock+
       '<h3>L2｜演算法及狀態轉移</h3>'+bullets(x.algorithm)+stateTable+
-      '<h3>L2｜完整計算與邊界</h3><p>'+h(x.worked)+'</p><p class="os-invariant"><b>不變量：</b>'+h(x.invariant)+'</p><p class="os-counter"><b>反例：</b>'+h(x.counterexample)+'</p></article>'+
+      '<h3>L2｜完整計算與邊界</h3><p>'+h(x.worked)+'</p>'+extraTables+'<p class="os-invariant"><b>不變量：</b>'+h(x.invariant)+'</p><p class="os-counter"><b>反例：</b>'+h(x.counterexample)+'</p></article>'+
       '<article class="os-textbook-section"><h3>L3｜可執行規格與驗收</h3><p>'+h(lab.title)+'</p>'+
       '<h4>輸入資料（標準輸入）</h4><pre class="os-io"><code>'+h(lab.input)+'</code></pre>'+
       '<h4>預期輸出（標準輸出）</h4><pre class="os-io"><code>'+h(lab.expected)+'</code></pre>'+

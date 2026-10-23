@@ -27,11 +27,12 @@ const specs=Object.fromEntries(trace.map(z=>{
   title:'L3｜可重現驗證與反例',input:first.input.trimEnd(),expected:first.output.trimEnd(),
   counterInput:edge.input.trimEnd(),counterExpected:edge.output.trimEnd(),
   counterexample:z.counterexample,
-  command:'node os/linux-labs/l3-verify.cjs --chapter '+z.id,
-  checks:[z.invariant,'每一筆輸入都有一行輸出，公開及隱藏測資均由獨立模型驗證。','提交可執行程式、輸入、輸出、反例、系統版本與解釋，不得只複製參考答案。'],
+  command:'node os/linux-labs/l3-verify.cjs --chapter '+z.id+'\nnode os/linux-labs/student-verify.cjs --chapter '+z.id+' --language c --source solution.c',
+  checks:[z.invariant,'l3-verify 僅核對題庫預期答案；student-verify 才會編譯／執行學生自己的程式，逐筆比對公開與隱藏測資。','提交可執行程式、輸入、輸出、反例、系統版本與解釋，不得只複製參考答案。'],
   steps:['在 repository 根目錄安裝 Node.js 22 以上並開啟終端機。',
    '先用紙筆根據狀態表手動推導本章輸入及預期輸出。',
-   '執行 node os/linux-labs/l3-verify.cjs --chapter '+z.id+'，核對輸出與獨立檢查器。',
+   '執行 node os/linux-labs/l3-verify.cjs --chapter '+z.id+'，先核對教材與參考預期答案（這不代表自己的程式已通過）。',
+   '完成 solution.c 後，執行 node os/linux-labs/student-verify.cjs --chapter '+z.id+' --language c --source solution.c；或選 cpp/python/javascript 與對應檔案。',
    '新增一組能驗證邊界或反例的輸入，記錄錯誤實作為何失敗。']
  }}]}));
 for(const [key,s] of Object.entries(specs)){
@@ -54,7 +55,7 @@ for(const [key,s] of Object.entries(specs)){
   12:eq(v('L'),row(v('λ'),o('×'),v('W'))),
   13:eq(v('T_{end-to-end}'),row(v('T_{queue}'),o('+'),v('T_{CPU}'),o('+'),v('T_{I/O}'),o('+'),v('T_{network}'))),
   14:eq(v('P_n'),sup(n(2),v('n'))),
-  15:eq(v('write_durable'),row(v('fsync'),o('('),v('fd'),o(')'))),
+  15:math(row(t('依需求選擇系統機制'),o('→'),t('明確定義前置條件'),o('→'),t('蒐集執行證據'))),
   16:eq(v('empty'),row(v('capacity'),o('−'),v('full'))),
   17:eq(v('Need_{i,j}'),row(v('Max_{i,j}'),o('−'),v('Allocation_{i,j}'))),
   18:eq(v('external_frag'),row(v('free_total'),o('−'),v('largest_hole'))),
@@ -64,8 +65,8 @@ for(const [key,s] of Object.entries(specs)){
   22:eq(v('EOF'),row(v('buffer_empty'),o('∧'),v('writers'),o('='),n(0))),
   23:eq(v('proceed'),row(v('predicate'),o('='),v('true'))),
   24:eq(v('VA'),row(v('indices'),o('∥'),v('offset'))),
-  25:eq(v('W(t,Δ)'),row(o('{'),v('pages in window'),o('}'))),
-  26:eq(v('replay'),row(v('journal_commit'),o('='),v('durable'))),
+  25:math(row(v('W'),o('('),v('t'),o(','),v('Δ'),o(')'),o('='),o('{'),t('在觀察窗口內被引用的不同頁'),o('}'))),
+  26:math(row(t('commit record durable'),o('⇒'),t('recovery 可重做已提交交易'))),
   27:eq(v('remaining'),row(v('buffer_before'),o('−'),v('read_bytes'))),
   28:eq(v('throttle_ratio'),frac(v('throttled_periods'),v('total_periods')))
  })[Number(key)];

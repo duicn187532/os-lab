@@ -289,3 +289,16 @@ i.net { background: var(--blue); } i.cpu { background: var(--green); } i.queue {
 .os-two { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; min-width:0; }
 .os-two>pre { min-width:0; }
 @media(max-width:640px) { .os-two { grid-template-columns:minmax(0,1fr); }.os-textbook {padding:12px;} .os-math math {font-size:1.04rem;} }
+
+/* OS LAB learner evidence. The academic certification stays external. */
+.os-mastery,.os-mastery-summary{margin:16px 0;padding:20px;}
+.os-mastery h2,.os-mastery-summary h2{margin:0 0 10px;font-size:1.1rem;}
+.os-mastery-states{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
+.os-mastery-states span{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--surface);font-size:.87rem;}
+.os-mastery details{margin-top:16px;}
+.os-mastery summary{cursor:pointer;font-weight:600;}
+.os-mastery-form{display:grid;gap:12px;max-width:760px;margin-top:14px;}
+.os-mastery-form label{display:grid;gap:5px;}
+.os-mastery-form input,.os-mastery-form textarea{max-width:100%;padding:10px;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:7px;font:inherit;}
+.os-mastery-form textarea{width:100%;resize:vertical;}
+.os-mastery .muted{font-size:.88rem;line-height:1.65;}

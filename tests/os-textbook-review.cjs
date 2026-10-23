@@ -13,7 +13,7 @@ vm.runInNewContext(read('os/assets/code-examples.js'),ctx,{filename:'code-exampl
 const codeForTextbook=[];
 ctx.CSLab={code:{add:p=>codeForTextbook.push(p),list:()=>codeForTextbook,cases:p=>p.cases}};
 vm.runInNewContext(read('os/assets/advanced-code.js'),ctx,{filename:'advanced-code.js'});
-for(const file of ['textbook-traces-1.js','textbook-traces-2.js','textbook-rigor.js','formula-mathml.js','assessment-rigor.js'])
+for(const file of ['textbook-traces-1.js','textbook-traces-2.js','textbook-rigor.js','formula-mathml.js','assessment-rigor.js','assessment-quality.js'])
  vm.runInNewContext(read('os/assets/'+file),ctx,{filename:file});
 const D=JSON.parse(JSON.stringify(ctx.window.OS_DATA));
 assert.equal(D.lessons.length,29,'29 textbook chapters');
@@ -26,7 +26,14 @@ for(const old of base.lessons){
   assert.deepEqual(now[k],old[k],'Original lesson '+old.id+' field '+k+' preserved');
  if(!ctx.window.OS_RUNNABLE_EXAMPLES.includes(old.id))assert.deepEqual(now.code,old.code,'Original code preserved '+old.id);
  assert.deepEqual(now.details.slice(0,old.details.length),old.details,'Original details preserved '+old.id);
- assert.deepEqual(now.quiz.slice(0,old.quiz.length),old.quiz,'Original four quiz items preserved '+old.id);
+ for(let qi=0;qi<old.quiz.length;qi++){
+   const original=old.quiz[qi],revised=now.quiz[qi];
+   assert.equal(revised[0],original[0],'Original quiz stem preserved '+old.id+':'+qi);
+   assert.equal(revised[2],original[2],'Original correct index preserved '+old.id+':'+qi);
+   assert.equal(revised[1][revised[2]],original[1][original[2]],
+     'Original correct answer preserved '+old.id+':'+qi);
+   assert.equal(revised[1].length,original[1].length,'Original choice count preserved '+old.id+':'+qi);
+ }
  assert(now.details.length>=old.details.length+2,'Two L2/L3 expansions '+old.id);
 }
 const terms=new Set(D.glossary.map(x=>x.id));
@@ -35,6 +42,14 @@ assert(D.glossary.length>=120,'Vocabulary > 120');
 assert(D.formulas.reduce((n,g)=>n+g.items.length,0)===27,'27 formulas');
 assert(D.formulas.every(g=>g.items.every(f=>f.mathml?.startsWith('<math ')&&f.note?.length>=10)),'Every formula uses MathML and symbol definitions');
 assert.equal(D.lessons.reduce((n,l)=>n+l.quiz.length,0),174,'174 knowledge questions including 58 new scenarios');
+assert.equal(ctx.window.OS_ASSESSMENT_QUALITY?.revised,58,'All 58 advanced scenarios must have revised distractors');
+assert.equal(ctx.window.OS_ASSESSMENT_QUALITY?.legacyRevised,32,'Every advanced original chapter question has vetted choices');
+assert.equal(ctx.window.OS_ASSESSMENT_QUALITY?.baseRevised,48,'Foundation low-discrimination distractors updated');
+for(const l of D.lessons)for(const q of l.quiz){
+ assert(q[1][q[2]]&&new Set(q[1].map(s=>s.trim())).size===q[1].length,'No duplicate answer choices '+l.id);
+ assert(!q[1].some(s=>/只影響程式碼顏色|只改變字型|瀏覽器 Cookie|硬碟變成藍色/.test(s)),
+   'No implausible distractors in published exam practice '+l.id);
+}
 for(const l of D.lessons){
  assert(D.units.includes(l.unit),'Unknown unit '+l.id);
  for(const field of ['title','short','why','analogy','ask','caveat'])

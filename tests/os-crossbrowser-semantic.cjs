@@ -35,6 +35,24 @@ try{
        extra:OSApp.byId[OSApp.state.lesson].quiz.slice(4).length};
    });
    assert(status.section&&status.math&&status.visible>0&&status.data>=3&&status.headers>=3&&status.l3&&status.commands&&status.extra===2,'L2/L3 '+engine+' ch '+id+JSON.stringify(status));
+   if(id===25){
+     const workingSet=await page.evaluate(()=>{
+       const root=document.querySelector('.os-textbook');
+       const tables=[...root.querySelectorAll('.os-state-table')];
+       return {tables:tables.map(t=>({rows:t.querySelectorAll('tbody tr').length,
+         columns:t.querySelectorAll('thead th').length})),
+         working:root.textContent.includes('Working Set｜Δ=4 逐次滑動視窗'),
+         demand:root.textContent.includes('雙行程需求 D(t) 與容量壓力'),
+         model:typeof window.OS_WORKING_SET?.trace==='function',
+         sample:window.OS_WORKING_SET?.trace([1,2,1,3],3).map(x=>x.size)};
+     });
+     assert.deepEqual(workingSet.tables,[{rows:4,columns:5},{rows:10,columns:5},
+       {rows:10,columns:6}],'Clock and two independently displayed Working Set tables');
+     assert(workingSet.working&&workingSet.demand&&workingSet.model,
+       'Working Set model and both visible textbook cases must be present');
+     assert.deepEqual(workingSet.sample,[1,2,2,3],
+       'Browser model must preserve exact reference window semantics');
+   }
    formulas++;rows+=status.data;
  }
  await page.goto(URL+'#/formulas');
