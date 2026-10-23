@@ -10,7 +10,7 @@
 
 ## OS LAB 內容
 
-**29 章 · 29 個專屬模擬器 · 174 題測驗 · 127 個術語 · 27 項 MathML 公式 · 29 題四語言程式挑戰**
+**29 章 · 29 個專屬模擬器 · 174 題測驗 · 127 個術語 · 27 項 MathML 公式 · 37 題四語言程式挑戰**
 
 | 單元 | 章節與互動實驗 |
 | --- | --- |
@@ -27,7 +27,7 @@
 
 ## OS LAB 資工系教材深化
 
-原有 21 章均補充 L2 演算法、狀態表、計算推導、正式 MathML 公式與 L3 可執行驗證規格；另新增 8 章（Boot/ELF、IPC、Atomic/Condition Variable、COW/mmap、多層頁表/Clock、VFS/Journaling、epoll/NVMe、procfs/perf/cgroups）。每章新增可在瀏覽器評測的 C/C++/Python/JavaScript 程式挑戰；真正涉及 POSIX API 的實驗另提供 4 份可在 Linux/WSL2 編譯執行的範例。
+原有 21 章均補充 L2 演算法、狀態表、計算推導、正式 MathML 公式與 L3 可執行驗證規格；另新增 8 章（Boot/ELF、IPC、Atomic/Condition Variable、COW/mmap、多層頁表/Clock、VFS/Journaling、epoll/NVMe、procfs/perf/cgroups）。每章新增可在瀏覽器評測的 C/C++/Python/JavaScript 程式挑戰，並有 8 題進階演算法綜合專題；真正涉及 POSIX API 的實驗另提供 4 份可在 Linux/WSL2 編譯執行的範例。
 
 課程規劃、學習評量、系統模擬假設、Linux 作業及 RFC／Kernel 文件對照詳見 [OS LAB 進階講義](os/TEXTBOOK-EXTENSION.md)。保留原有 21 章 ID、測驗、筆記與 localStorage 進度鍵。
 
@@ -88,7 +88,7 @@ os/assets/content.js        原有教材資料：章節、測驗、術語、公�
 os/assets/depth.js          原 21 章 L2/L3 深化
 os/assets/advanced-content.js  8 個新章節、術語與公式
 os/assets/advanced-labs.js     8 個新互動模擬
-os/assets/advanced-code.js     29 題四語言 Judge（10 題改為狀態式演算法）
+os/assets/advanced-code.js     29 題四語言 Judge（10 題改為狀態式演算法）及 8 題 capstone
 os/assets/code-examples.js     21 章可獨立執行的 C/Python/Bash 範例
 os/assets/textbook-rigor.js  29 章 L2/L3 結構與 MathML 公式
 os/assets/course.js         課程設定：名稱、localStorage 鍵、首頁文案
