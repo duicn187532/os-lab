@@ -27,7 +27,7 @@ const specs=Object.fromEntries(trace.map(z=>{
   title:'L3｜可重現驗證與反例',input:first.input.trimEnd(),expected:first.output.trimEnd(),
   counterInput:edge.input.trimEnd(),counterExpected:edge.output.trimEnd(),
   counterexample:z.counterexample,
-  command:'node os/linux-labs/l3-verify.cjs --chapter '+z.id+'\\nnode os/linux-labs/student-verify.cjs --chapter '+z.id+' --language c --source solution.c',
+  command:'node os/linux-labs/l3-verify.cjs --chapter '+z.id+'\nnode os/linux-labs/student-verify.cjs --chapter '+z.id+' --language c --source solution.c',
   checks:[z.invariant,'l3-verify 僅核對題庫預期答案；student-verify 才會編譯／執行學生自己的程式，逐筆比對公開與隱藏測資。','提交可執行程式、輸入、輸出、反例、系統版本與解釋，不得只複製參考答案。'],
   steps:['在 repository 根目錄安裝 Node.js 22 以上並開啟終端機。',
    '先用紙筆根據狀態表手動推導本章輸入及預期輸出。',
