@@ -25,7 +25,7 @@
 | 3 | Thread/Parallelism | 2,5 | 證明共享與 thread 隔離 | 有/部分/部分 | 判題僅共享分類；未檢測競態 interleaving 的未定義行為 | P1 |
 | 4 | Scheduling | 2,3 | 計算 Gantt/CT/TAT/WT/RT | 有/部分/部分 | 四政策完整 Gantt/狀態/CT/TAT/WT/RT 已有獨立模型與回歸；尚缺含 context-switch 成本的一致事件模型 | P1 |
 | 5 | Race/Deadlock | 3,23 | 構造失敗 interleaving 與 wait-for graph | 有/部分/部分 | x+1 基本題太淺；deadlock 必須驗證環、mutex owner 不變量 | P1 |
-| 6 | Paging/TLB | 0,1 | 追蹤 VPN/PFN/PTE/有效存取時間 | 有/部分/部分 | 已見位址分拆；欠 TLB+頁表跨層權限與 fault 的單一狀態追蹤 | P1 |
+| 6 | Paging/TLB | 0,1 | 追蹤 VPN/PFN/PTE/有效存取時間 | 有/部分/部分 | 已補四級 LA48 完整索引、路徑中任一 PTE 缺失/權限錯誤分流與 2550 次 property regression；尚欠完整 TLB invalidation/PCID 整合 | P1 |
 | 7 | Page Fault/Replacement | 6 | 推導 FIFO/LRU/OPT/Clock | 有/部分/部分 | FIFO/LRU/OPT 13 步完整表、OPT 窮舉及 Belady 反例已補；缺真實 working-set/fault handler Linux 取證 | P1 |
 | 8 | File System | 2,6 | 追蹤 FD/OFT/inode/hard link | 有/部分/部分 | link count 只有算術；缺 open file table 與持久化狀態實作 | P1 |
 | 9 | I/O/Interrupt | 1,8 | 解釋 blocking/partial I/O 與事件 | 有/部分/部分 | 僅 readyBytes/nonblocking 分類；EOF/EINTR/fd ready 尚未整合 | P1 |
@@ -43,7 +43,7 @@
 | 21 | Kernel/Boot/ELF | 0,1 | 分析 boot chain/ELF 故障點 | 有/部分/部分 | stage 分類有模型；缺 readelf/execve 工具證據驗收 | P2 |
 | 22 | IPC/Pipe/Signal | 2,9 | 證明 fd 引用、EOF 與 partial I/O | 有/部分/部分 | EOF 概念題 + pipe C；需要 nonblocking/partial/error 注入 | P1 |
 | 23 | CAS/Condvar/Ordering | 3,5,16 | 驗證 predicate 循環與 happens-before | 有/部分/部分 | while/spurious wake 加上真實 pthread condvar bounded queue，可重現 predicate shutdown；仍欠 C11 atomic memory-order 對照 | P1 |
-| 24 | Multilevel PT/COW/mmap | 6,7 | 推導 PTE、fault、private/shared 寫入 | 有/部分/部分 | MAP_PRIVATE C 範例可執行；欠 page-walk fault 與權限違規完整追蹤 | P1 |
+| 24 | Multilevel PT/COW/mmap | 6,7 | 推導 PTE、fault、private/shared 寫入 | 有/部分/部分 | 已補四級 Page Walk、權限違規與 MAP_PRIVATE/MAP_SHARED COW 父子可見性逐步追蹤；仍欠 Linux Page Fault handler 觀測證據 | P1 |
 | 25 | Working Set/Clock | 7,24 | 追蹤 reference bits 與 thrashing | 有/部分/部分 | Clock 每次 cleared bit/victim/next hand 狀態表、315 組隨機檢查已補；仍缺 working-set size/sliding-window 實作 | P1 |
 | 26 | VFS/Journaling/Crash | 8,22 | 定義 durable commit 與可恢復性 | 有/部分/部分 | 簡化 WAL 模型；fsync+rename C 範例未涵蓋受控崩潰注入 | P1 |
 | 27 | epoll/NVMe | 9,22 | 解釋 LT/ET、EAGAIN、backpressure | 有/部分/部分 | 新增真實 Linux socketpair/epoll LT/ET partial-read 與 EAGAIN C 實驗；仍缺背壓與多 fd 壓力測試 | P1 |
