@@ -74,6 +74,9 @@ for(const p of problems){
  assert(p.cases.length>=3,'At least three assessment sets '+p.id);
  assert(p.cases.some(c=>c.visible===false),'Hidden Judge tests '+p.id);
  assert(p.cases.filter(c=>c.visible===true).length>=2,'Public samples '+p.id);
+ const knownPublic=new Set(p.cases.filter(c=>c.visible).flatMap(c=>c.input.trim().split('\n').slice(1)));
+ const unseen=p.cases.filter(c=>!c.visible).flatMap(c=>c.input.trim().split('\n').slice(1));
+ assert(unseen.length>=1 && unseen.every(row=>!knownPublic.has(row)),'Hidden tests must have unseen inputs '+p.id);
  for(const t of p.cases){
   const lines=t.input.trim().split('\n'),n=Number(lines[0]);
   assert.equal(lines.length-1,n,'Case input count '+p.id);
