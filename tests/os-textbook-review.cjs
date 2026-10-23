@@ -21,9 +21,10 @@ assert.deepEqual(D.units,base.units,'Original subject units preserved');
 for(const old of base.lessons){
  const now=D.lessons.find(l=>l.id===old.id);
  assert(now,'Original lesson id '+old.id+' must remain');
- for(const k of ['title','short','unit','minutes','icon','ask','analogy','why','steps','summary','terms','lab','code','quiz','goals','caveat'])
+ for(const k of ['title','short','unit','minutes','icon','ask','analogy','why','steps','summary','terms','lab','code','goals','caveat'])
   assert.deepEqual(now[k],old[k],'Original lesson '+old.id+' field '+k+' preserved');
  assert.deepEqual(now.details.slice(0,old.details.length),old.details,'Original details preserved '+old.id);
+ assert.deepEqual(now.quiz.slice(0,old.quiz.length),old.quiz,'Original four quiz items preserved '+old.id);
  assert(now.details.length>=old.details.length+2,'Two L2/L3 expansions '+old.id);
 }
 const terms=new Set(D.glossary.map(x=>x.id));
