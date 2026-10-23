@@ -41,13 +41,13 @@ try{
  const semantics=await page.evaluate(()=>{
  const all=CSLab.sim.osAdvanced, frames=(name,v)=>all[name].frames(v),last=(name,v)=>frames(name,v).at(-1).desc;
  const checks={
-  pipeEOF:last('os-ipc',{writers:0,bytes:0,read:5,mode:'block'}).includes('EOF'),
+  pipeEOF:frames('os-ipc',{writers:0,bytes:0,read:5,mode:'block'})[1].visual.includes('EOF'),
   pipeWriterWait:frames('os-ipc',{writers:1,bytes:0,read:5,mode:'block'})[1].visual.includes('等待'),
   condWhile:last('os-condvar',{ready:'no',wake:'spurious',check:'while'}).includes('繼續 wait'),
   condIfUnsafe:last('os-condvar',{ready:'no',wake:'spurious',check:'if'}).includes('錯誤'),
-  cowPrivate:last('os-cow',{mode:'private',write:'child',initial:5,changed:9}).includes('父子'),
-  cowShared:last('os-cow',{mode:'shared',write:'child',initial:5,changed:9}).includes('父子'),
-  clockTerminates:frames('os-clock',{bits:'111',hand:1,page:4}).at(-1).label.includes('Victim'),
+  cowPrivate:frames('os-cow',{mode:'private',write:'child',initial:5,changed:9}).at(-1).visual.includes('<td>Parent</td><td>5</td>'),
+  cowShared:frames('os-cow',{mode:'shared',write:'child',initial:5,changed:9}).at(-1).visual.includes('<td>Parent</td><td>9</td>'),
+  clockTerminates:frames('os-clock',{bits:'111',hand:1,page:4}).at(-1).visual.includes('victim=') || frames('os-clock',{bits:'111',hand:1,page:4}).at(-1).visual.includes('Victim'),
   journalNoCommit:last('os-journal',{crash:'after_log',old:10,new:20}).includes('10'),
   journalCommit:last('os-journal',{crash:'after_commit',old:10,new:20}).includes('20'),
   etEdge:frames('os-epoll',{mode:'et',pending:100,read:30,newdata:'no'})[2].visual.includes('不保證'),
