@@ -7,6 +7,7 @@ on:
       - 'tests/os-review.cjs'
       - 'tests/os-maple-review.cjs'
       - 'tests/os-textbook-review.cjs'
+      - 'tests/os-judge-native.cjs'
       - '.github/workflows/os-textbook-check.yml'
   push:
     branches:
@@ -15,6 +16,7 @@ on:
       - 'os/**'
       - 'tests/os-maple-review.cjs'
       - 'tests/os-textbook-review.cjs'
+      - 'tests/os-judge-native.cjs'
       - '.github/workflows/os-textbook-check.yml'
 
 jobs:
@@ -27,6 +29,16 @@ jobs:
           node-version: '22'
       - name: Validate 29 chapters, labs, questions and Judge data
         run: node tests/os-textbook-review.cjs
+
+  judge-native:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compile C/C++ and execute Python/JavaScript starters; validate all expected outputs
+        run: node tests/os-judge-native.cjs
 
   posix-examples:
     runs-on: ubuntu-latest
