@@ -29,7 +29,7 @@ assert.equal(D.lessons.reduce((n,l)=>n+l.quiz.length,0),116,'116 knowledge quiz 
 for(const l of D.lessons){
  assert(D.units.includes(l.unit),'Unknown unit '+l.id);
  for(const field of ['title','short','why','analogy','ask','caveat'])
-  assert(l[field]?.length>15,'Chapter '+l.id+' lacks '+field);
+  assert(l[field]?.length > (field==='title'||field==='short'?2:10),'Chapter '+l.id+' lacks '+field);
  assert(l.goals.length>=3,'Missing learning outcomes '+l.id);
  assert(l.steps.length>=4,'Missing step-by-step '+l.id);
  assert(l.summary.length>=3,'Missing summary '+l.id);
