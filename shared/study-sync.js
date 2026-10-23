@@ -208,8 +208,15 @@
     if (Object.keys(conflicts).length || status.indexOf('失敗') !== -1) {
       message('同步未完成；為保護本機資料，已取消登出。'); return;
     }
+    // Archive and remove signed-in data before returning to guest mode. Without
+    // this, the next account could accidentally import the previous user's cache.
+    write('__study_sync_logout_backup:' + scope + ':' + userId + ':' + Date.now(),
+      { exported: new Date().toISOString(), entries: entries() });
     var result = await client.auth.signOut();
-    if (result.error) message('登出失敗：' + result.error.message);
+    if (result.error) { message('登出失敗：' + result.error.message); return; }
+    Object.keys(entries()).forEach(function (k) { localStorage.removeItem(k); });
+    localStorage.setItem(ownerKey, 'guest');
+    location.reload();
   }
   function switchUser(next, user) {
     if (userId === next && initialized) { session = user ? { user: user } : null; render(); return; }
