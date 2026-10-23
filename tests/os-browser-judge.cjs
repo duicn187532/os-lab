@@ -16,7 +16,7 @@ const source=(id)=>'const input=readInput().trim().split(/\\r?\\n/);\n'+answerJS
  try {
    await page.goto(URL+'#/');
    await page.waitForFunction(()=>window.OSApp&&window.CSLab?.code);
-   const meta=await page.evaluate(()=>CSLab.code.list().map(p=>({id:p.id,lesson:p.lesson})));
+   const meta=await page.evaluate(()=>CSLab.code.list().filter(p=>p.id.startsWith('os.textbook.')).map(p=>({id:p.id,lesson:p.lesson})));
    assert.equal(meta.length,29);
    await page.evaluate(async()=>{window.__OS_JUDGE__=(await CSLab.code.load()).judge;});
    let passed=0,caseGroups=0;
@@ -33,7 +33,7 @@ const source=(id)=>'const input=readInput().trim().split(/\\r?\\n/);\n'+answerJS
    }
    // A starter that prints TODO must compile but receive Wrong Answer, not a sandbox error.
    const first=await page.evaluate(async()=>{
-     const p=CSLab.code.list()[0];
+     const p=CSLab.code.list().find(x=>x.id.startsWith('os.textbook.'));
      const r=await window.__OS_JUDGE__({...p,cases:CSLab.code.cases(p)},'javascript',p.starter.javascript);
      return r.verdict;
    });
