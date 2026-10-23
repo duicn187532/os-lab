@@ -26,6 +26,7 @@ jobs:
           node tests/os-textbook-review.cjs
           node os/linux-labs/l3-verify.cjs --all
           node tests/os-scheduling-model.cjs
+          node tests/os-banker-model.cjs
           node tests/os-judge-native.cjs
           node tests/os-examples-compile.cjs
       - name: Verify real student code across four native languages
