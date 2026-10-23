@@ -30,7 +30,7 @@ assert.deepEqual(failure.trace[1].holes,failure.trace[0].holes);
 let seed=112233;const random=n=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed%n;};
 let cases=0;
 for(let count=0;count<300;count++){
- const total=1+random(100),ops=[],active=[],ids=0;
+ const total=1+random(100),ops=[],active=[];let ids=0;
  for(let i=0;i<25;i++){
   if(active.length&&random(3)===0){
    const k=random(active.length);ops.push({type:'FREE',id:active.splice(k,1)[0]});
