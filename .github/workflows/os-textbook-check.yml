@@ -15,21 +15,10 @@ on:
       - 'tests/os-browser-multilang.cjs'
       - 'tests/os-crossbrowser.cjs'
       - '.github/workflows/os-textbook-check.yml'
-  push:
-    branches:
-      - 'feat/os-textbook-depth-20261023'
-    paths:
-      - 'os/**'
-      - 'tests/os-maple-review.cjs'
-      - 'tests/os-textbook-review.cjs'
-      - 'tests/os-judge-native.cjs'
-      - 'tests/os-examples-compile.cjs'
-      - 'tests/os-crossbrowser-semantic.cjs'
-      - 'tests/os-browser-wasm.cjs'
-      - 'tests/os-browser-judge.cjs'
-      - 'tests/os-browser-multilang.cjs'
-      - 'tests/os-crossbrowser.cjs'
-      - '.github/workflows/os-textbook-check.yml'
+
+concurrency:
+  group: os-textbook-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   textbook-data:
