@@ -20,11 +20,15 @@ let seed=21047;const rnd=n=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;retur
 let tested=0;
 for(let i=0;i<600;i++){
  const start=rnd(1000),count=1+rnd(5),ev=[];
- let expected=start;
+ let expected=start,pending=null;
  for(let j=0;j<count;j++){
   const tx='T'+j,value=rnd(4000),barrier=rnd(2)===0;
-  ev.push({type:'LOG',tx,value},{type:'FSYNC_LOG'},{type:'COMMIT',tx});
-  if(barrier){ev.push({type:'FSYNC_COMMIT'});expected=value;}
+  ev.push({type:'LOG',tx,value},{type:'FSYNC_LOG'});
+  // A later fsync of the append-only log also makes earlier pending
+  // COMMIT records durable. The independent oracle must model that.
+  if(pending!==null){expected=pending;pending=null;}
+  ev.push({type:'COMMIT',tx});pending=value;
+  if(barrier){ev.push({type:'FSYNC_COMMIT'});expected=value;pending=null;}
  }
  ev.push({type:'CRASH'});
  const r=copy(run(start,ev));
