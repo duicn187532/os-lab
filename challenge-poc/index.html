@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-scene="ellinia">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="CS LAB 四語言 Coding Challenge 原型：在瀏覽器裡真的編譯、執行並評測 C、C++、Python 與 JavaScript。">
+<title>CS LAB｜Coding Challenge PoC</title>
+<link rel="stylesheet" href="../shared/cslab.css">
+<link rel="stylesheet" href="../shared/skin-maple.css">
+<link rel="stylesheet" href="poc.css">
+<script>try{if(localStorage.getItem('cslab.skin')!=='classic'&&localStorage.getItem('cslab.art')==='1')document.documentElement.dataset.skin='maple'}catch(e){}</script>
+</head>
+<body>
+<a class="skip-link" href="#work">跳到編輯器</a>
+<header class="poc-top">
+  <a class="poc-brand" href="../">CS <b>LAB</b></a>
+  <span class="poc-sub">Coding Challenge <span class="tag warn">PoC</span></span>
+  <span class="poc-tools" data-skin-slot></span>
+</header>
+
+<main class="poc">
+  <aside class="poc-side">
+    <section class="card poc-problems" aria-labelledby="problemsTitle">
+      <h2 class="label" id="problemsTitle">題目</h2>
+      <ol class="poc-list" id="problemList"></ol>
+    </section>
+    <section class="card poc-statement" aria-labelledby="stTitle" id="statement"></section>
+  </aside>
+
+  <section class="lab poc-work" id="work" aria-labelledby="workTitle">
+    <h2 class="visually-hidden" id="workTitle">程式編輯與評測</h2>
+    <div class="row between wrap poc-bar">
+      <div class="seg" role="group" aria-label="程式語言" id="langSeg"></div>
+      <span class="muted small" id="runtimeStatus" role="status"></span>
+    </div>
+    <div id="editor"></div>
+    <p class="muted small" id="edHelp">Tab 縮排、Shift+Tab 取消縮排、Ctrl/⌘+Enter 執行；按 Esc 再按 Tab 可以離開編輯器。程式碼會自動存在這台裝置的瀏覽器裡。</p>
+    <div class="row wrap poc-actions">
+      <button type="button" class="btn secondary" id="runBtn" title="用下方的自訂輸入執行一次（Ctrl/⌘+Enter）">▶ 執行</button>
+      <button type="button" class="btn primary" id="submitBtn">✔ 提交評測</button>
+      <button type="button" class="btn warn" id="stopBtn" disabled>■ 停止</button>
+      <button type="button" class="btn ghost" id="resetBtn">↺ 重設為起始程式碼</button>
+      <span class="muted small" id="saveState" aria-live="polite"></span>
+    </div>
+    <details class="poc-stdin" id="stdinBox">
+      <summary>自訂輸入（stdin）</summary>
+      <textarea id="stdin" rows="4" spellcheck="false" aria-label="自訂輸入 stdin"></textarea>
+    </details>
+    <div class="poc-result" id="result" aria-live="polite"></div>
+    <div class="poc-out">
+      <div class="seg" role="tablist" aria-label="輸出" id="outTabs">
+        <button type="button" role="tab" data-out="stdout" aria-pressed="true" aria-selected="true">stdout</button>
+        <button type="button" role="tab" data-out="stderr" aria-pressed="false" aria-selected="false">stderr</button>
+        <button type="button" role="tab" data-out="compile" aria-pressed="false" aria-selected="false">編譯訊息</button>
+      </div>
+      <pre class="poc-pre" id="outPre" role="tabpanel" tabindex="0" aria-label="輸出內容"></pre>
+    </div>
+    <ol class="poc-cases" id="cases" aria-label="測資結果"></ol>
+  </section>
+</main>
+
+<footer class="poc-foot">
+  <p><b>個人學習用的自我檢查，不是防作弊的評測系統。</b>程式在你自己的瀏覽器裡編譯與執行，測資與判斷也都在前端，可以被看到或改動。
+  玩家程式在不透明來源的沙箱 iframe 與 Worker 裡執行，讀不到 CS LAB 的頁面與學習進度；但這個原型沒有經過公開執行不可信程式所需的安全驗證，不應當成安全的公開 Judge。細節見 <a href="README.md">README</a>。</p>
+</footer>
+
+<script src="../shared/cslab-skin.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

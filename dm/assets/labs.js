@@ -28,6 +28,11 @@ const LAB_DEFS={
   dfa:{name:'DFA 字串逐字元轉移',inputs:[['word','二進位輸入（最多 12 位）','text','1101',[]]]},
   invariant:{name:'加總迴圈不變量',inputs:[['n','求 1 到 n 的總和','range',7,[1,18,1]]]}
 };
+// 命題連接詞：真值表實驗與第 1 章的找反例挑戰共用。式子寫成 'P' 或 [連接詞, 子式…]，例如 ['imp', ['and','P','Q'], 'R']。
+const OPS={not:p=>!p,and:(p,q)=>p&&q,or:(p,q)=>p||q,imp:(p,q)=>!p||q,eq:(p,q)=>p===q,xor:(p,q)=>p!==q};
+const SYM={not:'¬',and:'∧',or:'∨',imp:'→',eq:'↔',xor:'⊕'};
+const evalExpr=(e,env)=>typeof e==='string'?!!env[e]:OPS[e[0]](...e.slice(1).map(x=>evalExpr(x,env)));
+const showExpr=(e,top=true)=>typeof e==='string'?e:e[0]==='not'?SYM.not+showExpr(e[1],false):(top?'':'(')+showExpr(e[1],false)+' '+SYM[e[0]]+' '+showExpr(e[2],false)+(top?'':')');
 function h(v){return String(v).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
 const bool=v=>v?'真':'假';
 function table(headers,rows,mark=-1){return `<div class="tablewrap"><table class="matrix"><thead><tr>${headers.map(s=>`<th>${h(s)}</th>`).join('')}</tr></thead><tbody>${rows.map((r,i)=>`<tr class="${i===mark?'selected':''}">${r.map(c=>`<td>${h(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;}
@@ -42,7 +47,7 @@ function C(n,r){if(r<0||r>n)return 0;r=Math.min(r,n-r);let v=1;for(let i=1;i<=r;
 function labFrames(type,v){let f=[];const push=(title,explain,visual='',sub='')=>f.push(stage(title,explain,visual,sub));
  if(type==='truth'||type==='normal'){
   const rows=[[0,0],[0,1],[1,0],[1,1]];
-  let op=v.op;let test=(p,q)=>op==='and'&&p&&q||op==='or'&&(p||q)||op==='eq'&&(p===q)||op==='xor'&&(p!==q)||op==='imp'&&(!p||q);
+  const op=OPS[v.op]||OPS.imp;let test=(p,q)=>op(!!p,!!q);
   let mode=v.mode;let expressions={dem1:[(p,q)=>!(p&&q),(p,q)=>!p||!q],dem2:[(p,q)=>!(p||q),(p,q)=>!p&&!q],impl:[(p,q)=>!p||q,(p,q)=>!p||q],wrong:[(p,q)=>!(p&&q),(p,q)=>!p&&!q]};
   let tests=expressions[mode]||expressions.dem1;
   let results=rows.map(([p,q])=>type==='truth'?[bool(test(p,q))]:[bool(tests[0](p,q)),bool(tests[1](p,q)),tests[0](p,q)===tests[1](p,q)?'✓':'✗']);
@@ -175,4 +180,5 @@ function labFrames(type,v){let f=[];const push=(title,explain,visual='',sub='')=
 
 Object.entries(LAB_DEFS).forEach(([type, def]) => CSLab.frameLab(type, { title: def.name, inputs: def.inputs, frames: v => labFrames(type, v) }));
 CSLab.sim.dmFrames = labFrames;
+CSLab.sim.dm = { frames: labFrames, ops: OPS, evalExpr, showExpr };
 })();
