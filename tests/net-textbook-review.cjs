@@ -6,7 +6,7 @@ const ROOT=path.join(__dirname,'..'),read=p=>fs.readFileSync(path.join(ROOT,p),'
 const context={window:{}};
 vm.runInNewContext(read('net/assets/content.js'),context,{filename:'content.js'});
 assert.equal(context.window.NET_DATA.lessons.length,22,'Original chapter IDs stay 0..21');
-const oldIds=context.window.NET_DATA.lessons.map(x=>x.id),originalUnits=context.window.NET_DATA.units.slice();
+const oldIds=Array.from(context.window.NET_DATA.lessons,x=>x.id),originalUnits=Array.from(context.window.NET_DATA.units);
 vm.runInNewContext(read('net/assets/advanced-content.js'),context,{filename:'advanced-content.js'});
 const D=JSON.parse(JSON.stringify(context.window.NET_DATA));
 assert.deepEqual(D.lessons.slice(0,22).map(x=>x.id),oldIds,'Stable original lesson IDs');
