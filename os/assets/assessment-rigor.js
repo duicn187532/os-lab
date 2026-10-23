@@ -9,7 +9,7 @@ const rationales=["控制流例外不可省略。","區分 library wrapper 與�
 for(let id=0;id<29;id++){
  const lesson=D.lessons.find(x=>x.id===id);
  if(!lesson||lesson.quiz.length!==4)throw Error('Expected original 4 quiz items: '+id);
- for(const item of entries[id]){
+ for(const item of entries[id].slice(1)){
    const [question,correct,wrong1,wrong2]=item;
    lesson.quiz.push([question,[correct,wrong1,wrong2],0,'先從題目給定的模型前提和反例判斷。','正確原因：'+correct+'。'+rationales[id]]);
  }
