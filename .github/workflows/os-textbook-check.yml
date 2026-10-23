@@ -43,6 +43,7 @@ jobs:
           node tests/os-banker-model.cjs
           node tests/os-replacement-model.cjs
           node tests/os-paging-model.cjs
+          node tests/os-mlfq-model.cjs
 
   judge-native:
     runs-on: ubuntu-latest
