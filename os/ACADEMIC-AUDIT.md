@@ -33,7 +33,7 @@
 | 11 | VM/Container | 6,10 | 區分 namespace/cgroup/hypervisor | 有/部分/部分 | 主要題目偏 quota 百分比，缺失敗隔離、資源控制取證 | P2 |
 | 12 | Performance/Queueing | 4,9 | 推導 Little/M/M/1 與假設 | 有/部分/部分 | Little's Law 例題有，但尚無穩態/分位數反例的數據作業 | P1 |
 | 13 | Request Journey | 2,9,12 | 解讀端到端追蹤與重疊時間 | 有/部分/部分 | 區間聯集有題；缺真實服務工具證據，L4 補充中 | P1 |
-| 14 | Linux/C 工具 | 2,22 | 觀察程序樹、退出與系統呼叫 | 有/部分/部分 | 2^n 與本機 C 範例；缺具錯誤注入的完整 fork/exec/wait | P1 |
+| 14 | Linux/C 工具 | 2,22 | 觀察程序樹、退出與系統呼叫 | 有/部分/部分 | 新增 fork→exec→waitpid 及 ENOENT 錯誤路徑的 Linux 原生驗收；仍缺可控殭屍／訊號案例 | P1 |
 | 15 | Integration Review | 0–14 | 跨子系統定位症狀 | 有/部分/部分 | 分類題不能證明跨層能力；需 L4 證據與教師審核 | P1 |
 | 16 | Semaphore/Producer Consumer | 3,5 | 證明 0≤count≤capacity 及等待正確 | 有/部分/部分 | 計數題只驗 empty/full，缺多 producer/consumer 交錯與死結 | P1 |
 | 17 | Deadlock/Banker | 5,16 | 逐維計算 Need/Work/Finish/Request | 有/部分/部分 | 五行程三資源 Safety/Request Trial 的 ILLEGAL/WAIT/UNSAFE/GRANTED 全部分流及回滾檢核已補；實際死結回復機制仍缺 | P1 |
@@ -46,7 +46,7 @@
 | 24 | Multilevel PT/COW/mmap | 6,7 | 推導 PTE、fault、private/shared 寫入 | 有/部分/部分 | MAP_PRIVATE C 範例可執行；欠 page-walk fault 與權限違規完整追蹤 | P1 |
 | 25 | Working Set/Clock | 7,24 | 追蹤 reference bits 與 thrashing | 有/部分/部分 | Clock 每次 cleared bit/victim/next hand 狀態表、315 組隨機檢查已補；仍缺 working-set size/sliding-window 實作 | P1 |
 | 26 | VFS/Journaling/Crash | 8,22 | 定義 durable commit 與可恢復性 | 有/部分/部分 | 簡化 WAL 模型；fsync+rename C 範例未涵蓋受控崩潰注入 | P1 |
-| 27 | epoll/NVMe | 9,22 | 解釋 LT/ET、EAGAIN、backpressure | 有/部分/部分 | edge 通知抽象題；缺真實 epoll LT/ET C 實驗 | P1 |
+| 27 | epoll/NVMe | 9,22 | 解釋 LT/ET、EAGAIN、backpressure | 有/部分/部分 | 新增真實 Linux socketpair/epoll LT/ET partial-read 與 EAGAIN C 實驗；仍缺背壓與多 fd 壓力測試 | P1 |
 | 28 | Linux Observability | 4,12,13 | 結合 /proc、perf、cgroup/PSI 推理 | 有/部分/部分 | 工具分類題太淺；L4 開始提供可重現取證 | P1 |
 
 ## 跨章驗收欄位及證據定位（不得只檢字串存在）

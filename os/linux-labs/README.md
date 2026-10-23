@@ -78,6 +78,8 @@ node os/linux-labs/student-verify.cjs \
 | 作業 | 相關章節 | 觀測重點 |
 |---|---|---|
 | `pipe-demo.c` | 2、22 | fork/pipe/close/waitpid、EOF |
+| `process-exec-demo.c` | 2、14、21 | 真正 fork → exec → waitpid、失敗 errno/exit status |
+| `epoll-demo.c` | 9、22、27 | 真正 socketpair + Linux epoll 的 LT/ET、partial read、EAGAIN |
 | `condvar-demo.c` | 3、23 | mutex / condvar / predicate loop |
 | `cow-demo.c` | 6、24 | mmap/COW、父子位址空間 |
 | `durable-replace.c` | 8、26 | write/fsync/rename/dir fsync |
@@ -94,6 +96,8 @@ cc -std=c11 -Wall -Wextra -Werror -pthread os/linux-labs/condvar-demo.c -o /tmp/
 /tmp/os-lab/condvar
 # ready=1 seen=1
 
+node tests/os-posix-process-io.cjs
+# Linux epoll: LT 保留未讀資料就緒；ET 不再發新邊緣，需 drain 至 EAGAIN
 python3 os/linux-labs/l4/selftest.py
 ```
 
