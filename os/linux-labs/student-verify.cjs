@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-/* Execute a student's LOCAL solution against OS LAB public and hidden chapter cases.
+/* Execute a student's LOCAL solution against OS LAB fully published practice fixtures.
+ * All cases and expected answers are public source; no secure hidden tests.
  * This is for trusted code on the student's Linux/WSL2 computer, NOT a sandbox.
  * Reference-only l3-verify.cjs remains separate: it does not grade student code.
  *
@@ -66,7 +67,7 @@ try{
       r.error?'EXECUTION ERROR':r.status!==0?'RUNTIME ERROR':
       normalize(r.stdout)!==normalize(c.output)?'WRONG ANSWER':'PASS';
     if(outcome==='PASS')passes++;else failures++;
-    console.log((c.visible?'PUBLIC':'HIDDEN')+' '+c.name+': '+outcome);
+    console.log((c.visible?'PUBLIC_PRACTICE':'EXTRA_PRACTICE')+' '+c.name+': '+outcome);
     if(outcome!=='PASS'){
       if(r.error)console.error(r.error.message);
       if(r.stderr)console.error(r.stderr.slice(0,1200));
