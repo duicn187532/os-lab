@@ -52,7 +52,8 @@ int main(void){
      len--;
     }else{
      faults++;if(len==cap){
-      for(int i=1;i<len;i++)frames[i-1]=frames[i];len--;
+      for(int i=1;i<len;i++){frames[i-1]=frames[i];}
+      len--;
      }
     }
     frames[len++]=page;
