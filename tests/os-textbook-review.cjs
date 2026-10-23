@@ -9,6 +9,11 @@ const base=JSON.parse(JSON.stringify(ctx.window.OS_DATA));
 assert.equal(base.lessons.length,21,'Original curriculum baseline');
 vm.runInNewContext(read('os/assets/depth.js'),ctx,{filename:'depth.js'});
 vm.runInNewContext(read('os/assets/advanced-content.js'),ctx,{filename:'advanced-content.js'});
+const codeForTextbook=[];
+ctx.CSLab={code:{add:p=>codeForTextbook.push(p),list:()=>codeForTextbook,cases:p=>p.cases}};
+vm.runInNewContext(read('os/assets/advanced-code.js'),ctx,{filename:'advanced-code.js'});
+for(const file of ['textbook-traces-1.js','textbook-traces-2.js','textbook-rigor.js','formula-mathml.js','assessment-rigor.js'])
+ vm.runInNewContext(read('os/assets/'+file),ctx,{filename:file});
 const D=JSON.parse(JSON.stringify(ctx.window.OS_DATA));
 assert.equal(D.lessons.length,29,'29 textbook chapters');
 assert.equal(new Set(D.lessons.map(l=>l.id)).size,29,'Stable and distinct chapter IDs');
@@ -24,8 +29,9 @@ for(const old of base.lessons){
 const terms=new Set(D.glossary.map(x=>x.id));
 assert.equal(terms.size,D.glossary.length,'Unique glossary ids');
 assert(D.glossary.length>=120,'Vocabulary > 120');
-assert(D.formulas.reduce((n,g)=>n+g.items.length,0)>=27,'At least 27 formulas');
-assert.equal(D.lessons.reduce((n,l)=>n+l.quiz.length,0),116,'116 knowledge quiz questions');
+assert(D.formulas.reduce((n,g)=>n+g.items.length,0)===27,'27 formulas');
+assert(D.formulas.every(g=>g.items.every(f=>f.mathml?.startsWith('<math ')&&f.note?.length>=10)),'Every formula uses MathML and symbol definitions');
+assert.equal(D.lessons.reduce((n,l)=>n+l.quiz.length,0),174,'174 knowledge questions including 58 new scenarios');
 for(const l of D.lessons){
  assert(D.units.includes(l.unit),'Unknown unit '+l.id);
  for(const field of ['title','short','why','analogy','ask','caveat'])
@@ -35,9 +41,18 @@ for(const l of D.lessons){
  assert(l.summary.length>=3,'Missing summary '+l.id);
  assert(l.details.length>=5,'Missing L2/L3 conceptual depth '+l.id);
  assert(l.details.every(d=>Array.isArray(d)&&d.length===2&&d[0].length>=2&&d[1].length>15),'Empty teaching topic '+l.id);
- assert(l.quiz.length===4,'Four assessment questions '+l.id);
+ assert(l.quiz.length===6,'Four original plus two higher-order assessment questions '+l.id);
  assert(l.quiz.every(q=>q.length===5&&q[1].length>=2&&q[2]>=0&&q[2]<q[1].length&&q[3]&&q[4]),'Invalid quiz '+l.id);
  assert(l.terms.every(t=>terms.has(t)),'Unknown glossary terms '+l.id);
+ assert(l.textbook?.algorithm.length>=2,'L2 steps '+l.id);
+ assert(l.textbook?.stateRows.length>=3,'L2 state table '+l.id);
+ assert(l.textbook.stateRows.every(row=>row.length===l.textbook.stateHeaders.length),'L2 state table width '+l.id);
+ assert(l.textbook?.worked?.length>=55&&l.textbook?.symbols?.length>=30,'L2 derivation and symbols '+l.id);
+ assert(l.textbook?.invariant?.length>=20&&l.textbook?.counterexample?.length>=20,'L2 invariant and counterexample '+l.id);
+ assert(l.textbook?.formula?.includes('<math ')&&l.textbook.formula.includes('</math>'),'Native MathML equation '+l.id);
+ assert(l.textbook?.l3?.input&&l.textbook.l3.expected&&l.textbook.l3.counterInput&&l.textbook.l3.counterExpected,'L3 runnable inputs and expected output '+l.id);
+ assert(l.textbook?.l3?.checks?.length>=3&&l.textbook.l3.steps.length>=3,'L3 criteria and reproduction '+l.id);
+ assert(l.quiz.slice(4).every(q=>q[1].length===3&&q[0].length>=25&&q[4].length>=20),'Higher-order assessment '+l.id);
  assert(l.code.length===2&&l.code[1].length>=30,'Insufficient code example '+l.id);
 }
 const labs=new Map(),problems=[];
@@ -91,4 +106,4 @@ assert(html.indexOf('assets/advanced-content.js')<html.indexOf('assets/course.js
 assert(html.indexOf('assets/labs-more.js')<html.indexOf('assets/advanced-labs.js'),'Load existing labs before advanced');
 assert(html.indexOf('../shared/cslab-code.js')<html.indexOf('assets/advanced-code.js'),'Register Judge after shared core');
 assert(html.indexOf('assets/advanced-code.js')<html.indexOf('../shared/cslab-app.js'),'Register Judge before app');
-console.log('PASS: 29 chapters, 116 quizzes, 29 coding challenges, 8 interactive labs ('+variants+' validated frames), '+D.glossary.length+' glossary, preserved original IDs/content and module order.');
+console.log('PASS: 29 chapters, 174 quizzes, 29 coding challenges, 8 interactive labs ('+variants+' validated frames), '+D.glossary.length+' glossary, preserved original IDs/content and module order.');
