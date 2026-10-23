@@ -10,5 +10,6 @@ window.CSLAB_COURSE = {
   heroLead: '先用生活類比建立直覺，再回到真實機制；親手操作 {labs} 個模擬器，用測驗檢查自己是否真的懂了。',
   footer: '完全離線的靜態網站 · 進度只存在此瀏覽器<br>原創教材，參照作業系統課程知識架構。',
   disclaimer: '教學定位：原創互動教材，以《Operating System Concepts》等教科書常見的學科主線為參考，不是任何書籍的翻譯或線上副本。模擬器刻意簡化細節，請搭配真實 Linux 實驗與原始碼深入學習。',
+  codeLang: 'c',
   data: window.OS_DATA
 };
