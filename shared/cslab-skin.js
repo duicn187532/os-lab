@@ -142,8 +142,10 @@
       if (st.page === 'lesson' && st.tab === 'learn') {
         // 任務說明（學完這一章能夠…）由委託任務的 NPC 開口，任務圖示跟著章節狀態；生活類比由另一位 NPC 導讀
         const guide = chapterNpc(st.lesson), state = App().questState(App().byId[st.lesson]);
+        npc(document.querySelector('.lesson-head'), guide, state === 'done' ? 'done' : state === 'doing' ? 'open' : 'new');
         npc(document.querySelector('#stage .card.analogy'), guide, null);
         npc(document.querySelector('#stage .card.goals'), pickNpc(`${course()}:${st.lesson}:quest`, guide), state === 'done' ? 'done' : state === 'doing' ? 'open' : 'new');
+        document.querySelectorAll('#stage .detail, #stage .summary, #stage .worked, #stage .callout.warn').forEach((node, i) => npc(node, pickNpc(`${course()}:${st.lesson}:reading:${i}`, guide), null));
       }
       const quiz = document.querySelector('#stage, #reviewStage');
       if (quiz && quiz._quiz) quizNpc(quiz);

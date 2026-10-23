@@ -256,6 +256,19 @@
     if (reduce() || !el || !el.animate) return;
     el.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${dx}px)`, offset: 0.4 }, { transform: 'translateX(0)' }], { duration: 340, easing: 'ease-out' });
   }
+  function skillStrike(hero, foe, critical = false) {
+    if (!hero || !foe) return;
+    const fx = document.createElement('span'); fx.className = 'fx-skill'; fx.setAttribute('aria-hidden', 'true'); hero.walker.appendChild(fx);
+    if (S.spec(hero.name).acts.move) S.swapAct(hero.spr, hero.name, 'move');
+    lunge(hero.walker, 42);
+    setTimeout(() => {
+      if (foe.spr.isConnected) { S.swapAct(foe.spr, foe.name, 'hit'); damage(foe.walker, critical); }
+    }, 130);
+    setTimeout(() => { if (hero.spr.isConnected) S.swapAct(hero.spr, hero.name, 'stand'); fx.remove(); }, 560);
+    setTimeout(() => { if (foe.spr.isConnected) S.swapAct(foe.spr, foe.name, 'stand'); }, 540);
+  }
+  const MAP_SCENES = ['ludibrium', 'clocktower', 'orbis', 'el-nath', 'leafre', 'lachelein'];
+  const mapScene = key => { document.body.dataset.mapScene = MAP_SCENES[seedOf(key) % MAP_SCENES.length]; };
   // 主角歡呼；升級時播放光柱與 LEVEL UP 字樣
   function cheer(hero, up) {
     if (!hero || reduce()) return;
@@ -305,6 +318,7 @@
    * 下一個任務的怪物在「你的進度」上巡邏。入口網：殺人鯨、露希妲、另一位冒險家和寵物站在卷軸上，怪物在標題木牌上。 */
   let scene = {}, arenaNow = null;
   function stageHead() {
+    mapScene(`${C.id}:${App.state.lesson}`);
     const head = document.querySelector('.lesson-head');
     if (!head || head.querySelector(':scope > .perch') || App.state.tab === 'quiz') return;
     const foe = !App.store.done[App.state.lesson] && foeFor(App.state.lesson);
@@ -330,6 +344,7 @@
     pager.classList.toggle('is-clear', !!App.store.done[App.state.lesson]);
   }
   function stageHome() {
+    mapScene(`${C.id}:home`);
     const hero = document.querySelector('#content > .hero');
     if (!hero || hero.querySelector(':scope > .perch')) return;
     const names = partyFor(`${C.id}:home`);
@@ -339,6 +354,7 @@
     if (foe && card) { perch(card, [foe.name], 'walk'); card.parentElement.style.setProperty('--perch-h', tallest(foe.name)); }
   }
   function stagePortal() {
+    mapScene(`${C.id}:portal`);
     const hero = document.querySelector('.portal .hero');
     if (!hero || hero.querySelector(':scope > .perch')) return;
     const shuffle = list => list.map(x => [Math.random(), x]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
@@ -405,13 +421,7 @@
     el.querySelector('.bt-say').textContent = { crit: '爆擊！一次答對，怪物受到重創。', hit: '命中！第二次答對了。', struck: `${foeName}反擊了！還剩一顆心，看看提示再試一次。`, miss: 'MISS……這題沒打中，讀完解析再往下。' }[fx.kind] ||
       (q.revealed ? '' : `${foeName}擋住了去路。答對一題，${label(hero.name) || '主角'}就打掉牠一格 HP。`);
     if (fx.kind === 'crit' || fx.kind === 'hit') {
-      lunge(hero.walker, 26);
-      setTimeout(() => {
-        if (!foe.spr.isConnected) return;
-        S.swapAct(foe.spr, foe.name, 'hit');
-        damage(foe.walker, fx.kind === 'crit');
-        setTimeout(() => { if (foe.spr.isConnected) S.swapAct(foe.spr, foe.name, 'stand'); }, 450);
-      }, 130);
+      skillStrike(hero, foe, fx.kind === 'crit');
     } else if (fx.kind === 'struck') {
       lunge(foe.walker, -26);
       setTimeout(() => { lunge(hero.walker, -10); popText(hero.walker, '♥ -1', 'fx-ouch'); }, 130);
@@ -456,8 +466,9 @@
       const name = pick(mobs.length ? mobs : S.kind('mob'), `${C.id}:${lid}:${card.dataset.challenge}`);
       if (!name) return null;
       card.querySelectorAll(':scope > .perch, :scope > .bt-bar').forEach(el => el.remove());
-      d = { foe: name, perch: perch(card, [name], 'foe') };
-      card.style.setProperty('--perch-h', tallest(name));
+      const party = partyFor(`${C.id}:${lid}:${card.dataset.challenge}:party`, true);
+      d = { foe: name, perch: perch(card, [name], 'foe'), party: perch(card, party, 'party') };
+      card.style.setProperty('--perch-h', roomOf(party.concat(name)));
       card.classList.add('has-arena');
       ['hit', 'die', 'move'].forEach(act => S.warm(name, act));
       duels.set(card, d);
@@ -488,9 +499,7 @@
       setTimeout(() => popText(m.walker, 'MISS', 'fx-miss'), 130);
       if (!reduce()) { card.classList.remove('is-struck'); void card.offsetWidth; card.classList.add('is-struck'); }
     } else if (ev.event === 'round' && !card.dataset.over) {
-      S.swapAct(m.spr, d.foe, 'hit');
-      damage(m.walker, false);
-      setTimeout(() => { if (m.spr.isConnected) S.swapAct(m.spr, d.foe, 'stand'); }, 450);
+      skillStrike(d.party.cast[0], m, false);
     } else if (ev.event === 'solved') knockDown(d.perch);
     else if (ev.event === 'revealed') flee(d.perch);
   }
@@ -553,8 +562,7 @@
     if (ev.event === 'case') {
       if (ev.verdict === 'AC') {
         f.hp = Math.max(0, f.hp - 1);
-        lunge(hero.walker, 26);
-        setTimeout(() => { if (!foe.spr.isConnected) return; S.swapAct(foe.spr, f.foe, 'hit'); damage(foe.walker, false); setTimeout(() => { if (foe.spr.isConnected && f.hp > 0) S.swapAct(foe.spr, f.foe, 'stand'); }, 400); }, 120);
+        skillStrike(hero, foe, false);
         return paintCode(card, f, `命中！第 ${ev.index + 1} 筆測資通過。`);
       }
       lunge(foe.walker, -26);

@@ -32,10 +32,22 @@ html:root[data-skin="maple"] {
 }
 :root[data-skin="maple"][data-scene="ellinia"] body::before { background-image: url("../../self-research/assets/maple/scene-ellinia.jpg"); }
 :root[data-skin="maple"][data-scene="login"] body::before { background-image: url("../../self-research/assets/maple/scene-login.jpg"); }
+:root[data-skin="maple"] body[data-map-scene="ludibrium"]::before { background-image: url("../../self-research/assets/maple/scene-ludibrium.jpg"); }
+:root[data-skin="maple"] body[data-map-scene="clocktower"]::before { background-image: url("../../self-research/assets/maple/scene-clocktower.jpg"); }
+:root[data-skin="maple"] body[data-map-scene="orbis"]::before { background-image: url("../../self-research/assets/maple/scene-orbis.jpg"); }
+:root[data-skin="maple"] body[data-map-scene="el-nath"]::before { background-image: url("../../self-research/assets/maple/scene-el-nath.jpg"); }
+:root[data-skin="maple"] body[data-map-scene="leafre"]::before { background-image: url("../../self-research/assets/maple/scene-leafre.jpg"); }
+:root[data-skin="maple"] body[data-map-scene="lachelein"]::before { background-image: url("../../self-research/assets/maple/scene-lachelein.jpg"); }
 @media (max-width: 600px) {
   :root[data-skin="maple"] body::before { background-image: url("../../self-research/assets/maple/scene-day-sm.jpg"); }
   :root[data-skin="maple"][data-scene="ellinia"] body::before { background-image: url("../../self-research/assets/maple/scene-ellinia-sm.jpg"); }
   :root[data-skin="maple"][data-scene="login"] body::before { background-image: url("../../self-research/assets/maple/scene-login-sm.jpg"); }
+  :root[data-skin="maple"] body[data-map-scene="ludibrium"]::before { background-image: url("../../self-research/assets/maple/scene-ludibrium-sm.jpg"); }
+  :root[data-skin="maple"] body[data-map-scene="clocktower"]::before { background-image: url("../../self-research/assets/maple/scene-clocktower-sm.jpg"); }
+  :root[data-skin="maple"] body[data-map-scene="orbis"]::before { background-image: url("../../self-research/assets/maple/scene-orbis-sm.jpg"); }
+  :root[data-skin="maple"] body[data-map-scene="el-nath"]::before { background-image: url("../../self-research/assets/maple/scene-el-nath-sm.jpg"); }
+  :root[data-skin="maple"] body[data-map-scene="leafre"]::before { background-image: url("../../self-research/assets/maple/scene-leafre-sm.jpg"); }
+  :root[data-skin="maple"] body[data-map-scene="lachelein"]::before { background-image: url("../../self-research/assets/maple/scene-lachelein-sm.jpg"); }
 }
 :root[data-skin="maple"][data-theme="dark"] body::before { box-shadow: inset 0 0 0 100vmax rgba(10, 16, 52, 0.68); }
 @media (prefers-color-scheme: dark) { :root[data-skin="maple"]:not([data-theme="light"]) body::before { box-shadow: inset 0 0 0 100vmax rgba(10, 16, 52, 0.68); } }
@@ -222,6 +234,8 @@ html:root[data-skin="maple"] {
 /* ELI5：NPC 導讀對話。cslab-skin.js 放入 NPC 之後才有左側肖像欄 */
 :root[data-skin="maple"] .card:is(.analogy, .goals, .quiz, .quiz-done, .challenge, .code-brief):has(.npc-portrait) { position: relative; min-height: 232px; border-width: 28px 22px 58px 150px; border-image: url("../../self-research/assets/maple/dlg9.png") 28 22 58 150 fill / 28px 22px 58px 150px stretch repeat; }
 :root[data-skin="maple"] .card.analogy:has(.npc-portrait) { min-height: 232px; }
+:root[data-skin="maple"] :is(.lesson-head, .detail, .summary, .worked, .callout.warn):has(> .npc-portrait) { position: relative; min-height: 190px; border-width: 28px 22px 58px 150px; border-image: url("../../self-research/assets/maple/dlg9.png") 28 22 58 150 fill / 28px 22px 58px 150px stretch repeat; }
+:root[data-skin="maple"] :is(.detail, .summary, .worked, .callout.warn):has(> .npc-portrait)::after { content: "NPC GUIDE"; position: absolute; left: -136px; bottom: -46px; line-height: 20px; font-size: 12px; font-weight: 900; letter-spacing: 0.06em; color: #ffffff; text-shadow: var(--outline); }
 :root[data-skin="maple"] .card:is(.analogy, .goals):has(.npc-portrait)::after { content: "NPC GUIDE"; position: absolute; left: -10px; bottom: -46px; line-height: 20px; font-size: 12px; font-weight: 900; letter-spacing: 0.06em; color: #ffffff; text-shadow: var(--outline); }
 :root[data-skin="maple"] .card.goals:has(.npc-portrait)::after { content: "QUEST INFO"; }
 :root[data-skin="maple"] .card.code-brief:has(.npc-portrait)::after { content: "QUEST INFO"; position: absolute; bottom: -46px; line-height: 20px; font-size: 12px; font-weight: 900; letter-spacing: 0.06em; color: #ffffff; text-shadow: var(--outline); }
@@ -446,6 +460,7 @@ html:root[data-skin="maple"] {
 :root[data-skin="maple"] .perch-walk .stander { position: absolute; right: 0; bottom: 0; }
 /* 迎戰的怪物站在視窗右上，面向左邊的隊伍 */
 :root[data-skin="maple"] .perch-foe { right: 18px; }
+:root[data-skin="maple"] .card.challenge > .perch-party { left: 128px; }
 /* 頁尾換章按鈕：隊伍站在「上一章」上，章節完成後「下一章」上方出現傳送門 */
 :root[data-skin="maple"] .pager:has(> .perch) { position: relative; margin-top: calc(var(--perch-h, 90) * 1px); }
 :root[data-skin="maple"] .pager > .perch { left: 10px; bottom: calc(100% - 22px); }
@@ -471,6 +486,10 @@ html:root[data-skin="maple"] {
 }
 :root[data-skin="maple"] .fx-miss { color: #ffffff; letter-spacing: 0.08em; }
 :root[data-skin="maple"] .fx-ouch { color: #ff5a7a; }
+:root[data-skin="maple"] .fx-skill { position: absolute; z-index: 4; right: -20px; top: 2px; width: 38px; height: 42px; pointer-events: none; animation: skill-flash 0.45s ease-out forwards; }
+:root[data-skin="maple"] .fx-skill::before { content: ""; position: absolute; inset: 4px 14px; width: 9px; background: #fff39a; border: 2px solid #55d9ff; box-shadow: 0 0 8px #4de8ff; transform: skew(-32deg) rotate(28deg); }
+:root[data-skin="maple"] .fx-skill::after { content: "✦"; position: absolute; right: 0; top: -5px; color: #fff39a; font-size: 22px; text-shadow: 0 0 6px #3ddcff; }
+@keyframes skill-flash { 0% { opacity: 0; transform: scale(.3) rotate(-30deg); } 35% { opacity: 1; transform: scale(1.2) rotate(12deg); } 100% { opacity: 0; transform: scale(1.5) rotate(30deg); } }
 :root[data-skin="maple"] .perch.is-down { animation: perch-fade 1.3s ease-in forwards; }
 @keyframes perch-fade { 0%, 65% { opacity: 1; } 100% { opacity: 0; } }
 :root[data-skin="maple"] .exp-pop {
