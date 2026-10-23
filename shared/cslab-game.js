@@ -258,14 +258,27 @@
   }
   function skillStrike(hero, foe, critical = false) {
     if (!hero || !foe) return;
-    const fx = document.createElement('span'); fx.className = 'fx-skill'; fx.setAttribute('aria-hidden', 'true'); hero.walker.appendChild(fx);
+    foe.walker.querySelectorAll('.fx-skill').forEach(old => old.remove());
+    const fx = document.createElement('span'); fx.className = 'fx-skill'; fx.setAttribute('aria-hidden', 'true'); foe.walker.appendChild(fx);
     if (S.spec(hero.name).acts.move) S.swapAct(hero.spr, hero.name, 'move');
     lunge(hero.walker, 42);
     setTimeout(() => {
       if (foe.spr.isConnected) { S.swapAct(foe.spr, foe.name, 'hit'); damage(foe.walker, critical); }
     }, 130);
-    setTimeout(() => { if (hero.spr.isConnected) S.swapAct(hero.spr, hero.name, 'stand'); fx.remove(); }, 560);
-    setTimeout(() => { if (foe.spr.isConnected) S.swapAct(foe.spr, foe.name, 'stand'); }, 540);
+    setTimeout(() => { if (hero.spr.isConnected) S.swapAct(hero.spr, hero.name, 'stand'); }, 900);
+    setTimeout(() => { if (foe.spr.isConnected) S.swapAct(foe.spr, foe.name, 'stand'); }, 950);
+    setTimeout(() => fx.remove(), 1100);
+  }
+  // Keep the attack beside the answer: on a long quiz page the arena is above the viewport.
+  function strikeFeedback(host, hero, foe) {
+    const feedback = host.querySelector('.feedback.ok');
+    if (!feedback || !hero || !foe) return;
+    const scene = document.createElement('span'); scene.className = 'bt-hit-scene'; scene.setAttribute('aria-hidden', 'true');
+    const caster = document.createElement('span'); caster.className = 'bt-hit-sprite bt-hit-hero'; caster.appendChild(sprEl(hero.name, 'move'));
+    const burst = document.createElement('span'); burst.className = 'bt-hit-burst';
+    const victim = document.createElement('span'); victim.className = 'bt-hit-sprite bt-hit-foe'; victim.appendChild(sprEl(foe.name, 'hit'));
+    scene.append(caster, burst, victim);
+    feedback.appendChild(scene);
   }
   const MAP_SCENES = ['henesys', 'ellinia-town', 'perion', 'kerning', 'lith-harbor', 'sleepywood', 'nautilus', 'edelstein', 'mu-lung', 'ariant', 'ludibrium', 'clocktower', 'orbis', 'el-nath', 'leafre', 'lachelein'];
   const mapScene = key => { document.body.dataset.mapScene = MAP_SCENES[seedOf(key) % MAP_SCENES.length]; };
@@ -422,6 +435,7 @@
       (q.revealed ? '' : `${foeName}擋住了去路。答對一題，${label(hero.name) || '主角'}就打掉牠一格 HP。`);
     if (fx.kind === 'crit' || fx.kind === 'hit') {
       skillStrike(hero, foe, fx.kind === 'crit');
+      strikeFeedback(host, hero, foe);
     } else if (fx.kind === 'struck') {
       lunge(foe.walker, -26);
       setTimeout(() => { lunge(hero.walker, -10); popText(hero.walker, '♥ -1', 'fx-ouch'); }, 130);

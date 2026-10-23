@@ -506,10 +506,18 @@ html:root[data-skin="maple"] {
 }
 :root[data-skin="maple"] .fx-miss { color: #ffffff; letter-spacing: 0.08em; }
 :root[data-skin="maple"] .fx-ouch { color: #ff5a7a; }
-:root[data-skin="maple"] .fx-skill { position: absolute; z-index: 4; right: -20px; top: 2px; width: 38px; height: 42px; pointer-events: none; animation: skill-flash 0.45s ease-out forwards; }
-:root[data-skin="maple"] .fx-skill::before { content: ""; position: absolute; inset: 4px 14px; width: 9px; background: #fff39a; border: 2px solid #55d9ff; box-shadow: 0 0 8px #4de8ff; transform: skew(-32deg) rotate(28deg); }
-:root[data-skin="maple"] .fx-skill::after { content: "✦"; position: absolute; right: 0; top: -5px; color: #fff39a; font-size: 22px; text-shadow: 0 0 6px #3ddcff; }
-@keyframes skill-flash { 0% { opacity: 0; transform: scale(.3) rotate(-30deg); } 35% { opacity: 1; transform: scale(1.2) rotate(12deg); } 100% { opacity: 0; transform: scale(1.5) rotate(30deg); } }
+:root[data-skin="maple"] .fx-skill { position: absolute; z-index: 4; left: 50%; top: 50%; width: 94px; height: 94px; transform: translate(-50%, -50%); pointer-events: none; border-radius: 50%; background: radial-gradient(circle, #fffbd8 0 13%, #80efffe0 25%, #526ef577 46%, transparent 70%); animation: skill-impact 1.05s ease-out forwards; }
+:root[data-skin="maple"] .fx-skill::before { content: ""; position: absolute; inset: 6px 42px; background: #fff8a8; border: 2px solid #46dafa; border-radius: 8px; box-shadow: 0 0 12px 5px #4de8ff; transform: skew(-25deg) rotate(36deg); }
+:root[data-skin="maple"] .fx-skill::after { content: "✦"; position: absolute; right: 9px; top: 3px; color: #fffad4; font-size: 35px; text-shadow: 0 0 8px #336de8, 0 0 15px #4de8ff; }
+@keyframes skill-impact { 0% { opacity: 0; scale: .45; } 18%, 65% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: 1.2; } }
+.bt-hit-scene { display: none; }
+:root[data-skin="maple"] .feedback .bt-hit-scene { position: relative; display: flex; align-items: end; justify-content: center; gap: 44px; max-width: 240px; min-height: 70px; margin-top: 10px; padding: 3px 12px; border: 1px solid #93adba; border-radius: 6px; background: linear-gradient(110deg, #f8f6df, #dcf7f3); overflow: hidden; }
+:root[data-skin="maple"] .bt-hit-sprite { display: inline-flex; flex: none; align-items: flex-end; justify-content: center; width: 55px; height: 62px; }
+:root[data-skin="maple"] .bt-hit-sprite .spr { flex: none; transform: scale(min(1, calc(60 / var(--h)), calc(52 / var(--w)))); transform-origin: 50% 100%; }
+:root[data-skin="maple"] .bt-hit-hero .spr { transform: scale(min(1, calc(60 / var(--h)), calc(52 / var(--w)))) scaleX(-1); }
+:root[data-skin="maple"] .bt-hit-burst { position: absolute; z-index: 2; left: 50%; top: 44%; width: 58px; height: 58px; border-radius: 50%; background: radial-gradient(circle, #fff8aa 0 12%, #58e5ff 36%, transparent 70%); transform: translate(-50%, -50%); box-shadow: 0 0 18px #4de8ff; animation: hit-scene-flash 1.35s ease-out forwards; }
+:root[data-skin="maple"] .bt-hit-burst::after { content: "✦"; position: absolute; top: 0; left: 18px; color: #fff4a2; font-size: 32px; text-shadow: 0 0 8px #4977ed; }
+@keyframes hit-scene-flash { 0% { opacity: 0; scale: .4; } 18%, 70% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: 1.15; } }
 :root[data-skin="maple"] .perch.is-down { animation: perch-fade 1.3s ease-in forwards; }
 @keyframes perch-fade { 0%, 65% { opacity: 1; } 100% { opacity: 0; } }
 :root[data-skin="maple"] .exp-pop {
@@ -632,6 +640,7 @@ html:root[data-skin="maple"] {
   :root[data-skin="maple"] .hud-name { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
+  :root[data-skin="maple"] :is(.fx-skill, .bt-hit-burst) { animation: none; }
   :root[data-skin="maple"] :is(.course-card, .lab-card):hover { transform: none; }
   :root[data-skin="maple"] :is(.perch.is-down, .exp-pop, .fx-miss, .fx-ouch, .card.quiz.is-struck, .card.challenge.is-struck, .lab.code-lab.is-struck) { animation: none; }
   :root[data-skin="maple"] .bt-hp i { transition: none; }
