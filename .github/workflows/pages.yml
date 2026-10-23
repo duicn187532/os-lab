@@ -63,6 +63,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: os-lab
+          fetch-depth: 0 # os-review.cjs compares preserved content against historic c5e9eb7
       - uses: actions/checkout@v4
         with:
           repository: duicn187532/self-research
