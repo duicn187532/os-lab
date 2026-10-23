@@ -9,7 +9,9 @@
 | `l3-verify.cjs` | 29 題教材測資與獨立演算法 oracle 的一致性 | 學生程式 AC |
 | `student-verify.cjs` | 真正編譯／執行指定學生原始碼，逐組核對 stdout | Kernel/POSIX 實作正確；安全 sandbox |
 | `tests/os-student-verify.cjs` | 第 7 章 FIFO 的 C/C++/Python/JS 參考解各通過三組題 | 所有 29 題均有四語言 AC |
-| `tests/os-all-python-ac.cjs` | **29 個章節的實際 Python 參考原始碼**經本機學生評測器通過 87 組測資 | 其他三語言已全部 AC |
+| `tests/os-all-python-ac.cjs` | **29 個章節的實際 Python 參考原始碼**經本機學生評測器通過 87 組測資 | 未透過正式 Linux 系統互動驗收 |
+| `tests/os-all-native-ac.cjs` | 29 章 × C11/C++17：真正編譯並執行學生評測器 | 所有 POSIX syscall 行為均被測試 |
+| `tests/os-all-js-ac.cjs` | 29 章 JavaScript 參考原始碼，經 Node 判題器驗收 | 等於已在所有瀏覽器與 WASM 完整通過 |
 | `tests/os-python-property.cjs` | 額外產生 **1,200 組先前未列入題庫的亂數案例**，實際執行 Python 排程／FIFO／區間／Banker／磁碟／Clock 程式，獨立比對預期輸出 | 所有題目的所有非法輸入／所有演算法變種已驗證 |
 | `tests/os-capstone-student.cjs` | 8 道綜合題以**各自的 JavaScript 演算法實作**跑完公開/隱藏測資，拒絕錯誤答案 | C/C++/Python 八題均 AC |
 | `tests/os-scheduling-model.cjs` | 排程手算 Gantt、四演算法與 randomized invariants | 對應真實 Linux scheduler |
