@@ -9,7 +9,7 @@
 - **題目：** 每章原有 4 題+新增 2 題情境題，部分原題干擾選項過弱；29 題章節 Judge 與 8 題 capstone 難度不均，不能合併計數視同 37 題均為正式演算法題。
 - **數學：** 27 張 MathML 公式卡與逐章 MathML，尚須人工逐一核對符號、前提、代入、反例，尤其 TLB EAT、Page Fault EAT、Queueing、CPU quota、durability。
 - **模擬器：** 29 章均有互動登錄，只有部分具可證明的獨立狀態模型。尚缺 simulator vs independent oracle 的全覆蓋 property/mutation test。
-- **CI：** PR #5 曾成功；`pages.yml` 原本缺合併後部署驗證依賴，於本批分支增設新閘門，尚待新 CI 驗收。
+- **CI：** PR #5 曾成功；`pages.yml` 原本缺部署驗證依賴；本分支已設 Node/Linux/Chromium 部署閘門並補齊 fetch-depth=0；是否通過須以最新 commit CI 為準。
 - **進度：** `os_lab_2026_v1` 相容，現有 `learn/lab/done/code` 是行為紀錄，**沒有正式 Mastered 語意與 L2/L3 教員審核流程**。不將舊 `done` 自動升等。
 - **瀏覽器：** 現有 Chromium/Firefox/WebKit QA 不等於 iOS Safari 實機；360/430px、新公式螢幕閱讀器、離線失敗仍未全部覆蓋。
 
@@ -23,10 +23,10 @@
 | 1 | Kernel/System Call | 0 | 追蹤 user→kernel 與錯誤回傳 | 有/部分/部分 | 系統呼叫判題僅回傳值分類，缺 EINTR/restart/ABI 狀態實作 | P1 |
 | 2 | Process 生命週期 | 1,21 | 追蹤 fork/exec/wait/zombie | 有/部分/部分 | 2^n 範例不足以驗證 zombie 與失敗回收；POSIX 範例部分覆蓋 | P1 |
 | 3 | Thread/Parallelism | 2,5 | 證明共享與 thread 隔離 | 有/部分/部分 | 判題僅共享分類；未檢測競態 interleaving 的未定義行為 | P1 |
-| 4 | Scheduling | 2,3 | 計算 Gantt/CT/TAT/WT/RT | 有/部分/部分 | FCFS 及 SRTF 有模型；尚缺完整 RR/SJF/context-switch 成本一致追蹤 | P1 |
+| 4 | Scheduling | 2,3 | 計算 Gantt/CT/TAT/WT/RT | 有/部分/部分 | 四政策完整 Gantt/狀態/CT/TAT/WT/RT 已有獨立模型與回歸；尚缺含 context-switch 成本的一致事件模型 | P1 |
 | 5 | Race/Deadlock | 3,23 | 構造失敗 interleaving 與 wait-for graph | 有/部分/部分 | x+1 基本題太淺；deadlock 必須驗證環、mutex owner 不變量 | P1 |
 | 6 | Paging/TLB | 0,1 | 追蹤 VPN/PFN/PTE/有效存取時間 | 有/部分/部分 | 已見位址分拆；欠 TLB+頁表跨層權限與 fault 的單一狀態追蹤 | P1 |
-| 7 | Page Fault/Replacement | 6 | 推導 FIFO/LRU/OPT/Clock | 有/部分/部分 | FIFO 題可逐步算，LRU capstone 有；需要 fault state/OPT 證據與反例 | P1 |
+| 7 | Page Fault/Replacement | 6 | 推導 FIFO/LRU/OPT/Clock | 有/部分/部分 | FIFO/LRU/OPT 13 步完整表、OPT 窮舉及 Belady 反例已補；缺真實 working-set/fault handler Linux 取證 | P1 |
 | 8 | File System | 2,6 | 追蹤 FD/OFT/inode/hard link | 有/部分/部分 | link count 只有算術；缺 open file table 與持久化狀態實作 | P1 |
 | 9 | I/O/Interrupt | 1,8 | 解釋 blocking/partial I/O 與事件 | 有/部分/部分 | 僅 readyBytes/nonblocking 分類；EOF/EINTR/fd ready 尚未整合 | P1 |
 | 10 | Protection/Security | 1,8 | 檢查 DAC/ACL/存取與目錄 traverse | 有/部分/部分 | mode bit 判定受簡化假設限制；未與使用者身分、ACL 結合 | P1 |
@@ -36,7 +36,7 @@
 | 14 | Linux/C 工具 | 2,22 | 觀察程序樹、退出與系統呼叫 | 有/部分/部分 | 2^n 與本機 C 範例；缺具錯誤注入的完整 fork/exec/wait | P1 |
 | 15 | Integration Review | 0–14 | 跨子系統定位症狀 | 有/部分/部分 | 分類題不能證明跨層能力；需 L4 證據與教師審核 | P1 |
 | 16 | Semaphore/Producer Consumer | 3,5 | 證明 0≤count≤capacity 及等待正確 | 有/部分/部分 | 計數題只驗 empty/full，缺多 producer/consumer 交錯與死結 | P1 |
-| 17 | Deadlock/Banker | 5,16 | 逐維計算 Need/Work/Finish/Request | 有/部分/部分 | 安全序列 capstone 有；Request Trial、不合法資源要求尚不足 | P1 |
+| 17 | Deadlock/Banker | 5,16 | 逐維計算 Need/Work/Finish/Request | 有/部分/部分 | 五行程三資源 Safety/Request Trial 的 ILLEGAL/WAIT/UNSAFE/GRANTED 全部分流及回滾檢核已補；實際死結回復機制仍缺 | P1 |
 | 18 | Allocation/Fragmentation | 6 | 模擬 First/Best/Worst Fit 與 coalescing | 有/部分/部分 | 現有 First Fit 可驗算；缺完整 free/coalesce 事件序列 | P1 |
 | 19 | Disk Scheduling/Storage | 8,9 | 計算 seek 及排程策略 | 有/部分/部分 | FCFS/SSTF 存在；SSD/NVMe 與實際 latency 不可類推 | P2 |
 | 20 | MLFQ/Multicore | 4 | 維護多級隊列、boost、aging | 有/部分/部分 | 單個 priority transition 不等於完整排程器，待加入多工作狀態 | P1 |
@@ -44,7 +44,7 @@
 | 22 | IPC/Pipe/Signal | 2,9 | 證明 fd 引用、EOF 與 partial I/O | 有/部分/部分 | EOF 概念題 + pipe C；需要 nonblocking/partial/error 注入 | P1 |
 | 23 | CAS/Condvar/Ordering | 3,5,16 | 驗證 predicate 循環與 happens-before | 有/部分/部分 | while 與 spurious wake 教材已有；缺原生 memory order 對照實驗 | P1 |
 | 24 | Multilevel PT/COW/mmap | 6,7 | 推導 PTE、fault、private/shared 寫入 | 有/部分/部分 | MAP_PRIVATE C 範例可執行；欠 page-walk fault 與權限違規完整追蹤 | P1 |
-| 25 | Working Set/Clock | 7,24 | 追蹤 reference bits 與 thrashing | 有/部分/部分 | Clock 有 capstone；缺 working-set size/sliding-window 實作 | P1 |
+| 25 | Working Set/Clock | 7,24 | 追蹤 reference bits 與 thrashing | 有/部分/部分 | Clock 每次 cleared bit/victim/next hand 狀態表、315 組隨機檢查已補；仍缺 working-set size/sliding-window 實作 | P1 |
 | 26 | VFS/Journaling/Crash | 8,22 | 定義 durable commit 與可恢復性 | 有/部分/部分 | 簡化 WAL 模型；fsync+rename C 範例未涵蓋受控崩潰注入 | P1 |
 | 27 | epoll/NVMe | 9,22 | 解釋 LT/ET、EAGAIN、backpressure | 有/部分/部分 | edge 通知抽象題；缺真實 epoll LT/ET C 實驗 | P1 |
 | 28 | Linux Observability | 4,12,13 | 結合 /proc、perf、cgroup/PSI 推理 | 有/部分/部分 | 工具分類題太淺；L4 開始提供可重現取證 | P1 |
@@ -54,11 +54,11 @@
 | 驗收構面 | 目前檢查方式／證據 | 尚缺必要判定 |
 |---|---|---|
 | 理論／先修／學習目標 | `content.js`、`advanced-content.js` 的 `goals/details` | 教員對應 LO 的概念問答、真實 OS 例外與反例 |
-| Worked Example/狀態表 | `textbook-traces-1.js`、`textbook-traces-2.js` + 網頁 `textbook-rigor.js` | 每個適用演算法完整輸入、每輪狀態、結束條件與人工重算 |
+| Worked Example/狀態表 | `textbook-traces-1.js`、`textbook-traces-2.js`、`scheduling-masterclass.js`、`banker-masterclass.js`、`replacement-masterclass.js` + `textbook-rigor.js` | 每個適用演算法完整輸入、每輪狀態、結束條件與人工重算 |
 | 數學式語意 | 27 張公式卡、每章 MathML、`tests/os-textbook-review.cjs` | 單位/前提/代入/模型假設、MathML structure 的人工比對 |
-| 模擬器 | `labs-core.js`、`labs-more.js`、`advanced-labs.js`、E2E | 不變量、獨立模型、邊界/隨機/mutation 驗證 |
+| 模擬器 | `labs-core.js`、`labs-more.js`、`advanced-labs.js`、E2E；排程/Banker/頁面置換的獨立模型檢查 | 不變量、獨立模型、邊界/隨機/mutation 驗證 |
 | 測驗 | 174 題（每章 6）及 `assessment-rigor.js` | 干擾選項鑑別度、難度/LO 與題目 ID 一致性 |
-| Judge | 29 入門 + 8 進階、`l3-verify.cjs`、`tests/os-judge-native.cjs` | 逐題四語言 reference AC、分辨本機/瀏覽器、拒絕 faulty model |
+| Judge | 29 入門 + 8 進階、`l3-verify.cjs`、`tests/os-judge-native.cjs`、`student-verify.cjs`、`tests/os-capstone-student.cjs` | 29 入門題僅 FIFO 有四語言 reference AC；8 進階題有 JavaScript reference AC，尚缺其他語言逐題實證 |
 | Linux 真實實驗 | 4 POSIX C、`os-textbook-check.yml` | syscall error injection、輸入輸出契約、資源清理、觀測紀錄 |
 | L4 綜合專題 | 本批 `os/linux-labs/l4/`，兩種服務模式+負載+自測 | 學生個別實驗報告、模型推論與人工審核 |
 | 使用者進度與 UI | `shared/cslab-app.js`，`os_lab_2026_v1` | 三層級 Viewed/Completed/Mastered 與不混淆的歷史遷移 |
