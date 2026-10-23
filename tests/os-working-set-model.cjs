@@ -43,7 +43,7 @@ for(const frames of [1,3,6,9,12]){
 }
 const t=ctx.window.OS_DATA.lessons[0].textbook;
 assert.equal(t.extraTables.length,2);
-assert.deepEqual(t.extraTables.map(x=>x.rows.length),[10,10]);
+assert.deepEqual(Array.from(t.extraTables,x=>x.rows.length),[10,10]);
 assert(t.worked.includes('容量缺口=1'));
 assert(t.counterexample.includes('thrashing'));
 assert.throws(()=>trace([1,2,3],0),/positive window/);

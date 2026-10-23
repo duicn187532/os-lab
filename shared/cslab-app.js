@@ -246,7 +246,7 @@
       '<header><h2>進階講義｜演算法推導與實作驗證</h2><p>從狀態、不變量及反例建立工程推理，而非只記憶定義。</p></header>'+
       '<article class="os-textbook-section"><h3>L2｜前提與符號</h3><p>'+h(x.preconditions)+'</p><p><strong>符號定義：</strong>'+h(x.symbols)+'</p>'+mathBlock+
       '<h3>L2｜演算法及狀態轉移</h3>'+bullets(x.algorithm)+stateTable+
-      '<h3>L2｜完整計算與邊界</h3><p>'+h(x.worked)+'</p>'+extraTables<p class="os-invariant"><b>不變量：</b>'+h(x.invariant)+'</p><p class="os-counter"><b>反例：</b>'+h(x.counterexample)+'</p></article>'+
+      '<h3>L2｜完整計算與邊界</h3><p>'+h(x.worked)+'</p>'+extraTables+'<p class="os-invariant"><b>不變量：</b>'+h(x.invariant)+'</p><p class="os-counter"><b>反例：</b>'+h(x.counterexample)+'</p></article>'+
       '<article class="os-textbook-section"><h3>L3｜可執行規格與驗收</h3><p>'+h(lab.title)+'</p>'+
       '<h4>輸入資料（標準輸入）</h4><pre class="os-io"><code>'+h(lab.input)+'</code></pre>'+
       '<h4>預期輸出（標準輸出）</h4><pre class="os-io"><code>'+h(lab.expected)+'</code></pre>'+
