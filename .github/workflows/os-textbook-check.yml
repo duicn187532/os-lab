@@ -13,6 +13,7 @@ on:
       - 'tests/os-pthread-queue.cjs'
       - 'tests/os-mastery-evidence.cjs'
       - 'tests/os-capstone-student.cjs'
+      - 'tests/os-capstone-native-ac.cjs'
       - 'tests/os-all-python-ac.cjs'
       - 'tests/os-all-native-ac.cjs'
       - 'tests/os-all-js-ac.cjs'
@@ -67,6 +68,8 @@ jobs:
         run: node tests/os-all-js-ac.cjs
       - name: Grade real Python reference source submissions for all 29 OS chapters
         run: node tests/os-all-python-ac.cjs
+      - name: Grade eight C C++ Python advanced capstone references
+        run: node tests/os-capstone-native-ac.cjs
       - name: Compile and execute eight real advanced capstone solutions
         run: node tests/os-capstone-student.cjs
       - name: Compile and run all repaired textbook code snippets
