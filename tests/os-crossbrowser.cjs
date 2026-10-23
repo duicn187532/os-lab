@@ -24,11 +24,13 @@ if(process.env.ENGINE&&!['chromium','firefox','webkit'].includes(process.env.ENG
      const result=await page.evaluate(()=>{
       const doc=document.documentElement, math=[...document.querySelectorAll('#stage .os-textbook math')];
       const tables=[...document.querySelectorAll('#stage .os-state-table')];
-      return {scroll:doc.scrollWidth,inner:innerWidth,math:math.length,mathVisible:math.every(m=>m.getBoundingClientRect().width>0&&m.getBoundingClientRect().height>0),tables:tables.length,l3:document.querySelectorAll('#stage .os-textbook .os-io').length,steps:document.querySelectorAll('#stage .os-textbook .os-steps li').length};
+      return {scroll:doc.scrollWidth,inner:innerWidth,math:math.length,mathVisible:math.every(m=>m.getBoundingClientRect().width>0&&m.getBoundingClientRect().height>0),tables:tables.length,tableRows:tables.map(t=>t.querySelectorAll('tbody tr').length),l3:document.querySelectorAll('#stage .os-textbook .os-io').length,steps:document.querySelectorAll('#stage .os-textbook .os-steps li').length};
      });
      assert(result.scroll<=result.inner+1,engine+' '+skin+' '+width+' ch '+id+' overflow '+JSON.stringify(result));
      assert(result.math===1&&result.mathVisible,engine+' '+skin+' '+width+' ch '+id+' MathML invalid '+JSON.stringify(result));
-     assert(result.tables===1&&result.l3>=4&&result.steps>=4,engine+' '+skin+' '+width+' ch '+id+' L2/L3 absent '+JSON.stringify(result));
+     assert(result.tables===(id===25?3:1)&&result.l3>=4&&result.steps>=4,engine+' '+skin+' '+width+' ch '+id+' L2/L3 absent '+JSON.stringify(result));
+     if(id===25)assert.deepEqual(result.tableRows,[4,10,10],
+       engine+' '+skin+' '+width+' Clock, Working Set and demand step tables must be complete');
      checks++;
     }
    }
