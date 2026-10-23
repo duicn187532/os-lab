@@ -61,15 +61,21 @@ const ok = (name, cond, extra = '') => { assert(cond, `${name} ${extra}`); conso
     }
     console.log(`  ✓ ${p.id}: starters compile and run in 4 languages (WA until finished)`);
   }
-  if (COURSE === 'dsa' && !process.env.QUICK) {
-    const brute = {
+  const BRUTE = {
+    dsa: {
       'dsa.complexity.max-subarray': ['c', '#include <stdio.h>\nlong long a[200005];int main(void){int n;scanf("%d",&n);for(int i=0;i<n;i++)scanf("%lld",&a[i]);long long best=a[0];for(int i=0;i<n;i++){long long s=0;for(int j=i;j<n;j++){s+=a[j];if(s>best)best=s;}}printf("%lld\\n",best);return 0;}'],
       'dsa.array.prefix-sum': ['python', 'import sys\nd=sys.stdin.buffer.read().split()\nn,q=int(d[0]),int(d[1])\na=list(map(int,d[2:2+n]))\nv=list(map(int,d[2+n:]))\nprint("\\n".join(str(sum(a[v[2*k]-1:v[2*k+1]])) for k in range(q)))'],
       'dsa.dcsort.inversions': ['cpp', '#include <cstdio>\nlong long a[200005];int main(){int n;scanf("%d",&n);for(int i=0;i<n;i++)scanf("%lld",&a[i]);long long c=0;for(int i=0;i<n;i++)for(int j=i+1;j<n;j++)if(a[i]>a[j])c++;printf("%lld\\n",c);}']
-    };
-    for (const [id, [lang, src]] of Object.entries(brute)) {
+    },
+    ics: {
+      'ics.loop.count-primes': ['cpp', '#include <cstdio>\nint main(){int q;scanf("%d",&q);while(q--){int n,c=0;scanf("%d",&n);for(int k=2;k<=n;k++){bool p=true;for(int d=2;d*d<=k;d++)if(k%d==0){p=false;break;}c+=p;}printf("%d\\n",c);}}'],
+      'ics.complexity.sort-unique': ['cpp', '#include <cstdio>\n#include <algorithm>\nint a[100005],u[100005];int main(){int n,k=0;scanf("%d",&n);for(int i=0;i<n;i++){int x;scanf("%d",&x);bool seen=false;for(int j=0;j<k;j++)if(u[j]==x){seen=true;break;}if(!seen)u[k++]=x;}std::sort(u,u+k);printf("%d\\n",k);for(int i=0;i<k;i++)printf("%d%c",u[i],i+1<k?\' \':\'\\n\');}']
+    }
+  };
+  if (BRUTE[COURSE] && !process.env.QUICK) {
+    for (const [id, [lang, src]] of Object.entries(BRUTE[COURSE])) {
       const r = await judge(id, lang, src);
-      ok(`${id}: O(n²) brute force in ${lang} → TLE on the large case (passes the small ones: ${r.passed})`, r.verdict === 'TLE' && r.passed >= 2);
+      ok(`${id}: brute force in ${lang} → TLE on the large case (passes the small ones: ${r.passed})`, r.verdict === 'TLE' && r.passed >= 2);
     }
   }
   console.log('  slowest:', slow.sort((a, b) => b[0] - a[0]).slice(0, 4).map(([t, k]) => `${k} ${t} ms`).join(', '));
@@ -137,7 +143,8 @@ const ok = (name, cond, extra = '') => { assert(cond, `${name} ${extra}`); conso
     await page.fill('.code-editor textarea', SOL[t2.id].python);
     await page.click('[data-code="submit"]'); await finish();
     await page.waitForTimeout(400);
-    ok('accepted: monster knocked down, EXP announced in the HUD', /已打倒/.test(await page.locator('.code-lab .bt-bar').innerText()) && /通過程式實作/.test(await page.locator('.hud-chat').innerText()));
+    const won = await page.locator('.code-lab .bt-bar').innerText(), hud = await page.locator('.hud-chat').innerText();
+    ok('accepted: monster knocked down, EXP (or the level-up it caused) announced in the HUD', /已打倒/.test(won) && /通過程式實作|等級提升/.test(hud), JSON.stringify([won, hud]));
     const m = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
     const mp = await m.newPage(); mp.on('pageerror', e => errors.push('mobile: ' + e.message));
     await mp.goto(course); await mp.evaluate(() => { localStorage.setItem('cslab.skin', 'maple'); localStorage.setItem('cslab.art', '1'); });

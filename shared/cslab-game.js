@@ -32,7 +32,7 @@
   const JOBS = [[1, '新手程式員'], [10, '見習工程師'], [20, '工程師'], [30, '資深工程師'], [50, '電腦科學大師']];
   const jobOf = lv => JOBS.reduce((t, j) => lv >= j[0] ? j[1] : t, JOBS[0][1]);
   // 打倒一門課的 BOSS（最後一章）得到的稱號
-  const TITLES = { os: '核心守護者', dsa: '演算法劍士', dm: '邏輯賢者', ai: '神經網路術士' };
+  const TITLES = { os: '核心守護者', dsa: '演算法劍士', dm: '邏輯賢者', ai: '神經網路術士', ics: '程式見習生' };
   const titleOf = id => TITLES[id] || `${id.toUpperCase()} 制霸者`;
 
   const obj = v => v && typeof v === 'object' && !Array.isArray(v) ? v : {};
