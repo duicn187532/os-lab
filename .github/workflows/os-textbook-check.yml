@@ -14,6 +14,7 @@ on:
       - 'tests/os-ofd-model.cjs'
       - 'tests/os-pthread-queue.cjs'
       - 'tests/os-mastery-evidence.cjs'
+      - 'tests/os-static-syntax.cjs'
       - 'tests/os-working-set-model.cjs'
       - 'tests/os-linux-pagefault.cjs'
       - 'tests/os-capstone-student.cjs'
@@ -45,6 +46,7 @@ jobs:
           node-version: '22'
       - name: Validate 29 chapters, labs, questions and Judge data
         run: |
+          node tests/os-static-syntax.cjs
           node tests/os-textbook-review.cjs
           node os/linux-labs/l3-verify.cjs --all
           node tests/os-scheduling-model.cjs
