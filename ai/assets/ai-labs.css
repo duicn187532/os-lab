@@ -1,0 +1,91 @@
+/* AI LAB 實驗視覺元件（由 labs.js 的 svg / bars / boxes / flow / table / metrics 產生）。共用元件見 shared/cslab.css。
+ * SVG 的顏色全部用 class 指定，跟著深淺主題的設計變數變化。 */
+.ai-plot { display: block; width: min(100%, 680px); height: auto; max-height: 350px; margin: 0 auto; }
+.ai-plot text { fill: var(--muted); font: 11px var(--mono); }
+.ai-plot text.lbl { fill: var(--text); font-size: 13px; font-weight: 700; }
+.ai-plot .ax { stroke: var(--line-strong); }
+.ai-plot .pt { stroke: var(--surface); stroke-width: 1.5; }
+.ai-plot .pa { fill: var(--j0); }
+.ai-plot .pb { fill: var(--j3); }
+.ai-plot .pn { fill: var(--blue); }
+.ai-plot .pt.sel { stroke: var(--amber); stroke-width: 3.5; }
+.ai-plot .fit { stroke: var(--amber); stroke-width: 3; fill: none; }
+.ai-plot .fit.faint { opacity: .35; stroke-width: 2; }
+.ai-plot .dash { stroke-dasharray: 8 5; }
+.ai-plot .best { stroke: var(--green); stroke-width: 3; stroke-dasharray: 10 5; fill: none; }
+.ai-plot .guide { stroke: var(--muted); stroke-dasharray: 3 3; fill: none; }
+.ai-plot .resid { stroke: var(--rose); stroke-width: 2; }
+.ai-plot .curve { stroke: var(--accent); stroke-width: 3; fill: none; }
+.ai-plot .hot { fill: var(--amber); }
+.ai-plot .trail { fill: var(--blue); }
+.ai-plot .vec-a { stroke: var(--j0); stroke-width: 4; }
+.ai-plot .vec-b { stroke: var(--j3); stroke-width: 4; }
+.ai-plot .mk-a { fill: var(--j0); }
+.ai-plot .mk-b { fill: var(--j3); }
+.ai-plot .radius { fill: var(--amber-soft); fill-opacity: .55; stroke: var(--amber); stroke-dasharray: 4 4; }
+.ai-plot .center { fill: none; stroke-width: 4; }
+.ai-plot .center.c0 { stroke: var(--j0); }
+.ai-plot .center.c1 { stroke: var(--j3); }
+.ai-plot .mean { stroke: var(--text); stroke-width: 2.5; }
+
+.ai-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: center; margin-top: 8px; font-size: 13px; color: var(--muted); }
+.ai-legend .key-a { color: var(--j0); font-weight: 700; }
+.ai-legend .key-b { color: var(--j3); font-weight: 700; }
+.ai-legend .key-fit { color: var(--amber); font-weight: 700; }
+.ai-legend .key-best { color: var(--green); font-weight: 700; }
+
+.ai-bars { display: grid; gap: 8px; width: min(620px, 100%); margin: 0 auto; }
+.ai-bar-row { display: grid; grid-template-columns: minmax(70px, 30%) 1fr auto; gap: 10px; align-items: center; font-size: 14px; }
+.ai-bar-row span { overflow-wrap: anywhere; }
+.ai-bar-row b { font: 600 13px var(--mono); min-width: 52px; text-align: right; }
+.ai-track { height: 14px; border-radius: 6px; background: var(--surface-3); overflow: hidden; }
+.ai-track i { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width .25s; }
+.ai-track i.neg { background: var(--rose); }
+.ai-track i.hot { background: var(--amber); }
+
+.ai-cards { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.ai-card { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 8px 12px; min-width: 64px; max-width: 100%; font-size: 14px; text-align: center; overflow-wrap: anywhere; }
+.ai-card.active { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.ai-card.done { border-color: var(--green); }
+.ai-rank { display: grid; gap: 7px; }
+.ai-rank .ai-card { display: flex; justify-content: space-between; gap: 12px; text-align: left; }
+.ai-rank small { color: var(--muted); font-weight: 400; }
+
+.ai-flow { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; }
+.ai-node { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 8px 12px; font-size: 14px; }
+.ai-node.done { border-color: var(--green); color: var(--text-2); }
+.ai-node.active { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; box-shadow: 0 0 0 2px var(--accent-soft); }
+.ai-arrow { color: var(--muted); }
+
+.ai-metrics { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.ai-metrics > div { display: flex; flex-direction: column; gap: 2px; flex: 1 1 110px; border: 1px solid var(--line); background: var(--surface); border-radius: 11px; padding: 8px 12px; }
+.ai-metrics span { font-size: 13px; color: var(--muted); }
+.ai-metrics strong { font: 700 18px/1.4 var(--mono); overflow-wrap: anywhere; }
+
+.ai-signal { display: flex; gap: 7px; align-items: flex-end; justify-content: center; min-height: 170px; max-width: 100%; overflow-x: auto; }
+.ai-signal > div { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-width: 32px; height: 165px; }
+.ai-signal span, .ai-signal small { font: 12px var(--mono); color: var(--muted); }
+.ai-signal i { width: 26px; background: var(--accent); border-radius: 5px 5px 0 0; transition: height .25s; }
+.ai-signal i.neg { background: var(--amber); }
+
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.matrix { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: 14px; }
+.matrix td, .matrix th { padding: 7px 12px; text-align: center; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.matrix th { background: var(--surface-2); color: var(--muted); font-size: 13px; font-weight: 700; }
+.matrix tr:last-child td { border-bottom: 0; }
+.matrix tr.selected td { background: var(--accent-soft); font-weight: 700; }
+
+/* 公式速查頁：預先排版的 SVG / MathML 與各章的文字公式 */
+.math svg { max-width: 100%; height: auto; }
+.math svg path, .math svg g[fill] { fill: currentColor; stroke: currentColor; }
+.formula-card .math { max-width: 100%; overflow-x: auto; }
+.math math { font-size: 1.05em; }
+.ai-formula { font: 500 15px/1.8 var(--font); text-align: left; overflow-wrap: anywhere; }
+
+@media (max-width: 600px) {
+  .ai-plot text { font-size: 19px; }
+  .ai-plot text.lbl { font-size: 22px; }
+  .ai-bar-row { grid-template-columns: minmax(60px, 34%) 1fr auto; gap: 8px; font-size: 13px; }
+  .ai-node, .ai-card { padding: 6px 9px; font-size: 13px; }
+  .matrix td, .matrix th { padding: 6px 8px; }
+}

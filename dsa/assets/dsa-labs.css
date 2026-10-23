@@ -1,0 +1,78 @@
+/* DSA LAB 實驗視覺元件（由 labs.js 的 viz / vizPlus 產生，class 皆以 dz- 開頭）。共用元件見 shared/cslab.css。 */
+.dz-stage { min-height: 170px; border: 1px dashed var(--line-strong); border-radius: 13px; background: var(--surface-2); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 14px; padding: 20px 12px; overflow-x: auto; }
+.dz-stage > * { max-width: 100%; }
+.dz-row { display: flex; gap: 26px 9px; align-items: flex-end; justify-content: center; flex-wrap: wrap; padding-bottom: 20px; }
+.dz-row.top { align-items: flex-start; row-gap: 16px; }
+.dz-row.left { justify-content: flex-start; padding-bottom: 0; row-gap: 9px; }
+.dz-cell { display: flex; align-items: center; justify-content: center; min-width: 47px; height: 49px; padding: 0 6px; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 9px; color: var(--text); font: 800 17px var(--mono); position: relative; }
+.dz-cell small { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); white-space: nowrap; color: var(--muted); font: 500 10px var(--mono); }
+.dz-cell.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-strong); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); }
+.dz-cell.done { border-color: var(--green); background: var(--green-soft); color: var(--green); }
+.dz-cell.key { font-size: 13px; height: 36px; }
+.dz-bucket { display: flex; flex-direction: column; gap: 7px; align-items: center; min-width: 55px; }
+.dz-bars { display: flex; align-items: flex-end; gap: 7px; height: 205px; width: min(100%, 550px); justify-content: center; }
+.dz-bar { width: 37px; max-width: 11%; border-radius: 5px 5px 0 0; background: var(--blue); opacity: .75; display: flex; justify-content: center; align-items: flex-start; color: var(--bg); font: 700 11px var(--mono); padding-top: 5px; transition: height .18s, background .18s; }
+.dz-bar.active { background: var(--accent); opacity: 1; }
+.dz-bar.done { background: var(--green); opacity: 1; }
+.dz-node { width: 54px; height: 54px; display: flex; justify-content: center; align-items: center; border: 2px solid var(--line-strong); border-radius: 50%; background: var(--surface); font: 800 16px var(--mono); }
+.dz-node.active { border-color: var(--accent); background: var(--accent-soft); }
+.dz-node.done { border-color: var(--green); background: var(--green-soft); color: var(--green); }
+.dz-arrow { color: var(--accent); font-size: 22px; align-self: center; }
+.dz-row.mem-row .dz-arrow { align-self: flex-start; margin-top: 10px; }
+.dz-null { color: var(--muted); align-self: center; }
+.dz-cap { font-size: 12px; color: var(--muted); text-align: center; }
+.dz-empty { font-size: 13px; color: var(--muted); padding: 12px; }
+/* SVG 樹與圖 */
+.dz-svg { max-width: 100%; height: auto; }
+.dz-edge { stroke: var(--muted); stroke-opacity: .55; stroke-width: 2; }
+.dz-arrowhead { fill: var(--muted); fill-opacity: .7; }
+.dz-w { fill: var(--muted); font: 600 10px var(--mono); }
+.dz-v { fill: var(--surface); stroke: var(--muted); stroke-width: 2; }
+.dz-v.on { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 3; }
+.dz-v.done { fill: var(--green-soft); stroke: var(--green); }
+.dz-vt { fill: var(--text); font: 700 15px var(--mono); }
+/* 記憶體位址與快取行：同一條快取行同色，已載入的快取行外框發亮 */
+.dz-cell.mem.l0 { background: var(--blue-soft); }
+.dz-cell.mem.l1 { background: var(--violet-soft); }
+.dz-cell.mem.cached { border-color: var(--blue); }
+.dz-cell.mem.active { border-color: var(--accent); color: var(--accent-strong); }
+.dz-cell.mem.done { color: var(--text); }
+.dz-stage .stats { width: min(100%, 560px); margin: 0; }
+/* Stack vs Queue */
+.dz-lane { width: min(100%, 560px); border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 10px 12px; display: grid; gap: 8px; }
+.dz-lane-head { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.dz-lane-head span { font-size: 12px; color: var(--muted); }
+.dz-out { font: 13px var(--mono); color: var(--text-2); overflow-wrap: anywhere; }
+/* 選型：成本表與對數長條 */
+.dz-table-wrap { width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.dz-table { border-collapse: collapse; width: 100%; font-size: 14px; font-variant-numeric: tabular-nums; }
+.dz-table th, .dz-table td { padding: 7px 10px; text-align: center; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.dz-table th { background: var(--surface-2); color: var(--muted); font-size: 12px; }
+.dz-table td:first-child, .dz-table th:first-child { text-align: left; font-weight: 700; }
+.dz-table tr:last-child td { border-bottom: 0; }
+.dz-table td.no { color: var(--rose); }
+.dz-table tr.mark td { background: var(--accent-soft); }
+.dz-table tr.out td { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--rose); }
+.dz-hbars { width: min(100%, 560px); display: grid; gap: 8px; }
+.dz-hbar { display: grid; grid-template-columns: 6.5em 1fr auto; gap: 10px; align-items: center; font-size: 14px; }
+.dz-hbar i { display: block; height: 14px; border-radius: 99px; background: var(--blue); opacity: .6; }
+.dz-hbar b { font-size: 12px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+.dz-hbar.pick span { font-weight: 800; color: var(--accent-strong); }
+.dz-hbar.pick i { background: var(--accent); opacity: 1; }
+.dz-chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.dz-chips span { border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 3px 10px; font-size: 13px; }
+/* 排序等實驗可能有上百步：步驟列表限制高度 */
+.frame-steps { max-height: 172px; overflow-y: auto; }
+@media (max-width: 560px) {
+  .dz-cell { min-width: 36px; height: 43px; font-size: 14px; }
+  .dz-bar { width: 28px; }
+  .dz-node { width: 44px; height: 44px; font-size: 14px; }
+  .dz-hbar { grid-template-columns: 5.5em 1fr auto; font-size: 13px; }
+}
+/* Binary Search 挑戰：陣列格子是按鈕 */
+.ch-array .dz-row { padding-bottom: 24px; }
+.ch-cell { cursor: pointer; font: 800 17px var(--mono); }
+.ch-cell:hover:not([disabled]) { border-color: var(--accent); }
+.ch-cell:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.ch-cell.out { opacity: .38; cursor: default; }
+.ch-cell[disabled]:not(.out):not(.active) { cursor: default; }

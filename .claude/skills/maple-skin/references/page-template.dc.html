@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>楓之谷風格論文頁</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1d4f86}a:hover{color:#0f3360}
+.ms{position:relative;min-height:100%;font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;font-size:16px;line-height:1.85;color:#2b2b2b;
+  background:#3366cc url("@@scene-day@@") center bottom / cover no-repeat fixed;cursor:url("@@cursor@@") 2 2,auto;padding-bottom:96px}
+.ms.night::before{content:"";position:fixed;inset:0;background:linear-gradient(rgba(8,14,48,.78),rgba(20,26,70,.55) 60%,rgba(10,14,40,.62));pointer-events:none}
+.ms button,.ms a{cursor:url("@@cursor@@") 2 2,pointer}
+.px{image-rendering:pixelated}
+.outline{color:#fff;text-shadow:-1px 0 #1a2a44,1px 0 #1a2a44,0 -1px #1a2a44,0 1px #1a2a44,1px 1px #1a2a44}
+.page{position:relative;max-width:1160px;margin:0 auto;padding:24px 20px 40px;display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+.side{flex:1 1 250px;max-width:280px;display:flex;flex-direction:column;gap:14px}
+.main{flex:999 1 560px;min-width:0;max-width:760px;display:flex;flex-direction:column;gap:22px}
+/* minimap window: MaxMap pieces as a 9-slice */
+.mini{position:relative;border-style:solid;border-width:72px 6px 15px 6px;border-image:url("@@mini9@@") 72 6 15 6 fill / 72px 6px 15px 6px stretch repeat;image-rendering:pixelated}
+.mini-title{position:absolute;left:4px;top:-62px;width:40px;height:5px}
+.mini-world{position:absolute;right:2px;top:-66px;width:36px;height:12px}
+.mini-head{position:absolute;left:2px;right:2px;top:-50px;height:44px;display:flex;align-items:center;gap:8px}
+.mark{width:34px;height:34px;flex:none;border-radius:3px;background:#2a3f63;border:1px solid #0e1a2e;display:grid;place-items:center;color:#ffd43b;font-weight:900;font-size:15px}
+.mini-names{display:flex;flex-direction:column;line-height:1.25}
+.mini-names b{font-size:12px}
+.mini-names span{font-size:15px;font-weight:700}
+.mini-body{background:rgba(255,255,255,.93);margin:0;padding:6px 4px;list-style:none;display:flex;flex-direction:column;gap:1px;font-size:13.5px;line-height:1.6}
+.mini-body li{display:flex;align-items:center;gap:7px;padding:2px 6px;border-radius:2px;color:#3b4652}
+.mini-body li.cur{background:#dde8f5;color:#173a66;font-weight:700}
+.dot{width:7px;height:7px;border-radius:50%;flex:none;background:#c7ced6;border:1px solid #7d8994}
+.dot.me{background:#ffe03c;border-color:#8a6a00;box-shadow:0 0 0 2px rgba(255,224,60,.35)}
+.dot.ok{background:#5ad04a;border-color:#246b1a}
+/* level tabs from Basic.img/Tab */
+.tabs{display:flex;gap:0;align-items:flex-end;padding-left:10px}
+.tab{font:inherit;font-size:12.5px;font-weight:700;color:#41566e;height:24px;padding:0 4px;border-style:solid;border-width:0 12px 0 6px;border-image:url("@@tab0@@") 0 12 0 6 fill / 0 12px 0 6px stretch;background:none;margin-right:-6px;image-rendering:pixelated}
+.tab.on{border-image:url("@@tab1@@") 0 12 0 6 fill / 0 12px 0 6px stretch;color:#0f2c4f;position:relative;z-index:1}
+/* quest window: UtilDlgEx frame without the portrait column */
+.win{position:relative;border-style:solid;border-width:28px 22px 58px 24px;border-image:url("@@win9@@") 28 22 58 24 fill / 28px 22px 58px 24px stretch repeat;image-rendering:pixelated}
+.win-in{image-rendering:auto;padding:4px 14px 10px;display:flex;flex-direction:column;gap:16px}
+.qhead{display:flex;flex-direction:column;gap:6px;padding-bottom:10px;border-bottom:2px solid #c9302c}
+.qhead img{display:block;align-self:flex-start;width:auto;height:15px}
+.h2{margin:0;font-size:22px;line-height:1.4;color:#1c2b44;font-weight:900}
+.p{margin:0}
+.band{position:absolute;left:-14px;right:-14px;bottom:-49px;height:24px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px}
+.qno{font-weight:900;letter-spacing:.06em}
+/* buttons in the UtilDlgEx palette */
+.gbtn{font:inherit;font-size:12.5px;font-weight:900;height:22px;padding:0 12px;border-radius:3px;border:1px solid #7a3a00;color:#fff;background:linear-gradient(#ffd27a,#ff9a1e 55%,#f07a00);box-shadow:inset 0 1px 0 rgba(255,255,255,.7);letter-spacing:.04em;line-height:20px}
+.gbtn.done{background:linear-gradient(#e8ffa0,#9edc2a 55%,#6fb800);border-color:#3c6a00}
+.imgbtn{border:0;padding:0;background:none;display:block;line-height:0}
+.imgbtn img{display:block;image-rendering:pixelated}
+/* chat balloon from ChatBalloon.img/npc */
+.bal{position:relative;border-style:solid;border-width:6px;border-image:url("@@bal9@@") 6 fill / 6px repeat;padding:8px 12px;font-size:15.5px;display:flex;flex-direction:column;gap:6px;margin-bottom:12px;image-rendering:pixelated}
+.bal>*{image-rendering:auto}
+.bal-arrow{position:absolute;left:22px;bottom:-18px;width:13px;height:13px;image-rendering:pixelated}
+.tag{font-size:12px;font-weight:700;color:#5b6573;letter-spacing:.06em}
+.src{font-size:11px;background:#e1f0d8;color:#2f6f2a;padding:0 6px;border-radius:2px;margin-left:6px}
+/* guess first: the quest list */
+.avail{background:#eeeedd;border:1px solid #b9b9a4;box-shadow:inset 1px 1px 0 #fff;border-radius:3px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.avail img{display:block;image-rendering:pixelated}
+.avail>img{align-self:flex-start;width:105px;height:18px}
+.guess{display:flex;gap:8px;align-items:flex-start;font-size:15.5px}
+.bulb{flex:none;width:13px;height:18px;margin-top:4px;overflow:hidden}
+.bulb img{width:105px;height:18px;max-width:none}
+/* NPC dialog: UtilDlgEx as is */
+.dlg{position:relative;border-style:solid;border-width:28px 22px 58px 150px;border-image:url("@@dlg9@@") 28 22 58 150 fill / 28px 22px 58px 150px stretch repeat;min-height:120px;image-rendering:pixelated}
+.dlg-in{image-rendering:auto;padding:2px 10px 6px;display:flex;flex-direction:column;gap:10px;font-size:15.5px;color:#333}
+.npc{position:absolute;left:-140px;top:-14px;width:120px;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px}
+.npc img{display:block;image-rendering:pixelated;max-height:150px}
+.nbar{width:121px;height:19px;background:url("@@bar@@") no-repeat;font-size:12px;font-weight:700;line-height:19px;text-align:center;image-rendering:pixelated}
+.q{margin:0;font-weight:700;color:#1c2b44}
+.ans{margin:0;padding-top:8px;border-top:1px dashed #b7b7a6}
+.dbtns{position:absolute;left:-144px;right:-16px;bottom:-48px;height:20px;display:flex;justify-content:space-between;align-items:center}
+.dbtns-r{display:flex;gap:4px}
+/* notes: the chat bar */
+.notes{display:flex;flex-direction:column}
+.chat-t{align-self:flex-start;background:#335577;color:#fff;font-size:12px;font-weight:700;padding:0 10px;border:1px solid #1d3550;border-bottom:0;border-radius:3px 3px 0 0;line-height:20px}
+.notes textarea{font:inherit;font-size:15px;min-height:60px;resize:vertical;border:1px solid #556677;background:rgba(255,255,255,.96);color:#222;padding:6px 10px;box-sizing:border-box;width:100%;box-shadow:inset 1px 1px 0 #ccd}
+/* status bar */
+.hud{position:fixed;left:0;right:0;bottom:0;height:71px;z-index:5;background:url("@@hud-bg@@") 0 0 / auto 71px repeat-x;image-rendering:pixelated}
+.hud-chat{position:absolute;left:0;top:7px;width:min(566px,100%);height:22px;background:url("@@chat9@@") 0 0 / 100% 22px no-repeat;font-size:12px;line-height:22px;padding-left:8px;color:#333;box-sizing:border-box;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;image-rendering:auto}
+.hud-chat b{color:#d14a00}
+.hud-row{position:absolute;left:0;right:0;top:29px;height:42px;display:flex;align-items:center}
+.hud-left{position:relative;width:207px;height:42px;flex:none;background:url("@@hud-left@@") no-repeat}
+.lvnum{position:absolute;left:38px;top:15px;display:flex;gap:0}
+.lvnum img{display:block;width:11px;height:13px}
+.hud-name{position:absolute;left:84px;top:4px;right:6px;display:flex;flex-direction:column;line-height:1.3;font-size:11.5px;color:#ddd;image-rendering:auto}
+.hud-name b{color:#fff;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hud-gp{flex:1 1 auto;max-width:520px;height:42px;box-sizing:border-box;border-style:solid;border-width:0 8px;border-image:url("@@hud-gp9@@") 0 8 fill / 0 8px repeat;display:flex;align-items:center;padding:0 6px}
+.exp{position:relative;flex:1;height:31px;box-sizing:border-box;border-style:solid;border-width:14px 3px 2px 32px;border-image:url("@@exp@@") 14 3 2 32 fill / 14px 3px 2px 32px stretch}
+.exp-gray{position:absolute;top:0;bottom:0;right:0;background:url("@@exp-gray@@") 0 0 / 1px 100% repeat-x}
+.exp-num{position:absolute;right:2px;top:-14px;font-size:11px;font-weight:700;line-height:13px;image-rendering:auto}
+.hud-btns{display:flex;gap:2px;margin-left:auto;padding-right:10px}
+@media (max-width:640px){.page{padding:12px 10px 24px;gap:14px}.side{max-width:none}.hud-name{display:none}.hud-left{width:80px;background-size:207px 42px}.win-in{padding:2px 4px 8px}.dlg{border-width:28px 14px 58px 104px;border-image-width:28px 14px 58px 104px}.npc{left:-100px;width:96px}.npc img{max-height:110px}.mini-body{display:none}.mini{border-bottom-width:15px}.nbar{width:96px;background-size:96px 19px}.dbtns{left:-98px;right:-8px}}
+</style>
+</helmet>
+<div class="{{rootClass}}">
+  <div class="page">
+    <aside class="side">
+      <nav class="mini" aria-label="章節">
+        <img class="mini-title px" src="@@mini-title@@" alt="MINI MAP">
+        <img class="mini-world px" src="@@bt-world@@" alt="">
+        <div class="mini-head">
+          <span class="mark" aria-hidden="true">讀</span>
+          <span class="mini-names outline"><b>論文精讀室</b><span>StateMem</span></span>
+        </div>
+        <ul class="mini-body">
+          <li><span class="dot ok"></span>閱讀路線</li>
+          <li class="cur"><span class="{{curDot}}"></span>問題：狀態漂移</li>
+          <li><span class="dot"></span>怎麼判定是漂移</li>
+          <li><span class="dot"></span>檢索完美也會漂移</li>
+          <li><span class="dot"></span>StateMemBench 設計</li>
+          <li><span class="dot"></span>動畫：陷阱怎麼造</li>
+          <li><span class="dot"></span>StateMem 三階段</li>
+          <li><span class="dot"></span>主結果（互動）</li>
+        </ul>
+      </nav>
+    </aside>
+    <main class="main">
+      <div style="display: flex; flex-direction: column; gap: 0">
+        <div class="tabs" role="group" aria-label="解釋深度">
+          <button type="button" class="{{tabKid}}" onClick="{{setKid}}">五歲</button>
+          <button type="button" class="{{tabUni}}" onClick="{{setUni}}">大學生</button>
+          <button type="button" class="{{tabGrad}}" onClick="{{setGrad}}">研究生</button>
+        </div>
+        <section class="win">
+          <div class="win-in">
+            <div class="qhead">
+              <img src="{{questIcon}}" alt="{{questAlt}}">
+              <h2 class="h2">問題：找得到 ≠ 用對版本</h2>
+            </div>
+            <div class="bal">
+              <div class="tag">Figure 1 的兩個對照例子<span class="src">原文 Figure 1</span></div>
+              <p class="p"><b>B. 狀態追蹤能力</b>：先說「我們有 1600 筆標註資料要分析，5 位標註員，總預算 $600」。後來使用者說「其實改成 1200 筆」。再問「目前預算多少？」系統取回 {budget = $600} 並當成現況回答：<b>狀態漂移（state drift）</b>。</p>
+              <img class="bal-arrow" src="@@bal-arrow@@" alt="">
+            </div>
+            <sc-if value="{{isKid}}" hint-placeholder-val="{{ false }}">
+              <p class="p">你跟朋友說「我要買 3 顆蘋果，每顆 10 元，總共 30 元」。後來你改口「買 2 顆就好」。朋友記得你說過的每一句話，結帳時卻還是說「30 元」。</p>
+            </sc-if>
+            <sc-if value="{{isUni}}" hint-placeholder-val="{{ true }}">
+              <p class="p"><b>狀態漂移的定義</b>（§3）：先前對話建立或更新過的事實、限制或依賴關係確實在組好的 context 裡，但 agent 依據的是過期或不完整的版本，而不是決策當下有效的那一版。</p>
+            </sc-if>
+            <sc-if value="{{isGrad}}" hint-placeholder-val="{{ false }}">
+              <p class="p">漂移與檢索失敗正交：在 oracle 檢索（正確新值確定在 context 中）的設定下仍會發生，錯誤來自版本選擇，而非召回。</p>
+            </sc-if>
+            <div class="avail">
+              <img src="@@list1@@" alt="QUEST AVAILABLE：讀之前先猜">
+              <div class="guess"><span class="bulb"><img src="@@list1@@" alt=""></span><span>把整段對話直接塞進 context，在這個評測上會是最強的嗎？（答案在 08）</span></div>
+              <div class="guess"><span class="bulb"><img src="@@list1@@" alt=""></span><span>打開模型的推理，能不能修好「用到舊值」的錯？（答案在 03）</span></div>
+            </div>
+            <div class="dlg">
+              <div class="npc">
+                <img src="@@npc-wizard@@" alt="">
+                <span class="nbar outline">精讀導師</span>
+              </div>
+              <div class="dlg-in">
+                <p class="q">為什麼更好的檢索修不好狀態漂移？</p>
+                <sc-if value="{{open}}" hint-placeholder-val="{{ true }}">
+                  <p class="ans">定義上，漂移發生時正確的新值已經在 context 裡了。錯的是 agent 選了舊版本來用，問題出在「哪一版有效」的判斷，不在「找不找得到」。</p>
+                </sc-if>
+              </div>
+              <div class="dbtns">
+                <button type="button" class="imgbtn" onClick="{{closeDlg}}" aria-label="結束對話"><img src="@@btclose-normal@@" alt="END CHAT" width="85" height="18"></button>
+                <div class="dbtns-r">
+                  <sc-if value="{{open}}" hint-placeholder-val="{{ true }}">
+                    <button type="button" class="imgbtn" onClick="{{closeDlg}}" aria-label="收起答案"><img src="@@btprev-normal@@" alt="BACK" width="46" height="18"></button>
+                  </sc-if>
+                  <sc-if value="{{closed}}" hint-placeholder-val="{{ false }}">
+                    <button type="button" class="imgbtn" onClick="{{openDlg}}" aria-label="看答案"><img src="@@btnext-normal@@" alt="NEXT" width="46" height="18"></button>
+                  </sc-if>
+                </div>
+              </div>
+            </div>
+            <div class="notes">
+              <label class="chat-t" for="note1">筆記</label>
+              <textarea id="note1" placeholder="寫下你的猜測或疑問"></textarea>
+            </div>
+          </div>
+          <div class="band">
+            <span class="qno outline">QUEST 01</span>
+            <button type="button" class="{{doneClass}}" onClick="{{toggleDone}}">{{doneText}}</button>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <div class="hud">
+    <div class="hud-chat"><b>[公告]</b> 本頁已對照 arXiv v1 全文逐條核對。</div>
+    <div class="hud-row">
+      <div class="hud-left">
+        <span class="lvnum" aria-label="已讀節數 {{lv}}">
+          <sc-for list="{{lvDigits}}" as="d" hint-placeholder-count="1"><img src="{{d.src}}" alt=""></sc-for>
+        </span>
+        <span class="hud-name"><span>精讀中</span><b>StateMem</b></span>
+      </div>
+      <div class="hud-gp">
+        <div class="exp">
+          <span class="exp-gray" style="{{grayStyle}}"></span>
+          <span class="exp-num outline">{{expText}}</span>
+        </div>
+      </div>
+      <div class="hud-btns">
+        <button type="button" class="imgbtn" onClick="{{toggleNight}}" aria-label="外觀：切換白天或夜晚"><img src="@@bt-menu-normal@@" alt="MENU" width="54" height="34"></button>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1500}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { night: false, open: true, done: false, level: 'uni' };
+  }
+  renderVals() {
+    var s = this.state, self = this;
+    var digits = @@digits@@;
+    var n = s.done ? 2 : 1, total = 16, pct = n / total;
+    function tab(l) { return s.level === l ? 'tab on' : 'tab'; }
+    return {
+      rootClass: s.night ? 'ms night' : 'ms',
+      toggleNight: function () { self.setState({ night: !self.state.night }); },
+      tabKid: tab('kid'), tabUni: tab('uni'), tabGrad: tab('grad'),
+      setKid: function () { self.setState({ level: 'kid' }); },
+      setUni: function () { self.setState({ level: 'uni' }); },
+      setGrad: function () { self.setState({ level: 'grad' }); },
+      isKid: s.level === 'kid', isUni: s.level === 'uni', isGrad: s.level === 'grad',
+      open: s.open, closed: !s.open,
+      openDlg: function () { self.setState({ open: true }); },
+      closeDlg: function () { self.setState({ open: false }); },
+      doneClass: s.done ? 'gbtn done' : 'gbtn',
+      doneText: s.done ? '✓ 任務完成' : '完成任務',
+      toggleDone: function () { self.setState({ done: !self.state.done }); },
+      questIcon: s.done ? '@@list3@@' : '@@list0@@',
+      questAlt: s.done ? 'QUEST THAT CAN BE COMPLETED' : 'QUEST IN PROGRESS',
+      curDot: s.done ? 'dot ok' : 'dot me',
+      lv: n,
+      lvDigits: String(n).split('').map(function (c) { return { src: digits[Number(c)] }; }),
+      grayStyle: 'left: calc(' + (pct * 100).toFixed(2) + '% * 1 + ' + (-25 + 25 * pct).toFixed(1) + 'px)',
+      expText: n + ' / ' + total + ' [' + (pct * 100).toFixed(2) + '%]'
+    };
+  }
+}
+</script>
+</body>
+</html>
