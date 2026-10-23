@@ -22,7 +22,7 @@
  f('定義共享狀態','Condition Variable 是通知，真正資料狀態由 mutex 保護的 predicate 定義。',chips('ready='+ok,'檢查：'+v.check)),
  f('原子釋鎖並等待','pthread_cond_wait 會原子釋放 mutex/睡眠，返回前重新取得 mutex。',chips('wake='+v.wake)),
  f('返回後再次檢查','即使收到 signal 也無法保證 shared predicate 持續成立。',chips(ok?'條件滿足':'條件未滿足',wrong?'if 錯誤通過':'while 會重新等待')),
- f('不變量與結果',wrong?'錯誤：僅以 if 驗證，醒來後直接操作可能違反條件。':ok?'可以進入受條件保護的操作。':'繼續 wait，直到 predicate 為真。',chips('mutex + predicate + while','spurious wakeup 不是資源可用的證明'))];}},
+ f('不變量與結果',wrong?'錯誤：僅以 if 驗證，醒來後直接操作可能違反條件。':ok?'重新取得 mutex 並重檢 ready=true 後，才能安全進入受條件保護的操作。':'繼續 wait，直到 predicate 為真。',chips('mutex + predicate + while','spurious wakeup 不是資源可用的證明'))];}},
  'os-cow':{title:'Copy-on-Write：父子映射分離',prompt:'fork 後父子修改相同虛擬位址，對方是否能看到？',
  inputs:[['mode','映射方式','select','private',[['private','MAP_PRIVATE'],['shared','MAP_SHARED']]],['write','寫入者','select','child',[['child','子行程'],['parent','父行程']]],['initial','原本資料','number',5,[0,99,1]],['changed','新資料','number',9,[0,99,1]]],
  frames(v){const old=+v.initial,newer=+v.changed,shared=v.mode==='shared';let parent=v.write==='parent'?newer:shared?newer:old,child=v.write==='child'?newer:shared?newer:old;return [
