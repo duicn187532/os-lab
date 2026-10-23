@@ -8,6 +8,7 @@ on:
       - 'tests/os-maple-review.cjs'
       - 'tests/os-textbook-review.cjs'
       - 'tests/os-judge-native.cjs'
+      - 'tests/os-browser-judge.cjs'
       - '.github/workflows/os-textbook-check.yml'
   push:
     branches:
@@ -17,6 +18,7 @@ on:
       - 'tests/os-maple-review.cjs'
       - 'tests/os-textbook-review.cjs'
       - 'tests/os-judge-native.cjs'
+      - 'tests/os-browser-judge.cjs'
       - '.github/workflows/os-textbook-check.yml'
 
 jobs:
@@ -94,3 +96,4 @@ jobs:
           done
           TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-review.cjs
           TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-maple-review.cjs
+          TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-browser-judge.cjs
