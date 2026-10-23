@@ -13,7 +13,39 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  academic-quality-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate textbook chapter semantics and exercise corpus
+        run: |
+          node tests/os-textbook-review.cjs
+          node os/linux-labs/l3-verify.cjs --all
+          node tests/os-judge-native.cjs
+          node tests/os-examples-compile.cjs
+      - name: Verify real student code across four native languages
+        run: node tests/os-student-verify.cjs
+      - name: Build and run Linux POSIX labs
+        run: |
+          set -eu
+          dir="$(mktemp -d)"
+          trap 'rm -rf "$dir"' EXIT
+          cc -std=c11 -Wall -Wextra -Werror os/linux-labs/pipe-demo.c -o "$dir/pipe"
+          cc -std=c11 -Wall -Wextra -Werror -pthread os/linux-labs/condvar-demo.c -o "$dir/condvar"
+          cc -std=c11 -Wall -Wextra -Werror os/linux-labs/cow-demo.c -o "$dir/cow"
+          cc -std=c11 -Wall -Wextra -Werror os/linux-labs/durable-replace.c -o "$dir/durable"
+          test "$("$dir/pipe")" = "hello IPC"
+          test "$("$dir/condvar")" = "ready=1 seen=1"
+          test "$("$dir/cow")" = "parent=5"
+          "$dir/durable" "$dir/fs"
+          test "$(cat "$dir/fs/file.txt")" = "durable demo"
+
   deploy:
+    needs: [academic-quality-gate]
     runs-on: ubuntu-latest
 
     steps:
