@@ -141,37 +141,9 @@ jobs:
           done
           node tests/os-crossbrowser-semantic.cjs
 
-  browser-wasm-languages:
-    runs-on: ubuntu-latest
-    timeout-minutes: 40
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          path: os-lab
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Download required WASM compiler and Pyodide runtimes
-        working-directory: os-lab
-        run: bash shared/code/tools/vendor.sh
-      - name: Install browser runner
-        working-directory: os-lab
-        run: |
-          npm install --no-save --no-package-lock playwright@1.58.2
-          npx playwright install --with-deps chromium
-      - name: Execute SRTF, LRU, Banker and COW in real C, C++ and Python browser sandboxes
-        working-directory: os-lab
-        run: |
-          node tests/poc-server.cjs "$GITHUB_WORKSPACE" 8000 >/tmp/os-wasm-server.log 2>&1 &
-          for i in $(seq 1 30); do
-            if curl -fsS http://localhost:8000/os-lab/os/ >/dev/null; then break; fi
-            sleep 1
-          done
-          TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-browser-wasm.cjs
-
   browser-multilang:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
         with:
@@ -196,6 +168,10 @@ jobs:
             sleep 1
           done
           TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-browser-multilang.cjs
+      - name: Execute real WASM/Pyodide SRTF, LRU, Banker and COW regressions
+        working-directory: os-lab
+        run: |
+          TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-browser-wasm.cjs
 
   cross-browser:
     runs-on: ubuntu-latest
