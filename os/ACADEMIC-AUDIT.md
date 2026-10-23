@@ -58,10 +58,10 @@
 | 數學式語意 | 27 張公式卡、每章 MathML、`tests/os-textbook-review.cjs` | 單位/前提/代入/模型假設、MathML structure 的人工比對 |
 | 模擬器 | `labs-core.js`、`labs-more.js`、`advanced-labs.js`、E2E；排程/Banker/頁面置換的獨立模型檢查 | 不變量、獨立模型、邊界/隨機/mutation 驗證 |
 | 測驗 | 174 題（每章 6）及 `assessment-rigor.js` | 干擾選項鑑別度、難度/LO 與題目 ID 一致性 |
-| Judge | 29 入門 + 8 進階、`l3-verify.cjs`、`tests/os-judge-native.cjs`、`student-verify.cjs`、`tests/os-capstone-student.cjs` | 29 入門題僅 FIFO 有四語言 reference AC；8 進階題有 JavaScript reference AC，尚缺其他語言逐題實證 |
-| Linux 真實實驗 | 4 POSIX C、`os-textbook-check.yml` | syscall error injection、輸入輸出契約、資源清理、觀測紀錄 |
+| Judge | 29 入門 + 8 進階、`l3-verify.cjs`、`tests/os-judge-native.cjs`、`student-verify.cjs`、`tests/os-capstone-student.cjs` | 29 入門＋8 進階均已具四語言參考原始碼，由 `os-all-native-ac`、`os-all-python-ac`、`os-all-js-ac`、`os-capstone-native-ac`、`os-capstone-student` 真正提交評測；仍需逐次核對最新 CI、瀏覽器 WASM 與題目難度 |
+| Linux 真實實驗 | 9 個 Linux/POSIX C 範例及 WAL Python `wal-recovery-demo.py`；CI 涵蓋 pthread、fork/exec、epoll、inode/OFD、page fault 與程式 crash replay | 仍缺真實硬斷電/磁碟快取故障、所有核心子系統原生實驗與課堂實證 |
 | L4 綜合專題 | 本批 `os/linux-labs/l4/`，兩種服務模式+負載+自測 | 學生個別實驗報告、模型推論與人工審核 |
-| 使用者進度與 UI | `shared/cslab-app.js`，`os_lab_2026_v1` | 三層級 Viewed/Completed/Mastered 與不混淆的歷史遷移 |
+| 使用者進度與 UI | `shared/cslab-app.js`、`mastery-evidence.js`，保留舊 `os_lab_2026_v1`，新證據獨立鍵 `os_lab_academic_v1` | Viewed/Completed/可送審狀態存在；但 Mastered 不能由無後端的本機自評核發，需外部教師審核 |
 | 安全／部署 | Worker 程式判題、Pages Workflow 品質閘門 | CI 環境壓力測試、正式主分支保護、iOS Safari 實測 |
 
 ## CS2023 Operating Systems Knowledge Area 對照
@@ -94,7 +94,7 @@
 3. **P1** 實作 OS 專用 Viewed/Completed/Mastered，需 **L1 首次作答≥80% + L2 客觀判題通過 + L3 驗證**（無 Linux 自動驗收者保持待審），**舊 Completed 不可升級**。
 4. **P2** 課堂能力測驗/人工評量、iOS Safari 實機、360/430px、MathML a11y、課程導航/楓之谷外觀回歸。
 
-**目前不應宣稱：** 29 章全 L2 已經教員驗證、29 個 L3 真實 OS 作業、四語言 37 題全 AC、iOS Safari 通過或 L4 學習成果已 Mastered。
+**目前不應宣稱：** 29 章全 L2 已教員審閱、29 個 L3 都是 Linux 原生 kernel 作業、37 題在所有瀏覽器 WASM 都 AC、iOS Safari 實機通過，或 L4 學習成果已 Mastered。四語言本機 reference AC 的結果應以最新 CI 確認，且不能據此等同正式 Linux 課程驗收。
 
 
 ## 批次 1B：兩個核心章的實際教材及獨立演算法驗證（新增）
@@ -116,3 +116,11 @@
 
 ### WAL 受控 Process-Crash 實驗的有效性界線
 `os/linux-labs/wal-recovery-demo.py` 使用 `os._exit()` 故障注入與真實 `os.fsync()`；`tests/os-wal-recovery.cjs` 檢查未提交的 SET 忽略、已完整提交的交易恢復，以及損壞尾端 JSON 行不污染先前 durable 狀態。這是**使用者行程崩潰後的重新讀取**，不是 kernel crash 或拔除電源；沒有 block-device replay、flush-cache 控制、磁碟 torn-write 等保證。真實系統安全性還要納入 checkpoint、txid 去重、資源上限、完整紀錄 checksum 和目錄 fsync。
+
+
+### 自動化覆蓋不等於正式教材核可（本輪更新）
+
+- 作業題：37 題 × 四語言 reference source 已能交由本機 Student Judge 實際編譯／執行；CI 的綠燈只表示當次題庫與環境通過，非證明廣泛輸入正確性。另有 Python 亂數動態測試與原生 Linux 分離驗證。
+- 第 25 章：Working Set 的 Δ-window、每步 WSS、雙行程 D(t) 與 frame 缺額，含可呈現的第二、三張狀態表。不能只以 D(t)>F 推斷真正 swap thrashing，後者須有 fault-rate、swap I/O、memory pressure 時序佐證。
+- 第 26 章：`wal-recovery-demo.py` 模擬的是使用者行程 `os._exit` 之後的恢復；同步發生在 log `fsync`，非實際斷電破壞實驗。舊題目的簡化 WAL 狀態機不能直接推導出 Linux filesystem 的實體持久性保證。
+- 靜態程式品質：`os-static-syntax.cjs` 檢查 HTML 所引用 JavaScript 的語法與順序；`os-crossbrowser` 特別核對第 25 章必須三張正確資料表，並保留 375/390/1280 寬度、兩種主題與 WebKit/Chromium 觀察。
