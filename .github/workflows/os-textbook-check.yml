@@ -1,0 +1,84 @@
+name: OS LAB Textbook Validation
+
+on:
+  pull_request:
+    paths:
+      - 'os/**'
+      - 'tests/os-review.cjs'
+      - 'tests/os-maple-review.cjs'
+      - 'tests/os-textbook-review.cjs'
+      - '.github/workflows/os-textbook-check.yml'
+  push:
+    branches:
+      - 'feat/os-textbook-depth-20261023'
+    paths:
+      - 'os/**'
+      - 'tests/os-maple-review.cjs'
+      - 'tests/os-textbook-review.cjs'
+      - '.github/workflows/os-textbook-check.yml'
+
+jobs:
+  textbook-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate 29 chapters, labs, questions and Judge data
+        run: node tests/os-textbook-review.cjs
+
+  posix-examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile C experiments with warnings as errors
+        run: |
+          mkdir -p /tmp/os-lab-bins
+          cc -std=c11 -Wall -Wextra -Werror os/linux-labs/pipe-demo.c -o /tmp/os-lab-bins/pipe-demo
+          cc -std=c11 -Wall -Wextra -Werror -pthread os/linux-labs/condvar-demo.c -o /tmp/os-lab-bins/condvar-demo
+          cc -std=c11 -Wall -Wextra -Werror os/linux-labs/cow-demo.c -o /tmp/os-lab-bins/cow-demo
+          cc -std=c11 -Wall -Wextra -Werror os/linux-labs/durable-replace.c -o /tmp/os-lab-bins/durable-replace
+      - name: Verify output and deterministic exit status
+        run: |
+          set -eu
+          test "$(/tmp/os-lab-bins/pipe-demo)" = "hello IPC"
+          test "$(/tmp/os-lab-bins/condvar-demo)" = "ready=1 seen=1"
+          test "$(/tmp/os-lab-bins/cow-demo)" = "parent=5"
+          /tmp/os-lab-bins/durable-replace /tmp/os-lab-fs-test
+          test "$(cat /tmp/os-lab-fs-test/file.txt)" = "durable demo"
+
+  chromium-maple:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: os-lab
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          repository: duicn187532/self-research
+          path: self-research
+          sparse-checkout: |
+            assets/maple
+          sparse-checkout-cone-mode: true
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium and Playwright
+        working-directory: os-lab
+        run: |
+          npm install --no-save --no-package-lock playwright@1.58.2
+          npx playwright install --with-deps chromium
+      - name: Run all OS LAB interactions and Maple regressions
+        working-directory: os-lab
+        run: |
+          node tests/poc-server.cjs "$GITHUB_WORKSPACE" 8000 >/tmp/os-poc-server.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8000/os-lab/os/ >/dev/null; then break; fi
+            sleep 1
+          done
+          TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-review.cjs
+          TEST_URL=http://localhost:8000/os-lab/os/ node tests/os-maple-review.cjs
