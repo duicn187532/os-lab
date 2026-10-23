@@ -52,6 +52,7 @@ jobs:
           node tests/os-mlfq-model.cjs
           node tests/os-ofd-model.cjs
           node tests/os-concurrency-model.cjs
+          node tests/os-allocation-model.cjs
 
   judge-native:
     runs-on: ubuntu-latest

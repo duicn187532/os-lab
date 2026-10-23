@@ -37,7 +37,7 @@
 | 15 | Integration Review | 0–14 | 跨子系統定位症狀 | 有/部分/部分 | 分類題不能證明跨層能力；需 L4 證據與教師審核 | P1 |
 | 16 | Semaphore/Producer Consumer | 3,5 | 證明 0≤count≤capacity 及等待正確 | 有/部分/部分 | 新增 4 producer／4 consumer 真實 pthread bounded queue 及 8×8000 items exactly-once 守恆測試；仍欠故障注入／死結診斷 | P1 |
 | 17 | Deadlock/Banker | 5,16 | 逐維計算 Need/Work/Finish/Request | 有/部分/部分 | 五行程三資源 Safety/Request Trial 的 ILLEGAL/WAIT/UNSAFE/GRANTED 全部分流及回滾檢核已補；實際死結回復機制仍缺 | P1 |
-| 18 | Allocation/Fragmentation | 6 | 模擬 First/Best/Worst Fit 與 coalescing | 有/部分/部分 | 現有 First Fit 可驗算；缺完整 free/coalesce 事件序列 | P1 |
+| 18 | Allocation/Fragmentation | 6 | 模擬 First/Best/Worst Fit 與 coalescing | 有/部分/部分 | First/Best/Worst Fit 的分裂、FREE/coalescing 8 步狀態表與地址不變量已補，含隨機事件驗證；Linux malloc/碎片率實測尚待補 | P1 |
 | 19 | Disk Scheduling/Storage | 8,9 | 計算 seek 及排程策略 | 有/部分/部分 | FCFS/SSTF 存在；SSD/NVMe 與實際 latency 不可類推 | P2 |
 | 20 | MLFQ/Multicore | 4 | 維護多級隊列、boost、aging | 有/部分/部分 | 新增 Q0/Q1/Q2 quantum=1/2/4 多工作搶先、降級、全局 priority boost 完整 tick trace 及 1200 組 randomized property 測試；尚待驗證 aging 與 Linux CFS/EEVDF 對照 | P1 |
 | 21 | Kernel/Boot/ELF | 0,1 | 分析 boot chain/ELF 故障點 | 有/部分/部分 | stage 分類有模型；缺 readelf/execve 工具證據驗收 | P2 |
