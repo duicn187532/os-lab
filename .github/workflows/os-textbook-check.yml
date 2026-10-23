@@ -8,6 +8,7 @@ on:
       - 'tests/os-maple-review.cjs'
       - 'tests/os-textbook-review.cjs'
       - 'tests/os-judge-native.cjs'
+      - 'tests/os-examples-compile.cjs'
       - 'tests/os-crossbrowser-semantic.cjs'
       - 'tests/os-browser-wasm.cjs'
       - 'tests/os-browser-judge.cjs'
@@ -20,6 +21,7 @@ on:
       - 'tests/os-maple-review.cjs'
       - 'tests/os-textbook-review.cjs'
       - 'tests/os-judge-native.cjs'
+      - 'tests/os-examples-compile.cjs'
       - 'tests/os-crossbrowser-semantic.cjs'
       - 'tests/os-browser-wasm.cjs'
       - 'tests/os-browser-judge.cjs'
@@ -47,6 +49,8 @@ jobs:
           node-version: '22'
       - name: Compile C/C++ and execute Python/JavaScript starters; validate all expected outputs
         run: node tests/os-judge-native.cjs
+      - name: Compile and run all repaired textbook code snippets
+        run: node tests/os-examples-compile.cjs
 
   posix-examples:
     runs-on: ubuntu-latest
