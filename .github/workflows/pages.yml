@@ -3,10 +3,16 @@ name: Deploy static site to GitHub Pages
 on:
   push:
     branches: [ main ]
+  pull_request:
+    paths:
+      - 'os/**'
+      - 'shared/**'
+      - 'tests/**'
+      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: gh-pages
@@ -87,7 +93,10 @@ jobs:
           ENGINE=chromium node tests/os-crossbrowser-semantic.cjs
 
   deploy:
+    if: github.event_name != 'pull_request'
     needs: [academic-quality-gate, chromium-publish-gate]
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
 
     steps:
