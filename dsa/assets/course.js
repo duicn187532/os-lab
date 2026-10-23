@@ -26,6 +26,7 @@ window.CSLAB_COURSE = {
   mark: 'DSA',
   title: '資料結構與演算法互動學習',
   storageKey: 'dsa.progress',
+  codeLang: 'python',   // 程式實作頁籤預設的語言（教材的範例程式是 Python）；使用者選過之後以他的選擇為準
   eyebrow: 'DATA STRUCTURES & ALGORITHMS · SEE EVERY STEP',
   heroTitle: '看懂資料如何流動，<br>讓演算法真正動起來。',
   heroLead: '{chapters} 章從記憶體出發，先用 ELI5 類比建立直覺，再回到原理與 Python / C 範例；用 {labs} 種逐步實驗親眼看資料結構怎麼變化。',

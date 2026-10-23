@@ -1,7 +1,8 @@
 /* CS LAB 遊戲層：經驗值與等級、底部狀態列、章節怪物、測驗討伐、主角與升級特效。
  * 做法沿用 self-research（assets/site.js 的經驗值、狀態列與怪物，assets/battle.js 的討伐），只在楓之谷外觀啟用時出現。
  * - 不讀寫課程的進度鍵值，也不改測驗規則：兩次機會、錯題本與測驗紀錄照舊，這裡只把同一個測驗畫成打怪。
- * - 經驗值完全由各課既有的進度推算（讀完觀念、第一次做實驗、完成測驗、題目答對且不在錯題本、寫了筆記、完成頁尾的互動挑戰），
+ * - 經驗值完全由各課既有的進度推算（讀完觀念、第一次做實驗、完成測驗、題目答對且不在錯題本、寫了筆記、完成頁尾的互動挑戰、
+ *   通過程式實作題），
  *   不逐次累加：還原備份、清除進度，經驗值跟著變。
  * - 各課把自己的總和與稱號快取在 localStorage 的 cslab.exp（{ 課程 id: { exp, title } }），
  *   入口網與其他課加總成同一位角色。和 self-research 的角色分開，不讀寫 study:*。
@@ -17,10 +18,11 @@
 
   /* ───────────── 經驗值與等級 ─────────────
    * 一門課全部完成約 LV.10，四門約 LV.18；等級沒有上限，稱號在轉職的等級換。 */
-  const EXP = { learn: 30, lab: 30, quiz: 100, elite: 100, boss: 200, right: 10, note: 20, course: 500, challenge: [60, 40, 20] };
+  const EXP = { learn: 30, lab: 30, quiz: 100, elite: 100, boss: 200, right: 10, note: 20, course: 500, challenge: [60, 40, 20], code: 80 };
   // 互動挑戰：依存下來的紀錄算一次（失誤加提示 0 次 60、1–2 次 40、更多 20；先看了解答 0），再挑戰不會再加
   const challengeExp = r => !r || !r.solved || r.revealed ? 0 : EXP.challenge[r.mistakes + r.hints === 0 ? 0 : r.mistakes + r.hints <= 2 ? 1 : 2];
   const Challenges = window.CSLab && window.CSLab.challenge;
+  const Code = window.CSLab && window.CSLab.code; // 程式實作題：第一次通過（全部測資）得 EXP.code
   const needFor = lv => Math.round((45 * Math.pow(lv, 1.5) + 55) / 10) * 10;
   function levelOf(exp) {
     let lv = 1, into = Math.max(0, exp);
@@ -63,6 +65,7 @@
     });
     if (lessons.length && lessons.every(l => st.done[l.id])) e += EXP.course;
     if (Challenges) Challenges.list().forEach(c => { e += challengeExp((st.challenge || {})[c.id]); });
+    if (Code) Code.list().forEach(p => { if (((st.code || {})[p.id] || {}).solved) e += EXP.code; });
     return e;
   }
   const bossDown = () => !!(lessons.length && App.store.done[lessons[lessons.length - 1].id]);
@@ -140,7 +143,12 @@
         const f = foeFor(l.id);
         if (f) lines.push(['戰鬥', `${label(f.name)}守在這一章。答對一題打掉一格 HP；每題兩顆心，答錯會被反擊。`]);
       }
-      if (st.tab !== 'quiz' && Challenges) Challenges.forLesson(l.id).forEach(c => {
+      if (st.tab === 'code' && Code) Code.forLesson(l.id).forEach(p => {
+        const r = (App.store.code || {})[p.id];
+        lines.push(['實作', `「${p.title}」：${r && r.solved ? '已通過，換一種語言再寫一次也是好練習。' : `測資就是怪物的 HP，每通過一筆打掉一格；全部通過打倒牠，第一次通過得 EXP +${EXP.code}。`}`]);
+      });
+      if (st.tab === 'code') lines.push(['提示', '先按「執行」用範例輸入試跑，輸出對了再「提交評測」；C / C++ 第一次要下載編譯器，請稍候。']);
+      if ((st.tab === 'learn' || st.tab === 'lab') && Challenges) Challenges.forLesson(l.id).forEach(c => {
         const r = (App.store.challenge || {})[c.id];
         lines.push(['挑戰', `頁尾的怪物挑戰「${c.title}」：${r && r.solved ? '已通過。' : `先自己操作，驗證後才看得到解析；不看解答、沒有失誤過關得 EXP +${EXP.challenge[0]}。`}`]);
       });
@@ -487,6 +495,81 @@
     else if (ev.event === 'revealed') flee(d.perch);
   }
 
+  /* ───────────── 程式實作討伐 ─────────────
+   * 「④ 實作」頁籤（shared/cslab-code.js）：題目對話框由委託任務的 NPC 開口，編輯器視窗上緣是戰場。
+   * 怪物 HP＝測資筆數：提交時每通過一筆，主角衝上去打掉一格；沒通過的那筆怪物反擊（MISS）。全部通過才倒下，
+   * 否則牠留在原地等你修好再來。只讀 cslab:code 事件與卡片，不碰評測與紀錄。 */
+  const codeFights = new WeakMap(); // 視窗 → { foe, a, hp, total }
+  const CODE_SAY = {
+    WA: '答案不對，怪物擋下了攻擊。展開公開測資，比對第一個不同的行。',
+    CE: '咒語還沒念對（編譯錯誤）：照「編譯訊息」第一個錯誤的行號修正。',
+    RE: '程式在途中倒下了（執行錯誤）：看 stderr，檢查陣列範圍與除以零。',
+    TLE: '陷入了時間的迷宮（超過時限）：是無窮迴圈，還是演算法太慢？',
+    IE: '傳送門故障了（系統錯誤），重新整理後再試一次。'
+  };
+  function codeFight(card, ev) {
+    if (!Skin.active || !window.MAPLE_SPRITES || !card || !card.isConnected) return null;
+    let f = codeFights.get(card);
+    if (!f || !f.a.party.wrap.isConnected) {
+      const lid = App.state.lesson, avoid = [foeFor(lid) && foeFor(lid).name];
+      const mobs = S.kind('mob').filter(m => !avoid.includes(m)), solved = !!(ev.record && ev.record.solved);
+      const name = pick(mobs.length ? mobs : S.kind('mob'), `${C.id}:${ev.id}:code`);
+      if (!name) return null;
+      card.querySelectorAll(':scope > .perch, :scope > .bt-bar').forEach(el => el.remove());
+      const names = partyFor(`${C.id}:${lid}:code`, true);
+      f = { foe: name, total: ev.total, hp: solved ? 0 : ev.total, a: { party: perch(card, names, 'party'), foe: perch(card, [name], 'foe') } };
+      if (solved) f.a.foe.wrap.hidden = true;
+      card.style.setProperty('--perch-h', roomOf(names.concat(name)));
+      card.classList.add('has-arena');
+      ['hit', 'die', 'move'].forEach(act => S.warm(name, act));
+      codeFights.set(card, f);
+      arenaNow = f.a;
+      const brief = document.querySelector('.code-brief');
+      if (brief) Skin.npc(brief, `${C.id}:${lid}:code`, solved ? 'done' : ev.record && ev.record.submits ? 'open' : 'new');
+    }
+    return f;
+  }
+  function paintCode(card, f, say) {
+    const el = bar(card), foeName = label(f.foe) || '怪物', down = f.hp <= 0;
+    el.dataset.tier = 'code';
+    el.classList.toggle('is-over', down); el.classList.toggle('is-win', down);
+    el.querySelector('.bt-tier').textContent = '實作';
+    el.querySelector('.bt-foe').textContent = down ? `已打倒${foeName}` : `${foeName}（HP ${f.hp} / ${f.total}）`;
+    el.querySelector('.bt-hp i').style.width = `${100 * f.hp / f.total}%`;
+    el.querySelector('.bt-hearts').textContent = '';
+    if (say !== undefined) el.querySelector('.bt-say').textContent = say;
+  }
+  function onCode(ev) {
+    const card = ev.card, f = codeFight(card, ev);
+    if (!f) return;
+    const foeName = label(f.foe) || '怪物', hero = f.a.party.cast[0], foe = f.a.foe.cast[0];
+    if (ev.event === 'view') return paintCode(card, f, f.hp <= 0 ? '這一題已經通過了。換一種語言再寫一次，看看寫法哪裡不同。' : `${foeName}守著這道題目：牠的 HP 就是 ${f.total} 筆測資。寫好程式、按「提交評測」出手！`);
+    if (ev.event === 'judging') { f.hp = f.total; f.a.foe.wrap.hidden = false; f.a.foe.wrap.classList.remove('is-down'); S.swapAct(foe.spr, f.foe, 'stand'); return paintCode(card, f, '出手！每通過一筆測資就打掉一格 HP。'); }
+    if (ev.event === 'phase') {
+      const t = ev.phase === 'compiling' && ev.info && ev.info.totalLength ? `正在召喚編譯器……（${Math.round(ev.info.doneLength / 1048576)} / ${Math.round(ev.info.totalLength / 1048576)} MB，只有第一次）` : ev.phase === 'loading' ? '正在召喚 Python 直譯器……（只有第一次）' : ev.phase === 'compiling' ? '正在編譯，凝聚力量中……' : null;
+      if (t) paintCode(card, f, t);
+      return;
+    }
+    if (ev.event === 'case') {
+      if (ev.verdict === 'AC') {
+        f.hp = Math.max(0, f.hp - 1);
+        lunge(hero.walker, 26);
+        setTimeout(() => { if (!foe.spr.isConnected) return; S.swapAct(foe.spr, f.foe, 'hit'); damage(foe.walker, false); setTimeout(() => { if (foe.spr.isConnected && f.hp > 0) S.swapAct(foe.spr, f.foe, 'stand'); }, 400); }, 120);
+        return paintCode(card, f, `命中！第 ${ev.index + 1} 筆測資通過。`);
+      }
+      lunge(foe.walker, -26);
+      setTimeout(() => popText(hero.walker, ev.verdict === 'WA' ? 'MISS' : ev.verdict, 'fx-miss'), 130);
+      return paintCode(card, f, `第 ${ev.index + 1} 筆沒有通過（${ev.verdict}）。`);
+    }
+    if (ev.event === 'judged') {
+      if (ev.verdict === 'AC') { f.hp = 0; knockDown(f.a.foe); victory.hero = null; return paintCode(card, f, ev.fresh ? `討伐成功！全部 ${f.total} 筆測資通過，任務完成。` : `又打倒了${foeName}一次：全部通過。`); }
+      if (ev.verdict === 'STOPPED') return paintCode(card, f, '收手了。這次不記錄，準備好再出手。');
+      if (!reduce()) { card.classList.remove('is-struck'); void card.offsetWidth; card.classList.add('is-struck'); }
+      return paintCode(card, f, `通過 ${ev.passed} / ${f.total} 筆。${CODE_SAY[ev.verdict] || ''}`);
+    }
+    if (ev.event === 'ran') paintCode(card, f, ev.status === 'accepted' ? '試跑完成。輸出看起來對了，就按「提交評測」對牠出手。' : `試跑失敗：${CODE_SAY[{ compile_error: 'CE', runtime_error: 'RE', time_limit_exceeded: 'TLE' }[ev.status]] || '看看下方的訊息。'}`);
+  }
+
   /* ───────────── 收到 app 的事件：重算經驗值、播特效、更新公告 ───────────── */
   // 經驗值出現在畫面上的隊伍身上：測驗視窗上的主角，否則頁尾（或首頁）的主角
   const liveParty = () => arenaNow && arenaNow.party.wrap.isConnected ? arenaNow.party : scene.party && scene.party.wrap.isConnected ? scene.party : null;
@@ -501,7 +584,7 @@
     if (victory.hero === hero) victory.told = hero;
     cheer(hero, g.up);
   }
-  const WHAT = { learn: '讀完觀念', lab: '第一次操作實驗', done: '完成測驗' };
+  const WHAT = { learn: '讀完觀念', lab: '第一次操作實驗', done: '完成測驗', code: '通過程式實作' };
   if (App) {
     document.addEventListener('cslab:progress', e => {
       const g = award(), d = e.detail;
@@ -524,6 +607,7 @@
       noteTimer = setTimeout(() => { const g = award(); if (g.gain) celebrate(g, '寫了筆記'); }, 800);
     });
     document.addEventListener('cslab:quiz-view', e => { if (Skin.active) S.whenTable(() => battle(e.detail.target)); });
+    document.addEventListener('cslab:code', e => { if (Skin.active) S.whenTable(() => onCode(e.detail)); });
     document.addEventListener('cslab:challenge', e => {
       const ev = e.detail;
       if (ev.event === 'retry' && ev.card) { duels.delete(ev.card); ev.card.querySelectorAll(':scope > .perch, :scope > .bt-bar').forEach(el => el.remove()); }
@@ -545,6 +629,8 @@
       if (App.state.page === 'lesson') {
         stageHead(); stagePager();
         document.querySelectorAll('#challengeSlot > .challenge').forEach(card => onChallenge({ card, event: 'view' }));
+        const lab = document.querySelector('#stage > .code-lab'), p = lab && Code && Code.get(lab.dataset.problem);
+        if (p) onCode({ card: lab, event: 'view', id: p.id, total: Code.cases(p).length, record: (App.store.code || {})[p.id] });
       }
       if (App.state.page === 'home') stageHome();
       const t = document.querySelector('#stage, #reviewStage');

@@ -23,8 +23,8 @@ jobs:
 
       - name: Download Coding Challenge runtimes (Pyodide, YoWASP Clang)
         run: |
-          bash challenge-poc/tools/vendor.sh
-          rm challenge-poc/.gitignore
+          bash shared/code/tools/vendor.sh
+          rm shared/code/.gitignore
 
       - name: Deploy to gh-pages/preview/<branch>
         uses: peaceiris/actions-gh-pages@v4

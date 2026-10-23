@@ -19,7 +19,7 @@ const big = largeSorted(100000, 20261023);
 
 export const CHALLENGES = [
   {
-    id: 'hello-world', version: 1, title: 'Hello World', timeLimitMs: 2000,
+    id: 'hello-world', version: 1, title: 'Hello World', timeLimitMs: 2000, timeFactor: false,
     statement: '輸出一行文字 Hello, CS LAB!（注意大小寫、逗號與驚嘆號）。這題沒有輸入。',
     input: '無。', output: '一行：Hello, CS LAB!',
     cases: [{ name: '輸出', input: '', output: 'Hello, CS LAB!\n', visible: true }],
@@ -31,7 +31,7 @@ export const CHALLENGES = [
     }
   },
   {
-    id: 'a-plus-b', version: 1, title: 'A + B', timeLimitMs: 2000,
+    id: 'a-plus-b', version: 1, title: 'A + B', timeLimitMs: 2000, timeFactor: false,
     statement: '讀入兩個整數 A 與 B，輸出 A + B。',
     input: '一行，兩個以空白分隔的整數 A、B，−10⁹ ≤ A, B ≤ 10⁹。', output: '一行：A + B 的值。注意總和可能超出 32 位元整數。',
     cases: [
@@ -51,7 +51,7 @@ export const CHALLENGES = [
     }
   },
   {
-    id: 'binary-search', version: 1, title: 'Binary Search', timeLimitMs: 2000,
+    id: 'binary-search', version: 1, title: 'Binary Search', timeLimitMs: 2000, timeFactor: false,
     statement: '給一個由小到大排序、元素不重複的整數陣列與一個 target。若 target 在陣列裡，輸出它的索引（從 0 開始），否則輸出 -1。大型測資有 100,000 個元素，請用二分搜尋。',
     input: '第一行 n（0 ≤ n ≤ 100000）；第二行 n 個以空白分隔、嚴格遞增的整數（n = 0 時是空行）；第三行 target。數值都在 32 位元整數範圍內。',
     output: '一行：target 的索引，或 -1。',

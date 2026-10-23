@@ -15,6 +15,12 @@ export const VERDICT = {
 };
 const FROM_STATUS = { compile_error: 'CE', runtime_error: 'RE', time_limit_exceeded: 'TLE', internal_error: 'IE' };
 
+// 時限：題目的 timeLimitMs 是 C 的時限，其他語言放寬：Python 3 倍、JavaScript 1.5 倍；C++ 也是 3 倍，
+// 因為瀏覽器版 libc++ 的 iostream 很慢（實測 cin 讀一個整數約 3 µs，scanf 約 0.05 µs），不放寬的話照題意寫的 cin 會逾時。
+// 各語言另有指定（timeLimits）時以題目為準；timeFactor: false 表示所有語言同一個時限。
+export const TIME_FACTOR = { c: 1, cpp: 3, javascript: 1.5, python: 3 };
+export const timeLimit = (challenge, language) => (challenge.timeLimits && challenge.timeLimits[language]) || Math.round((challenge.timeLimitMs || 2000) * (challenge.timeFactor === false ? 1 : TIME_FACTOR[language] || 1));
+
 export const normalize = s => String(s ?? '').replace(/\r\n?/g, '\n').split('\n').map(l => l.replace(/[ \t]+$/, '')).join('\n').replace(/\n+$/, '');
 export const same = (actual, expected) => normalize(actual) === normalize(expected);
 
@@ -37,7 +43,7 @@ export async function judge(challenge, language, source, { onCase, shouldStop } 
   for (let i = 0; i < cases.length; i++) {
     if (shouldStop?.()) break;
     const c = cases[i];
-    const r = await execute({ language, source, stdin: c.input, timeoutMs: challenge.timeLimitMs });
+    const r = await execute({ language, source, stdin: c.input, timeoutMs: timeLimit(challenge, language), outputBytes: challenge.outputBytes });
     const v = verdictOf(r, c.output);
     const cr = { index: i, name: c.name, visible: !!c.visible, verdict: v, result: r, diff: v === 'WA' ? firstDiff(r.stdout, c.output) : null };
     results.push(cr);

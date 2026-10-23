@@ -85,6 +85,8 @@ self.onmessage = async e => {
     [status, detail] = r.toJs(); r.destroy();
   } catch (err) { status = 'internal'; detail = String(err && err.message || err); }
   const elapsedMs = performance.now() - t0, s = sink; sink = null;
+  // 輸出超過上限時 sys.stdout 的緩衝區可能還留著沒寫出去的內容；現在 sink 是 null，flush 等於丟掉它，不會混進下一筆測資
+  try { py.runPython('import sys\nfor _s in (sys.stdout, sys.stderr):\n    try:\n        _s.flush()\n    except BaseException:\n        pass'); } catch (_) { /* 忽略 */ }
   if (s.limited) status = 'output_limit';
   reply({ py: status, detail, stdout: text(s.out), stderr: text(s.err), elapsedMs, memoryBytes: py._module.HEAPU8.buffer.byteLength });
 };

@@ -30,7 +30,8 @@ function runWasi(module, stdinText, OUT_CAP = 1 << 16) {
       for (const [p, l] of iovs(iov, n)) { const k = Math.min(l, stdin.length - inPos); bytes().set(stdin.subarray(inPos, inPos + k), p); inPos += k; total += k; if (k < l) break; }
       view().setUint32(nr, total, true); return 0;
     },
-    fd_fdstat_get(fd, ptr) { if (fd > 2) return EBADF; const v = view(); v.setUint8(ptr, 2); v.setUint16(ptr + 2, 0, true); v.setBigUint64(ptr + 8, 0n, true); v.setBigUint64(ptr + 16, 0n, true); return 0; },
+    // 檔案類型回報 6（SOCKET_STREAM）：不是終端機，libc 才會整塊緩衝（終端機是逐行輸出），也表示不能 seek
+    fd_fdstat_get(fd, ptr) { if (fd > 2) return EBADF; const v = view(); v.setUint8(ptr, 6); v.setUint16(ptr + 2, 0, true); v.setBigUint64(ptr + 8, 0n, true); v.setBigUint64(ptr + 16, 0n, true); return 0; },
     fd_close: () => 0, fd_seek: () => 70 /* ESPIPE */, fd_prestat_get: () => EBADF, fd_prestat_dir_name: () => EBADF,
     environ_sizes_get(c, s) { view().setUint32(c, 0, true); view().setUint32(s, 0, true); return 0; }, environ_get: () => 0,
     args_sizes_get(c, s) { view().setUint32(c, 1, true); view().setUint32(s, 5, true); return 0; },

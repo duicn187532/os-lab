@@ -184,6 +184,12 @@ CS LAB reuses its art and techniques, not its paper logic:
   `cslab:challenge`; challenge EXP comes from the stored record once (60 / 40 / 20, 0 if revealed).
   All of it is `aria-hidden`, unfocusable and hidden in classic; `tests/game-review.cjs` and
   `tests/challenge-review.cjs` cover it.
+  The ④ 實作 coding tab (`shared/cslab-code.js`) is a coding quest: the problem card gets the quest
+  NPC (dialog frame, QUEST INFO band), the editor window (`.lab.code-lab`, CODING QUEST band) gets
+  the party and a mob with a `.bt-bar[data-tier="code"]` whose HP is the number of test cases; each
+  passing case is a hit, a failing one the mob's lunge and MISS, Accepted knocks it down, other
+  verdicts shake the window and say what to fix. The game layer reads only `cslab:code`; EXP 80
+  once, from `store.code[id].solved`. `tests/code-review.cjs` covers it.
 - **Extension points**: `cslab-app.js` dispatches `cslab:render`, `cslab:quiz-view`,
   `cslab:answer` and `cslab:progress` on `document`, `cslab-challenge.js` dispatches `cslab:challenge`; `window.CSLabSkin` exposes `skin`, `active`,
   `set()`, `url()`, `npc(host, key, quest)`, `onChange()` and `sprite`; `window.CSLabGame` exposes

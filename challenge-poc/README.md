@@ -23,13 +23,15 @@
 
 ## 架構
 
+編輯器、評測與執行環境放在 `shared/code/`，這個原型與課程的「④ 實作」頁籤（`shared/cslab-code.js`）共用同一份。
+
 ```
-index.html ─ js/app.js（畫面）
+challenge-poc/index.html ─ js/app.js（畫面）
              ├─ js/registry.js   Challenge Registry：題目、測資（大型測資固定種子產生）、四語言起始程式碼
-             ├─ js/editor.js     Editor：textarea ＋ 語法上色層、行號、Tab / Shift+Tab、自動縮排（無外部套件）
-             ├─ js/judge.js      Judge：逐筆執行、正規化比較、決定 AC / WA / CE / RE / TLE / IE
              ├─ js/storage.js    Progress Storage：只用 cslab.poc.v1.* 鍵
-             └─ js/runtime.js    Runtime Adapters：ExecutionRequest → ExecutionResult、沙箱、逾時、佇列
+shared/code/ ├─ editor.js        Editor：textarea ＋ 語法上色層、行號、Tab / Shift+Tab、自動縮排（無外部套件）
+             ├─ judge.js         Judge：逐筆執行、正規化比較、決定 AC / WA / CE / RE / TLE / IE、各語言時限倍數
+             └─ runtime.js       Runtime Adapters：ExecutionRequest → ExecutionResult、沙箱、逾時、佇列
                   └─ <iframe sandbox="allow-scripts" srcdoc>（每種執行環境一個，不透明來源，meta CSP）
                        runtimes/host.js        沙箱主控：從不執行玩家程式，只建立 / 終止 Worker
                        runtimes/js.worker.js   JavaScript：一個測資一個 Worker
@@ -41,7 +43,7 @@ index.html ─ js/app.js（畫面）
 
 **介面契約**
 
-- `ExecutionRequest { language, source, stdin, timeoutMs }`
+- `ExecutionRequest { language, source, stdin, timeoutMs, outputBytes? }`
 - `ExecutionResult { status, stdout, stderr, compileOutput, elapsedMs }`
   - `status` 是 `accepted | compile_error | runtime_error | time_limit_exceeded | internal_error`。
   - 另附 `exitCode`、`memoryBytes`、`compileMs`、`note`。
@@ -61,8 +63,8 @@ index.html ─ js/app.js（畫面）
   - JavaScript 用 `readInput()` 取得整份 stdin，`readLine()` 逐行讀取；`console.log` 輸出到 stdout，`console.error` 輸出到 stderr。
 - **上限：**
   - 原始碼 64 KB；
-  - stdin 4 MB；
-  - stdout 與 stderr 各 64 KB，超過時停止並判為 RE；
+  - stdin 8 MB；
+  - stdout 與 stderr 各 64 KB，超過時停止並判為 RE（課程題目輸出很多行時可個別放寬，最多 4 MB）；
   - C/C++ 線性記憶體 64 MiB、堆疊 1 MiB；
   - 同一時間只執行一個請求。
 
@@ -161,7 +163,7 @@ tracecc 本身就建立在 YoWASP 的 LLVM 分支上，直接用 YoWASP 可以�
 | 檔案大小 | 單檔 < 100 MB（`llvm.core.wasm` 為 75.5 MB）；網站建議 ≤ 1 GB；每月流量軟上限 100 GB | 沒有 gzip 時，一次 C/C++ 冷啟動約 100 MB，約可支撐每月一千次冷啟動。GitHub Pages 會不會壓縮 `.wasm`，這次**未能實測** |
 | CORS | 不透明來源載入 vendor 腳本需要 `Access-Control-Allow-Origin: *` | GitHub Pages 預期會送這個標頭；本機測試伺服器 `tests/poc-server.cjs` 模仿這個行為。**這次無法從測試環境連上 github.io 確認，請在預覽網址實測** |
 
-**為什麼自己託管、不用 jsDelivr：** 根據 jsDelivr 的 README，套件大於 150 MB 或單檔大於 20 MB 預設不支援，`llvm.core.wasm` 有 75.5 MB。執行環境由部署流程的 `tools/vendor.sh` 在部署時用 `npm pack` 下載（會驗證 registry 的 integrity），**不進 git**。
+**為什麼自己託管、不用 jsDelivr：** 根據 jsDelivr 的 README，套件大於 150 MB 或單檔大於 20 MB 預設不支援，`llvm.core.wasm` 有 75.5 MB。執行環境由部署流程的 `shared/code/tools/vendor.sh` 在部署時用 `npm pack` 下載（會驗證 registry 的 integrity），**不進 git**。
 
 ### 快取
 
@@ -188,6 +190,12 @@ Chrome 的 HTTP 快取依框架來源分區，不透明來源的 iframe 拿不�
   - 逾時的 Python Worker 會被終止；
   - 編譯結果只快取最近 4 份。
 
+### 整合進課程後的修正（`tests/code-review.cjs`）
+
+- **stdout 太慢：** 最小 WASI 原本把 stdin / stdout 回報成字元裝置，libc 以為是終端機，逐行呼叫 `fd_write`。改報成串流（不能 seek 的 socket）後整塊緩衝，C 輸出 20 萬行從 264 ms 降到 21 ms，C++ `cout` 從 457 ms 降到 118 ms。
+- **C++ `cin` 很慢：** 瀏覽器版 libc++ 的 `cin >> x` 每個整數約 3 µs，`scanf` 約 0.05 µs，問題在函式庫的數字解析，不是 I/O 次數（10 萬個整數只呼叫 576 次 `fd_read`）。因此課程題目的時限給 C++ 3 倍（同 Python）。這個 PoC 的三題仍是所有語言同一時限。
+- **Python 輸出殘留：** 程式輸出超過上限時，`sys.stdout` 緩衝區裡還沒寫出的內容會混進下一筆測資的輸出。現在每次執行後都會丟掉這些內容，並有回歸測試。
+
 ## 瀏覽器相容性
 
 | 瀏覽器 | 狀態 |
@@ -204,7 +212,7 @@ Chrome 的 HTTP 快取依框架來源分區，不透明來源的 iframe 拿不�
 ## 執行與測試
 
 ```sh
-bash os-lab/challenge-poc/tools/vendor.sh        # 下載執行環境到 challenge-poc/vendor/（約 114 MB，不進 git）
+bash os-lab/shared/code/tools/vendor.sh          # 下載執行環境到 shared/code/vendor/（約 114 MB，不進 git）
 node os-lab/tests/poc-server.cjs . 8000          # 在 os-lab 的上一層啟動；模仿 GitHub Pages 的標頭（CORS）
 # 開啟 http://localhost:8000/os-lab/challenge-poc/
 node os-lab/tests/coding-poc.cjs                 # 功能與安全測試（自己啟動伺服器，埠 8010 / 8011）
@@ -215,7 +223,7 @@ Python 的 `http.server` 不送 CORS 標頭，所以沙箱載入不了執行環�
 
 ## 部署
 
-- **正式站：** `.github/workflows/pages.yml`（main）會在部署前執行 `tools/vendor.sh`。
+- **正式站：** `.github/workflows/pages.yml`（main）會在部署前執行 `shared/code/tools/vendor.sh`。
 - **開發分支：** `.github/workflows/preview.yml` 發布到 `gh-pages/preview/<分支>/`，例如 `https://duicn187532.github.io/os-lab/preview/maple-skin-refactor/challenge-poc/`。
   - 預覽網址多了兩層目錄，楓之谷素材的相對路徑指不到 `/self-research/`，所以**預覽只會顯示學術外觀**。正式站兩種外觀都有。
   - main 下一次部署（`force_orphan`）會清掉所有預覽。

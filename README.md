@@ -27,6 +27,7 @@
 - **模擬器**：先預測再操作；支援「上一步」回看、重設，以及可調速的自動播放（切換頁籤或隱藏頁面即暫停）。
 - **測驗與錯題本**：每題兩次機會，第一次只給提示；答錯的題目進入錯題本，可做錯題複習或 8 題跨章節混合練習。
 - **互動挑戰（NPC Q&A）**：章節頁尾的互動自我檢測，依學科設計成操作題而不是文字選擇題：選演算法的下一步、找反例、調參數達成目標…玩家先操作，系統用確定性的規則（或實驗的同一個模擬函式）驗證，之後才看得到解析。多種合法答案都接受、數值有容許誤差；提示依序給，失誤兩次後才能看解答。目前是四個原型：DSA 第 7 章二分搜尋的下一步、OS 第 5 章 SRTF 排程、DM 第 1 章真值表找反例、AI 第 3 章調學習率。設計、API 與 87 章規劃見 [`docs/interactive-challenges.md`](docs/interactive-challenges.md)。
+- **程式實作（④ 實作頁籤）**：有實作題的章節多一個頁籤，在瀏覽器裡真的編譯、執行 C、C++、Python、JavaScript 並用測資評測（隔離方式與限制見 [`challenge-poc/README.md`](challenge-poc/README.md)）。大型測資刻意讓暴力解逾時，必須用本章的方法；第一次通過全部測資才記錄並得經驗值。楓之谷外觀是「程式討伐」：任務 NPC 出題，怪物 HP＝測資數，每通過一筆打掉一格。目前 DSA 每章一題（18 題）。
 - **工具頁**：實驗總覽、公式速查、術語表（中英對照）、我的筆記（匯出 Markdown、備份 / 還原進度 JSON、列印）。
 - **體驗**：可分享的網址（`#/ch/4/lab`）、瀏覽器上一頁、`/` 或 `Ctrl+K` 全文搜尋、`[` `]` 切換章節、`A`–`D` 作答、深色 / 淺色主題、手機抽屜選單、尊重「減少動態效果」。
 - **隱私**：沒有帳號、後端或追蹤；進度、筆記與錯題本只存在瀏覽器 localStorage（沿用舊版鍵值 `os_lab_2026_v1`，舊進度不會遺失）。
@@ -67,7 +68,10 @@ shared/cslab-skin.js        外觀切換、素材探測、NPC 精靈圖；擴充
 shared/cslab-challenge.js   互動挑戰的共用 API（CSLab.challenge）：卡片、提示、失誤、看解答的條件、紀錄
 shared/cslab-game.js        遊戲層：經驗值與等級、狀態列、章節怪物、測驗討伐、怪物挑戰（window.CSLabGame）
 docs/interactive-challenges.md  互動挑戰的設計、API、四個原型、87 章規劃與 LA / CO / ASM 方案
-challenge-poc/              四語言 Coding Challenge 原型（C / C++ / Python / JavaScript 在瀏覽器裡編譯、執行、評測；說明見其 README.md）
+shared/cslab-code.js        程式實作頁籤（CSLab.code）：題目註冊、編輯器畫面、草稿、提交紀錄；第一次打開才載入 shared/code/
+shared/code/                編輯器、評測、執行環境（沙箱 iframe ＋ Worker；C/C++ 用瀏覽器內的 Clang，Python 用 Pyodide）
+shared/code/tools/vendor.sh 下載執行環境到 shared/code/vendor/（不進 git，部署時執行）
+challenge-poc/              四語言 Coding Challenge 原型與安全評估（說明見其 README.md）
 .claude/skills/maple-skin/  maple-skin Skill（規範、參考頁面、建圖腳本；不含遊戲圖檔）
 os/index.html               OS LAB 頁面（只載入下列檔案）
 os/assets/content.js        教材資料：章節、測驗、術語、公式
@@ -76,6 +80,7 @@ os/assets/labs-core.js      執行、排程、並行類實驗
 os/assets/labs-more.js      記憶體、儲存、系統、整合類實驗
 os/assets/os-labs.css       OS 專屬實驗樣式
 os/assets/challenges.js     OS 的互動挑戰（操作介面與題目資料）
+dsa/assets/code.js          DSA 每章一題的程式實作（題目、測資產生與參考解、四語言起始程式碼）
 dm/assets/…                 DM LAB 的同類檔案（labs.js 為 24 種逐步實驗）
 dsa/assets/…                DSA LAB 的同類檔案（labs.js 為 18 種逐步實驗）
 ai/assets/…                 AI LAB 的同類檔案（labs.js 為 24 種逐步實驗，course.js 另含舊版 ailab.* 進度轉換）
@@ -87,6 +92,7 @@ tests/skin-review.cjs       外觀層檢查（入口網、OS、DSA、DM、AI）
 tests/game-review.cjs       遊戲層檢查（經驗值、討伐、狀態列）
 tests/challenge-review.cjs  互動挑戰檢查（四個原型的驗證規則、多解、誤差、紀錄、經驗值、兩種外觀）
 tests/coding-poc.cjs        Coding Challenge 原型的功能與安全檢查（tests/poc-server.cjs 模仿 GitHub Pages 標頭，coding-poc-perf.cjs 量效能）
+tests/code-review.cjs       程式實作頁籤：每題的參考解（tests/fixtures/<課程>-solutions.cjs）、起始程式碼、暴力解逾時、操作流程、兩種外觀
 ```
 
 沒有建置步驟。
@@ -96,7 +102,7 @@ tests/coding-poc.cjs        Coding Challenge 原型的功能與安全檢查（te
 1. 建立 `<課程>/assets/content.js`：`{ units, lessons, glossary, formulas }`。每章必要欄位為 `id`（穩定識別碼，進度依此儲存）、`unit`、`title`、`lab`、`quiz`（`[題目, 選項, 正解索引, 提示, 解析]`）；選用欄位 `short`、`minutes`、`goals`、`ask`、`analogy`、`why`、`details`（`[標題, 說明]` 或字串）、`steps`、`worked`、`caveat`、`code`（`[語言, 程式碼]`）、`summary`、`terms`。陣列順序就是顯示順序。
 2. 建立 `course.js`：`window.CSLAB_COURSE = { id, name, mark, title, storageKey, eyebrow, heroTitle, heroLead, footer, disclaimer, data }`。沿用舊版的 localStorage 鍵即可保留學習者的已完成章節、筆記與主題；舊版若把進度分存在多個鍵，就在 `course.js` 裡於第一次載入時匯入（範例見 `dsa/assets/course.js`）。
 3. 實驗以 `CSLab.register(type, { title, prompt, init, view, act, set, auto })` 註冊；「輸入 → 一串步驟畫面」型的實驗可直接用 `CSLab.frameLab(type, { title, inputs, frames })`。純計算函式掛在 `CSLab.sim` 方便測試。
-4. 頁面依序載入 `content.js`、`course.js`、`../shared/cslab-ui.js`、實驗檔、`../shared/cslab-challenge.js` 與 `challenges.js`（有互動挑戰時）、`../shared/cslab-app.js`，要楓之谷外觀再加 `../shared/cslab-skin.js` 與 `../shared/cslab-game.js`（以及 `<head>` 的 `skin-maple.css` 與一行外觀程式，照 `os/index.html` 複製）。
+4. 頁面依序載入 `content.js`、`course.js`、`../shared/cslab-ui.js`、實驗檔、`../shared/cslab-challenge.js` 與 `challenges.js`（有互動挑戰時）、`../shared/cslab-code.js` 與 `code.js`（有程式實作時；`course.js` 可用 `codeLang` 指定預設語言）、`../shared/cslab-app.js`，要楓之谷外觀再加 `../shared/cslab-skin.js` 與 `../shared/cslab-game.js`（以及 `<head>` 的 `skin-maple.css` 與一行外觀程式，照 `os/index.html` 複製）。
 
 ## 本機預覽與測試
 
@@ -118,7 +124,9 @@ TEST_URL=http://localhost:8000/os-lab/os/ node os-lab/tests/os-review.cjs   # �
 node os-lab/tests/skin-review.cjs
 node os-lab/tests/game-review.cjs
 node os-lab/tests/challenge-review.cjs   # TEST_ROOT=http://localhost:8001/ 可測只開 os-lab（沒有素材）的情況
-bash os-lab/challenge-poc/tools/vendor.sh && node os-lab/tests/coding-poc.cjs   # Coding Challenge 原型（自己啟動伺服器）
+bash os-lab/shared/code/tools/vendor.sh                 # 程式實作要用的執行環境（約 114 MB，不進 git）
+node os-lab/tests/coding-poc.cjs                         # Coding Challenge 原型（自己啟動伺服器）
+node os-lab/tests/code-review.cjs dsa                    # 程式實作頁籤（QUICK=1 只跑 Python 參考解）
 ```
 
 可用 `CHROMIUM_PATH` 指定瀏覽器、`TEST_URL` 指定網址、`SHOT_DIR` 輸出截圖（OS）。

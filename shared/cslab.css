@@ -432,6 +432,58 @@ dialog::backdrop { background: rgb(8 12 24 / .5); backdrop-filter: blur(2px); }
   .seg button { padding: 6px 9px; font-size: 13px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+/* ---------- 程式實作（shared/cslab-code.js 與 challenge-poc 共用的編輯器）---------- */
+/* 編輯器：textarea 疊在語法上色的 pre 上，字型與行高必須完全一樣 */
+.ed { --ed-font: 13.5px/1.6 var(--mono); position: relative; display: flex; height: min(56vh, 480px); min-height: 240px; border: 1px solid var(--line-strong); border-radius: 10px; overflow: hidden; background: #0f172a; color: #e2e8f0; }
+.ed-gutter { flex: none; width: 3.2em; overflow: hidden; padding: 10px 0; background: #0b1222; color: #64748b; text-align: right; font: var(--ed-font); user-select: none; }
+.ed-lines { white-space: pre; padding-right: 8px; }
+.ed-main { position: relative; flex: 1; min-width: 0; overflow: hidden; }
+.ed-hl, .ed-input { margin: 0; padding: 10px 12px; font: var(--ed-font); tab-size: 4; white-space: pre; letter-spacing: normal; word-spacing: normal; }
+.ed-hl { position: absolute; inset: 0 auto auto 0; pointer-events: none; min-width: 100%; }
+.ed-hl code { font: inherit; background: none; padding: 0; color: inherit; }
+.ed .ed-input { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; resize: none; border: 0; border-radius: 0; outline: none; box-shadow: none; background: transparent; color: transparent; caret-color: #f8fafc; overflow: auto; }
+.ed .ed-input::selection { background: rgb(148 163 184 / .35); color: transparent; }
+.ed:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); }
+.tk-kw { color: #c792ea; } .tk-str { color: #c3e88d; } .tk-com { color: #7f8ea3; font-style: italic; } .tk-num { color: #f78c6c; } .tk-pre { color: #89ddff; }
+.code-label { white-space: nowrap; }
+.code-picks { margin: 4px 0 10px; }
+.code-title { margin: 6px 0 4px; font-size: 19px; }
+.code-task { margin: 6px 0; }
+.code-io { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+.code-io h4 { margin: 8px 0 2px; font-size: 14px; }
+.code-io p { margin: 0; font-size: 14.5px; }
+.code-sample, .code-iox { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-top: 10px; }
+.code-sample b, .code-iox b { font-size: 13px; }
+:is(.code-sample, .code-iox, .code-case) pre { margin: 4px 0 0; padding: 8px 10px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; font-family: var(--mono); font-size: 13px; white-space: pre-wrap; word-break: break-all; max-height: 220px; overflow: auto; }
+.code-bar { gap: 10px; margin-bottom: 10px; }
+.code-actions { gap: 8px; margin: 10px 0; align-items: center; }
+.code-stdin summary { cursor: pointer; font-size: 14px; color: var(--text-2); }
+.code-stdin textarea { width: 100%; margin-top: 6px; font-family: var(--mono); font-size: 13px; min-height: 80px; }
+.code-result:empty { display: none; }
+.code-verdict b:first-child { font-size: 17px; }
+.code-out { margin-top: 12px; }
+.code-out .seg button.has::after { content: " •"; color: var(--rose); }
+.code-pre { margin: 6px 0 0; min-height: 64px; max-height: 280px; overflow: auto; padding: 10px 12px; background: #0f172a; color: #e2e8f0; border-radius: 10px; font-family: var(--mono); font-size: 13px; white-space: pre-wrap; word-break: break-word; }
+.code-cases { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 6px; }
+.code-cases:empty { display: none; }
+.code-case { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.code-case[data-verdict="AC"] { border-color: color-mix(in srgb, var(--green) 40%, var(--line)); }
+.code-case[data-verdict]:not([data-verdict="AC"]) { border-color: color-mix(in srgb, var(--rose) 40%, var(--line)); }
+.code-case[data-state="running"] { border-style: dashed; }
+.code-case-name { font-weight: 650; min-width: 9em; }
+.code-case > p, .code-case > details { flex-basis: 100%; margin: 2px 0 0; }
+.code-case summary { cursor: pointer; font-size: 13px; color: var(--text-2); }
+.code-hints { margin-top: 12px; }
+.code-hints p { margin: 6px 0; padding: 8px 12px; border-radius: 10px; background: var(--amber-soft); }
+.code-explain { margin-top: 12px; padding: 10px 14px; border-radius: 10px; background: var(--green-soft); border: 1px solid color-mix(in srgb, var(--green) 35%, transparent); }
+.code-explain h4 { margin: 0 0 4px; }
+@media (max-width: 640px) {
+  .ed { height: 50vh; }
+  .code-io { grid-template-columns: minmax(0, 1fr); }
+  .code-actions .btn { flex: 1 1 calc(50% - 8px); }
+  .code-case-name { min-width: 0; }
+}
+
 @media print {
   .side, .topbar, .tabs, .pager, .scrolltop, .cta, .row .btn, .lab-tools { display: none !important; }
   .main { margin: 0; }

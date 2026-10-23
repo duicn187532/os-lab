@@ -2,7 +2,7 @@
 // Wrong Answer / Compile Error / Runtime Error / Time Limit Exceeded、無窮迴圈可終止且頁面不凍結、停止按鈕、
 // 沙箱逃逸與未授權網路（JavaScript、Python、C）、輸出與原始碼上限、程式碼儲存與還原、不動 CS LAB 的資料、手機寬度。
 // 這個測試自己啟動 tests/poc-server.cjs（模仿 GitHub Pages 的標頭），另外開一個「誘餌」伺服器記錄有沒有被連到。
-// 先執行 challenge-poc/tools/vendor.sh 下載執行環境。
+// 先執行 shared/code/tools/vendor.sh 下載執行環境。
 //   node os-lab/tests/coding-poc.cjs
 // 環境變數：CHROMIUM_PATH 指定瀏覽器、POC_PORT（預設 8010）、CANARY_PORT（預設 8011）。
 const { chromium } = require('playwright');
@@ -13,7 +13,7 @@ const path = require('node:path');
 const fs = require('node:fs');
 
 const PORT = +(process.env.POC_PORT || 8010), CANARY_PORT = +(process.env.CANARY_PORT || 8011);
-const WEB = path.resolve(__dirname, '..', '..'), POC = path.join(__dirname, '..', 'challenge-poc');
+const WEB = path.resolve(__dirname, '..', '..'), POC = path.join(__dirname, '..', 'challenge-poc'), CODE = path.join(__dirname, '..', 'shared', 'code');
 const URL_ = `http://localhost:${PORT}/os-lab/challenge-poc/`, CANARY = `http://localhost:${CANARY_PORT}`;
 
 const SOL = {
@@ -46,7 +46,7 @@ const LANGS = ['c', 'cpp', 'python', 'javascript'];
   const canaryHits = [];
   const canary = http.createServer((req, res) => { canaryHits.push(req.url); res.writeHead(200, { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'text/javascript' }).end('/* canary */'); }).listen(CANARY_PORT);
   await new Promise(r => setTimeout(r, 500));
-  assert(fs.existsSync(path.join(POC, 'vendor')), '先執行 challenge-poc/tools/vendor.sh');
+  assert(fs.existsSync(path.join(CODE, 'vendor')), '先執行 shared/code/tools/vendor.sh');
 
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined, args: ['--no-sandbox'] });
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
@@ -74,7 +74,7 @@ const LANGS = ['c', 'cpp', 'python', 'javascript'];
   console.log('1. 延遲載入、沙箱設定、主頁不執行玩家程式');
   ok('page load fetches no runtime', !hits.some(h => /\/vendor\//.test(h.path)), JSON.stringify(hits.map(h => h.path)));
   ok('no sandbox before the first run', await page.locator('iframe').count() === 0);
-  const mainJs = fs.readdirSync(path.join(POC, 'js')).map(f => fs.readFileSync(path.join(POC, 'js', f), 'utf8')).join('\n');
+  const mainJs = [path.join(POC, 'js'), CODE].flatMap(d => fs.readdirSync(d).filter(f => f.endsWith('.js')).map(f => fs.readFileSync(path.join(d, f), 'utf8'))).join('\n');
   ok('main page code has no eval / new Function', !/\beval\s*\(|new\s+Function\s*\(|\bFunction\s*\(/.test(mainJs));
 
   console.log('2. 三題 × 四種語言：正確解都是 Accepted');
@@ -91,7 +91,7 @@ const LANGS = ['c', 'cpp', 'python', 'javascript'];
   ok('iframes are sandbox="allow-scripts" only, opaque origin', frames.every(f => f.sandbox === 'allow-scripts' && f.doc === 'null'), JSON.stringify(frames));
   ok('JavaScript sandbox CSP has no network and no eval', frames.some(f => /connect-src 'none'/.test(f.csp) && !/unsafe-eval/.test(f.csp)));
   ok('no sandbox may open connections (connect-src \'none\')', frames.every(f => /connect-src 'none'/.test(f.csp)), JSON.stringify(frames.map(f => f.csp)));
-  ok('Python / C sandboxes load scripts only from their own vendor folder', frames.filter(f => /wasm-unsafe-eval/.test(f.csp)).length === 2 && frames.filter(f => /wasm-unsafe-eval/.test(f.csp)).every(f => /script-src 'unsafe-inline' blob: http:\/\/localhost:\d+\/os-lab\/challenge-poc\/vendor\/(pyodide|yowasp-clang)-[^ ;]+\/ 'wasm-unsafe-eval'/.test(f.csp)));
+  ok('Python / C sandboxes load scripts only from their own vendor folder', frames.filter(f => /wasm-unsafe-eval/.test(f.csp)).length === 2 && frames.filter(f => /wasm-unsafe-eval/.test(f.csp)).every(f => /script-src 'unsafe-inline' blob: http:\/\/localhost:\d+\/os-lab\/shared\/code\/vendor\/(pyodide|yowasp-clang)-[^ ;]+\/ 'wasm-unsafe-eval'/.test(f.csp)));
   ok('runtime files reach the sandbox through the page cache (fetched by the page, not the sandbox)', hits.filter(h => /llvm\.core\.wasm$/.test(h.path)).length === 1);
 
   console.log('3. Wrong Answer 由輸出判斷');
@@ -196,7 +196,7 @@ t("localStorage", lambda: js.localStorage.getItem("cslab.os"))
 t("indexedDB", lambda: js.indexedDB.open("x"))
 t("xhr canary", lambda: xhr("${CANARY}/py"))
 t("xhr main site", lambda: xhr("http://localhost:${PORT}/os-lab/index.html"))
-t("xhr own vendor", lambda: xhr("http://localhost:${PORT}/os-lab/challenge-poc/vendor/pyodide-314.0.7/package.json"))
+t("xhr own vendor", lambda: xhr("http://localhost:${PORT}/os-lab/shared/code/vendor/pyodide-314.0.7/package.json"))
 t("importScripts", lambda: js.importScripts("${CANARY}/py.js"))
 t("os.system", lambda: __import__("os").system("ls"))
 print("\\n".join(out))`);

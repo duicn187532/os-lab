@@ -1,6 +1,7 @@
 /* Runtime Adapters：把 ExecutionRequest 交給對應語言的沙箱，回傳 ExecutionResult。只回報「發生了什麼」，對錯由 judge.js 判斷。
  *
- *   ExecutionRequest  { language: 'c' | 'cpp' | 'python' | 'javascript', source, stdin, timeoutMs }
+ *   ExecutionRequest  { language: 'c' | 'cpp' | 'python' | 'javascript', source, stdin, timeoutMs, outputBytes? }
+ *   outputBytes：stdout / stderr 各自的上限，預設 64 KB，最多 LIMITS.maxOutputBytes（輸出很多行的題目才放寬）
  *   ExecutionResult   { status: 'accepted' | 'compile_error' | 'runtime_error' | 'time_limit_exceeded' | 'internal_error',
  *                       stdout, stderr, compileOutput, elapsedMs, exitCode?, memoryBytes?, note? }
  *   status 'accepted' 只表示程式正常結束（exit 0），不代表答案正確。
@@ -9,10 +10,10 @@
  * iframe 的 meta CSP 不允許任何連線（connect-src 'none'），只能載入自己 vendor/ 目錄的腳本；執行環境的大檔案由父頁
  * 代抓後交給沙箱（見 runtimes/vendor-fetch.js：不透明來源沒有可重用的 HTTP 快取）。玩家程式只在 iframe 建立的 Worker 裡執行。
  * 逾時：父頁計時，到時請 iframe 終止 Worker；iframe 沒回應就整個移除重建。同一時間只跑一個請求（queue）。 */
-const BASE = new URL('../', import.meta.url);
+const BASE = new URL('./', import.meta.url); // shared/code/
 export const VENDOR = new URL('vendor/', BASE).href;
 
-export const LIMITS = { sourceBytes: 64 * 1024, stdinBytes: 4 << 20, outputBytes: 64 * 1024 };
+export const LIMITS = { sourceBytes: 64 * 1024, stdinBytes: 8 << 20, outputBytes: 64 * 1024, maxOutputBytes: 4 << 20 };
 // 第一次使用要下載與初始化執行環境，這段時間不算在測資的時限裡，但也有上限
 const PREPARE_MS = { js: 15000, py: 120000, cc: 300000 };
 
@@ -143,7 +144,7 @@ export function stop() { active?.pending?.cancel?.(); }
 export function isReady(language) { return !!sandboxes[LANGS[language]?.runtime]?.ready; }
 export function reset(language) { const k = LANGS[language]?.runtime; sandboxes[k]?.destroy(); delete sandboxes[k]; }
 
-const clip = (s, n = LIMITS.outputBytes) => { s = String(s ?? ''); return s.length > n ? s.slice(0, n) + '\n…（已截斷）' : s; };
+const clip = (s, n) => { s = String(s ?? ''); return s.length > n ? s.slice(0, n) + '\n…（已截斷）' : s; };
 const result = (status, extra = {}) => ({ status, stdout: '', stderr: '', compileOutput: '', elapsedMs: 0, ...extra });
 
 async function executeNow(req) {
@@ -151,23 +152,24 @@ async function executeNow(req) {
   if (!lang) return result('internal_error', { note: `不支援的語言：${req.language}` });
   const bytes = new TextEncoder().encode(req.source || '').length;
   if (bytes > LIMITS.sourceBytes) return result('internal_error', { note: `原始碼 ${bytes} bytes，超過上限 ${LIMITS.sourceBytes} bytes` });
-  if ((req.stdin || '').length > LIMITS.stdinBytes) return result('internal_error', { note: 'stdin 超過上限' });
+  if ((req.stdin || '').length > LIMITS.stdinBytes) return result('internal_error', { note: `stdin 超過上限（${LIMITS.stdinBytes >> 20} MB）` });
+  const outCap = Math.min(Math.max(req.outputBytes || LIMITS.outputBytes, 1024), LIMITS.maxOutputBytes);
   const sb = sandbox(lang.runtime);
   active = sb;
   let r;
-  try { r = await sb.exec({ language: req.language, source: req.source, stdin: req.stdin || '', timeoutMs: req.timeoutMs || 2000, outputCap: LIMITS.outputBytes }); }
+  try { r = await sb.exec({ language: req.language, source: req.source, stdin: req.stdin || '', timeoutMs: req.timeoutMs || 2000, outputCap: outCap }); }
   catch (e) { reset(req.language); return result('internal_error', { note: String(e.message || e) }); }
   finally { active = null; }
   if (r.expired) return result(r.expired, { elapsedMs: r.expired === 'time_limit_exceeded' ? req.timeoutMs : 0, note: r.expired === 'time_limit_exceeded' ? `超過時限 ${req.timeoutMs} ms，已終止執行並重建執行環境` : r.note });
-  return normalize(lang.runtime, r.raw, req);
+  return normalize(lang.runtime, r.raw, req, outCap);
 }
 
 // 各執行環境的原始回報 → ExecutionResult
-function normalize(kind, raw, req) {
-  const base = { stdout: clip(raw.stdout), stderr: clip(raw.stderr), compileOutput: clip(raw.compileOutput || ''), elapsedMs: Math.round((raw.elapsedMs || 0) * 10) / 10, memoryBytes: raw.memoryBytes, compileMs: raw.compileMs, initMs: raw.initMs };
+function normalize(kind, raw, req, outCap) {
+  const base = { stdout: clip(raw.stdout, outCap), stderr: clip(raw.stderr, outCap), compileOutput: clip(raw.compileOutput || '', LIMITS.outputBytes), elapsedMs: Math.round((raw.elapsedMs || 0) * 10) / 10, memoryBytes: raw.memoryBytes, compileMs: raw.compileMs, initMs: raw.initMs };
   if (raw.internal) return result('internal_error', { ...base, note: raw.internal });
   const tle = base.elapsedMs > req.timeoutMs;
-  const outLimit = `輸出超過 ${LIMITS.outputBytes / 1024} KB 上限，已停止執行`;
+  const outLimit = `輸出超過 ${Math.round(outCap / 1024)} KB 上限，已停止執行`;
   if (kind === 'cc') {
     if (raw.compileError) return result('compile_error', base);
     if (tle) return result('time_limit_exceeded', base);

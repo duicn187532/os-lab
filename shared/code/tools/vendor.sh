@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# 下載執行環境到 challenge-poc/vendor/（不進 git）。版本要和 js/runtime.js 的 VENDOR 一致。
+# 下載執行環境到 shared/code/vendor/（不進 git）。版本要和 runtime.js 的 vendorDir 與 Worker 一致。
 # npm pack 會依 registry 的 integrity 驗證套件；這裡只取出執行需要的檔案。
 set -euo pipefail
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/.."   # shared/code/
 PYODIDE=314.0.7
 CLANG=22.0.0-git20542-10
 tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT

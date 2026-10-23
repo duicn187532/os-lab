@@ -43,23 +43,11 @@ body { background: var(--bg); }
 .poc-io { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .poc-foot { max-width: 1360px; margin: 0 auto; padding: 0 20px 32px; color: var(--muted); font-size: 13px; line-height: 1.8; position: relative; z-index: 1; }
 
-/* ---------- 編輯器：textarea 疊在語法上色的 pre 上，字型與行高必須完全一樣 ---------- */
-.ed { --ed-font: 13.5px/1.6 var(--mono); position: relative; display: flex; height: min(56vh, 480px); min-height: 240px; border: 1px solid var(--line-strong); border-radius: 10px; overflow: hidden; background: #0f172a; color: #e2e8f0; }
-.ed-gutter { flex: none; width: 3.2em; overflow: hidden; padding: 10px 0; background: #0b1222; color: #64748b; text-align: right; font: var(--ed-font); user-select: none; }
-.ed-lines { white-space: pre; padding-right: 8px; }
-.ed-main { position: relative; flex: 1; min-width: 0; overflow: hidden; }
-.ed-hl, .ed-input { margin: 0; padding: 10px 12px; font: var(--ed-font); tab-size: 4; white-space: pre; letter-spacing: normal; word-spacing: normal; }
-.ed-hl { position: absolute; inset: 0 auto auto 0; pointer-events: none; min-width: 100%; }
-.ed-hl code { font: inherit; }
-.ed .ed-input { position: absolute; inset: 0; width: 100%; height: 100%; resize: none; border: 0; border-radius: 0; outline: none; box-shadow: none; background: transparent; color: transparent; caret-color: #f8fafc; overflow: auto; }
-.ed .ed-input::selection { background: rgb(148 163 184 / .35); color: transparent; }
-.ed:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); }
-.tk-kw { color: #c792ea; } .tk-str { color: #c3e88d; } .tk-com { color: #7f8ea3; font-style: italic; } .tk-num { color: #f78c6c; } .tk-pre { color: #89ddff; }
+/* 編輯器（.ed、.tk-*）的樣式在 shared/cslab.css */
 
 @media (max-width: 900px) {
   .poc { grid-template-columns: minmax(0, 1fr); padding: 12px 16px; gap: 14px; }
   .poc-io { grid-template-columns: minmax(0, 1fr); }
-  .ed { height: 50vh; }
 }
 @media (max-width: 520px) {
   .poc-top { padding: 10px 16px; flex-wrap: wrap; }
@@ -79,8 +67,6 @@ body { background: var(--bg); }
 :root[data-skin="maple"] .poc-item[aria-current="true"] { background: #fff4c8; border-color: #f07a00; }
 :root[data-skin="maple"] .poc-case { border-radius: 2px; }
 :root[data-skin="maple"] :is(.poc-sample pre, .poc-io pre, .poc-case pre) { border-radius: 0; background: #f6f6ee; }
-:root[data-skin="maple"] .ed, :root[data-skin="maple"] .poc-pre { border-radius: 0; border: 1px solid #1d3550; }
-:root[data-skin="maple"] .ed .ed-input { background: transparent; border: 0; box-shadow: none; color: transparent; }
-:root[data-skin="maple"] .ed .ed-input:focus { outline: none; }
+:root[data-skin="maple"] .poc-pre { border-radius: 0; border: 1px solid #1d3550; }
 :root[data-skin="maple"] .poc-foot { color: #ffffff; text-shadow: var(--outline); }
 :root[data-skin="maple"] .poc-foot a { color: #ffe39a; }

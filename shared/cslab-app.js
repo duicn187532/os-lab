@@ -35,14 +35,14 @@
 </div>
 <button type="button" class="scrolltop" id="scrollTop" aria-label="回到頂部">↑</button>
 <dialog class="palette" id="palette" aria-label="搜尋"><form method="dialog" class="palette-box"><input id="paletteInput" type="search" placeholder="搜尋章節、術語、實驗…" aria-label="搜尋" aria-controls="paletteList" autocomplete="off"><ul id="paletteList" role="listbox"></ul><p class="palette-foot"><kbd>↑</kbd><kbd>↓</kbd> 選擇　<kbd>Enter</kbd> 前往　<kbd>Esc</kbd> 關閉</p></form></dialog>
-<dialog class="help" id="help" aria-labelledby="helpTitle"><form method="dialog"><h2 id="helpTitle">鍵盤快捷鍵</h2><dl class="keys"><dt><kbd>/</kbd> 或 <kbd>Ctrl</kbd>+<kbd>K</kbd></dt><dd>搜尋章節、術語與實驗</dd><dt><kbd>[</kbd> <kbd>]</kbd></dt><dd>上一章 / 下一章</dd><dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>在「觀念 / 實驗 / 測驗」頁籤間切換（焦點在頁籤上時）</dd><dt><kbd>A</kbd>–<kbd>D</kbd></dt><dd>測驗作答</dd><dt><kbd>Enter</kbd></dt><dd>測驗下一題</dd><dt><kbd>?</kbd></dt><dd>開啟這個說明</dd></dl><p class="muted small">學習進度、筆記與錯題本存在這個瀏覽器的 localStorage，不會上傳。可在「我的筆記」頁面備份與還原。</p><div class="row"><button class="btn primary" value="close">知道了</button></div></form></dialog>`);
+<dialog class="help" id="help" aria-labelledby="helpTitle"><form method="dialog"><h2 id="helpTitle">鍵盤快捷鍵</h2><dl class="keys"><dt><kbd>/</kbd> 或 <kbd>Ctrl</kbd>+<kbd>K</kbd></dt><dd>搜尋章節、術語與實驗</dd><dt><kbd>[</kbd> <kbd>]</kbd></dt><dd>上一章 / 下一章</dd><dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>在「觀念 / 實驗 / 測驗 / 實作」頁籤間切換（焦點在頁籤上時）</dd><dt><kbd>A</kbd>–<kbd>D</kbd></dt><dd>測驗作答</dd><dt><kbd>Enter</kbd></dt><dd>測驗下一題</dd><dt><kbd>?</kbd></dt><dd>開啟這個說明</dd></dl><p class="muted small">學習進度、筆記與錯題本存在這個瀏覽器的 localStorage，不會上傳。可在「我的筆記」頁面備份與還原。</p><div class="row"><button class="btn primary" value="close">知道了</button></div></form></dialog>`);
     document.querySelector('noscript')?.remove();
   }
   mount();
 
   /* ───────────── 本機儲存（各課沿用舊鍵值，舊進度與筆記不會遺失） ───────────── */
   const KEY = C.storageKey;
-  const blank = () => ({ done: {}, notes: {}, last: lessons[0].id, learn: {}, lab: {}, wrong: {}, guess: {}, challenge: {}, theme: null });
+  const blank = () => ({ done: {}, notes: {}, last: lessons[0].id, learn: {}, lab: {}, wrong: {}, guess: {}, challenge: {}, code: {}, theme: null });
   function load() { try { const s = Object.assign(blank(), JSON.parse(localStorage.getItem(KEY)) || {}); if (s.theme !== 'light' && s.theme !== 'dark') s.theme = null; return s; } catch (_) { return blank(); } }
   const store = load();
   let saveTimer = null;
@@ -96,11 +96,14 @@
   /* ───────────── 狀態與路由 ───────────── */
   const state = { page: 'home', lesson: lessons[0].id, tab: 'learn', lab: null, labFor: null, history: [], quiz: null, reviewQuiz: null, palette: null };
   const TABS = [['learn', '① 觀念'], ['lab', '② 實驗'], ['quiz', '③ 測驗']];
+  // 有程式實作題的章節多一個「④ 實作」頁籤（shared/cslab-code.js）
+  const codeFor = id => Labs.code ? Labs.code.forLesson(id) : [];
+  const tabsFor = id => codeFor(id).length ? [...TABS, ['code', '④ 實作']] : TABS;
   const PAGES = ['glossary', 'formulas', 'review', 'notes', 'labs'];
 
   function parseHash() {
     const p = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
-    if (p[0] === 'ch' && byId[+p[1]] !== undefined) return { page: 'lesson', lesson: +p[1], tab: TABS.some(t => t[0] === p[2]) ? p[2] : 'learn' };
+    if (p[0] === 'ch' && byId[+p[1]] !== undefined) return { page: 'lesson', lesson: +p[1], tab: tabsFor(+p[1]).some(t => t[0] === p[2]) ? p[2] : 'learn' };
     if (PAGES.includes(p[0])) return { page: p[0] };
     return { page: 'home' };
   }
@@ -117,6 +120,7 @@
   window.addEventListener('hashchange', onHash);
   function applyRoute(r, opts = {}) {
     stopPlayback(); lastHash = location.hash;
+    if (Labs.code && Labs.code.busy) Labs.code.stop(); // 離開實作頁就停止正在跑的程式
     const sameLesson = r.page === 'lesson' && state.page === 'lesson' && state.lesson === r.lesson;
     state.page = r.page;
     if (r.page === 'lesson') {
@@ -155,7 +159,7 @@
     $('progressBar').parentElement.setAttribute('aria-valuenow', pct);
     const w = wrongKeys().length, badge = $('wrongBadge'); badge.textContent = w; badge.hidden = !w;
   }
-  const chapterStatus = l => ({ learn: !!store.learn[l.id], lab: !!store.lab[l.id], quiz: !!store.done[l.id] });
+  const chapterStatus = l => ({ learn: !!store.learn[l.id], lab: !!store.lab[l.id], quiz: !!store.done[l.id], code: codeFor(l.id).length > 0 && codeFor(l.id).every(p => store.code[p.id] && store.code[p.id].solved) });
   // 任務狀態：done 測驗完成、doing 讀過觀念或做過實驗、todo 尚未開始
   const questState = l => store.done[l.id] ? 'done' : store.learn[l.id] || store.lab[l.id] ? 'doing' : 'todo';
   const dots = l => { const s = chapterStatus(l); return `<span class="dots" aria-label="觀念${s.learn ? '已讀' : '未讀'}、實驗${s.lab ? '已做' : '未做'}、測驗${s.quiz ? '完成' : '未完成'}"><i class="${s.learn ? 'on' : ''}"></i><i class="${s.lab ? 'on' : ''}"></i><i class="${s.quiz ? 'on' : ''}"></i></span>`; };
@@ -174,7 +178,7 @@
     const done = countDone(), last = byId[store.last] ? store.last : lessons[0].id, started = done > 0 || Object.keys(store.learn).length > 0;
     const next = lessons.find(l => !store.done[l.id]) || lessons[0];
     const totalQ = lessons.reduce((a, l) => a + l.quiz.length, 0), w = wrongKeys().length;
-    const labCount = new Set(lessons.map(l => l.lab)).size;
+    const labCount = new Set(lessons.map(l => l.lab)).size, codeCount = lessons.reduce((a, l) => a + codeFor(l.id).length, 0);
     const lead = (C.heroLead || '').replace('{labs}', labCount).replace('{chapters}', lessons.length);
     const tools = [['#/review', '錯題複習', w ? `${w} 題待複習` : '目前沒有錯題'], formulas.length && ['#/formulas', '公式速查', `${formulas.reduce((a, g) => a + g.items.length, 0)} 個公式`], glossaryList.length && ['#/glossary', '術語表', `${glossaryList.length} 個中英對照`], ['#/notes', '我的筆記', '匯出 Markdown'], ['#/labs', '實驗總覽', `${labCount} 個互動實驗`]].filter(Boolean).slice(0, 4);
     $('content').innerHTML = `
@@ -183,7 +187,7 @@
       <h1>${C.heroTitle}</h1>
       <p class="lead">${h(lead)}</p>
       <div class="row">${started ? `<a class="btn primary" href="#/ch/${last}/learn">繼續：${h(byId[last].title)} →</a><a class="btn secondary" href="#/ch/${next.id}/learn">下一個未完成章節</a>` : `<a class="btn primary" href="#/ch/${lessons[0].id}/learn">從第 1 章開始 →</a><a class="btn secondary" href="#/labs">先逛逛互動實驗</a>`}</div>
-      <div class="hero-stats"><div><b>${lessons.length}</b><span>章節</span></div><div><b>${totalQ}</b><span>測驗題</span></div><div><b>${labCount}</b><span>互動實驗</span></div>${glossaryList.length ? `<div><b>${glossaryList.length}</b><span>術語</span></div>` : ''}</div>
+      <div class="hero-stats"><div><b>${lessons.length}</b><span>章節</span></div><div><b>${totalQ}</b><span>測驗題</span></div><div><b>${labCount}</b><span>互動實驗</span></div>${codeCount ? `<div><b>${codeCount}</b><span>程式實作</span></div>` : ''}${glossaryList.length ? `<div><b>${glossaryList.length}</b><span>術語</span></div>` : ''}</div>
     </section>
     <div class="home-grid">
       <section class="card progress-card"><h2>你的進度</h2><div class="ring" style="--p:${done / lessons.length}"><b>${Math.round(done / lessons.length * 100)}%</b></div><p>${done} / ${lessons.length} 章完成測驗</p><p class="muted">每章三個圓點依序代表：觀念已讀、實驗做過、測驗完成。</p></section>
@@ -211,15 +215,15 @@
       <div class="lh-meta"><span class="cc-num">CHAPTER ${pad(p + 1)} · ${h(l.unit)}</span>${dots(l)}</div>
       <h1>${h(l.title)}</h1>
       ${l.short ? `<p class="lead">${h(l.short)}</p>` : ''}
-      <div class="chips">${l.minutes ? `<span>⏱ 約 ${l.minutes} 分鐘</span>` : ''}<span>🧪 ${h(labName(l))}</span><span>✎ ${l.quiz.length} 題測驗</span></div>
+      <div class="chips">${l.minutes ? `<span>⏱ 約 ${l.minutes} 分鐘</span>` : ''}<span>🧪 ${h(labName(l))}</span><span>✎ ${l.quiz.length} 題測驗</span>${codeFor(l.id).length ? `<span>⌨ ${codeFor(l.id).length} 題程式實作</span>` : ''}</div>
     </header>
-    <nav class="tabs" role="tablist" aria-label="本章學習階段">${TABS.map(([k, t]) => `<a role="tab" id="tab-${k}" href="#/ch/${l.id}/${k}" aria-selected="${state.tab === k}" aria-controls="stage" tabindex="${state.tab === k ? 0 : -1}" class="${chapterStatus(l)[k] ? 'complete' : ''}">${t}</a>`).join('')}</nav>
+    <nav class="tabs" role="tablist" aria-label="本章學習階段">${tabsFor(l.id).map(([k, t]) => `<a role="tab" id="tab-${k}" href="#/ch/${l.id}/${k}" aria-selected="${state.tab === k}" aria-controls="stage" tabindex="${state.tab === k ? 0 : -1}" class="${chapterStatus(l)[k] ? 'complete' : ''}">${t}</a>`).join('')}</nav>
     <div id="stage" role="tabpanel" aria-labelledby="tab-${state.tab}"></div>
     <div id="challengeSlot" class="challenge-slot" hidden></div>
     <nav class="pager" aria-label="章節切換">${prev ? `<a class="pager-link" href="#/ch/${prev.id}/learn"><small>← 上一章</small><b>${h(prev.title)}</b></a>` : '<span></span>'}${next ? `<a class="pager-link next" href="#/ch/${next.id}/learn"><small>下一章 →</small><b>${h(next.title)}</b></a>` : `<a class="pager-link next" href="#/review"><small>全部讀完了 →</small><b>前往錯題複習</b></a>`}</nav>`;
-    ({ learn: renderLearn, lab: renderLab, quiz: renderQuiz })[state.tab](l);
-    // 頁尾的互動挑戰（shared/cslab-challenge.js）：觀念與實驗頁籤顯示，測驗頁籤專心作答
-    if (Labs.challenge && state.tab !== 'quiz') Labs.challenge.mount($('challengeSlot'), l.id, { store, save: () => save(true) });
+    ({ learn: renderLearn, lab: renderLab, quiz: renderQuiz, code: renderCode })[state.tab](l);
+    // 頁尾的互動挑戰（shared/cslab-challenge.js）：觀念與實驗頁籤顯示，測驗與實作頁籤專心作答
+    if (Labs.challenge && (state.tab === 'learn' || state.tab === 'lab')) Labs.challenge.mount($('challengeSlot'), l.id, { store, save: () => save(true) });
   }
 
   function renderLearn(l) {
@@ -251,6 +255,17 @@
     readObserver.observe($('readEnd'));
   }
   function markLearn(id) { if (store.learn[id]) return; store.learn[id] = Date.now(); save(); renderSidebar(); document.querySelector('#tab-learn')?.classList.add('complete'); emit('progress', { lesson: id, kind: 'learn' }); }
+
+  /* ───────────── 程式實作（shared/cslab-code.js） ───────────── */
+  function renderCode(l) {
+    Labs.code.mount($('stage'), l.id, { store, save: () => save(true), course: C.id, lang: C.codeLang });
+  }
+  document.addEventListener('cslab:code', e => {
+    if (e.detail.event !== 'judged' || !e.detail.fresh) return;
+    renderSidebar();
+    if (state.page === 'lesson' && chapterStatus(byId[state.lesson]).code) document.querySelector('#tab-code')?.classList.add('complete');
+    emit('progress', { lesson: e.detail.lesson, kind: 'code', id: e.detail.id });
+  });
 
   /* ───────────── 互動實驗 ───────────── */
   const labDef = () => Labs.registry[byId[state.lesson].lab];
@@ -390,6 +405,7 @@
     const flat = v => Array.isArray(v) ? v.flat(2).join(' ') : (v || '');
     lessons.forEach(l => items.push({ kind: '章節', title: `${pos(l.id) + 1}. ${l.title}`, sub: l.short || '', href: `#/ch/${l.id}/learn`, text: [l.title, l.short, l.ask, l.analogy, l.why, flat(l.details), flat(l.steps), l.worked, l.caveat, flat(l.goals), flat(l.summary)].join(' ') }));
     lessons.forEach(l => { if (Labs.registry[l.lab]) items.push({ kind: '實驗', title: labName(l), sub: `第 ${pos(l.id) + 1} 章`, href: `#/ch/${l.id}/lab`, text: labName(l) + ' ' + Labs.registry[l.lab].prompt }); });
+    lessons.forEach(l => codeFor(l.id).forEach(p => items.push({ kind: '實作', title: p.title, sub: `第 ${pos(l.id) + 1} 章 · 程式實作`, href: `#/ch/${l.id}/code`, text: `${p.title} ${p.statement} ${(p.tags || []).join(' ')}` })));
     glossaryList.forEach(g => items.push({ kind: '術語', title: `${g.zh}　${g.en}`, sub: g.def, href: '#/glossary', term: g.id, text: `${g.zh} ${g.en} ${g.def}` }));
     [formulas.length && ['公式速查', '#/formulas'], glossaryList.length && ['術語表', '#/glossary'], ['錯題複習', '#/review'], ['我的筆記', '#/notes'], ['實驗總覽', '#/labs'], ['課程地圖', '#/']].filter(Boolean).forEach(([t, href]) => items.push({ kind: '頁面', title: t, sub: '', href, text: t }));
     return items;
@@ -505,7 +521,7 @@
     if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && !typing)) { e.preventDefault(); openPalette(); return; }
     if (e.key === 'Escape' && $('side').classList.contains('open')) { setMenu(false); $('menu').focus(); return; }
     if (e.target.matches('[role=tab]') && ['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
-      e.preventDefault(); const keys = TABS.map(t => t[0]); let i = keys.indexOf(state.tab);
+      e.preventDefault(); const keys = tabsFor(state.lesson).map(t => t[0]); let i = keys.indexOf(state.tab);
       i = e.key === 'Home' ? 0 : e.key === 'End' ? keys.length - 1 : (i + (e.key === 'ArrowRight' ? 1 : -1) + keys.length) % keys.length;
       navigate(state.lesson, keys[i]); setTimeout(() => $(`tab-${keys[i]}`)?.focus(), 0); return;
     }

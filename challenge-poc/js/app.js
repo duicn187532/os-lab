@@ -1,9 +1,9 @@
 /* Coding Challenge PoC 的畫面：選題 → 選語言 → 寫程式 → 執行（自訂輸入）或提交（全部測資）。
  * 模組分工：registry.js 題目、editor.js 編輯器、runtime.js 執行環境、judge.js 評測、storage.js 儲存；外觀沿用 shared/ 的 CS LAB 樣式與楓之谷外觀。 */
 import { CHALLENGES, byId } from './registry.js';
-import { createEditor } from './editor.js';
-import { LANGS, execute, stop, isReady, setPhaseListener } from './runtime.js';
-import { judge, VERDICT, verdictOf } from './judge.js';
+import { createEditor } from '../../shared/code/editor.js';
+import { LANGS, execute, stop, isReady, setPhaseListener } from '../../shared/code/runtime.js';
+import { judge, VERDICT, verdictOf } from '../../shared/code/judge.js';
 import { storage } from './storage.js';
 
 const $ = id => document.getElementById(id);
