@@ -112,3 +112,7 @@
 - `os/assets/working-set-masterclass.js`：明確區分 Clock victim 與 WS(t,Δ) 的滑動視窗；第 25 章另外呈現完整 10×5 Working Set 狀態表與 10×6 雙行程需求表。工作集大小相對 Δ 單調，但沿 t 不單調。
 - `tests/os-working-set-model.cjs`：用獨立 last-seen oracle 與 350 組新序列，逐 Δ 比對 Working Set 集合、大小及包含關係；不得將 D>F 誤判為已量測 thrashing。
 - `os/linux-labs/pagefault-observe.c`、`tests/os-linux-pagefault.cjs`：Linux `mmap` 首次觸碰與再次存取，直接讀 `getrusage` 的 minor/major faults；minor fault 非磁碟交換、測量受 kernel/thp/environment 影響，不以固定數量當通用斷言。
+
+
+### WAL 受控 Process-Crash 實驗的有效性界線
+`os/linux-labs/wal-recovery-demo.py` 使用 `os._exit()` 故障注入與真實 `os.fsync()`；`tests/os-wal-recovery.cjs` 檢查未提交的 SET 忽略、已完整提交的交易恢復，以及損壞尾端 JSON 行不污染先前 durable 狀態。這是**使用者行程崩潰後的重新讀取**，不是 kernel crash 或拔除電源；沒有 block-device replay、flush-cache 控制、磁碟 torn-write 等保證。真實系統安全性還要納入 checkpoint、txid 去重、資源上限、完整紀錄 checksum 和目錄 fsync。

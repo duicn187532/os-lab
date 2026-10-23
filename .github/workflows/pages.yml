@@ -67,6 +67,8 @@ jobs:
         run: node tests/os-posix-process-io.cjs
       - name: Observe real Linux minor and major page faults
         run: node tests/os-linux-pagefault.cjs
+      - name: Verify actual WAL process-crash recovery and fsync behavior
+        run: node tests/os-wal-recovery.cjs
       - name: Verify L4 integration experiment on Linux
         run: python3 os/linux-labs/l4/selftest.py
       - name: Build and run Linux POSIX labs

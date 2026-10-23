@@ -91,6 +91,7 @@ node os/linux-labs/student-verify.cjs \
 | `cow-demo.c` | 6、24 | mmap/COW、父子位址空間 |
 | `pagefault-observe.c` | 7、24、25 | `getrusage(RUSAGE_SELF)` 實測第一次觸碰匿名分頁的 minor/major faults；**不會觸發交換，也不等於 thrashing** |
 | `durable-replace.c` | 8、26 | write/fsync/rename/dir fsync |
+| `wal-recovery-demo.py` | 8、26 | 真實 append/fsync、`before_commit` 與 `after_fsync` 行程崩潰、完整 COMMIT replay、尾端破損紀錄處理；**不是斷電試驗** |
 | `l4/` | 12、13、28 | HTTP 真實服務的受控鎖競爭、延遲分布與因果診斷 |
 
 ```bash
@@ -109,6 +110,7 @@ node tests/os-ofd-inode.cjs
 node tests/os-ofd-model.cjs
 node tests/os-pthread-queue.cjs
 node tests/os-linux-pagefault.cjs
+node tests/os-wal-recovery.cjs
 # Linux epoll: LT 保留未讀資料就緒；ET 不再發新邊緣，需 drain 至 EAGAIN
 python3 os/linux-labs/l4/selftest.py
 ```

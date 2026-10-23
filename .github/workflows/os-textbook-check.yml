@@ -17,6 +17,7 @@ on:
       - 'tests/os-static-syntax.cjs'
       - 'tests/os-working-set-model.cjs'
       - 'tests/os-linux-pagefault.cjs'
+      - 'tests/os-wal-recovery.cjs'
       - 'tests/os-capstone-student.cjs'
       - 'tests/os-capstone-native-ac.cjs'
       - 'tests/os-all-python-ac.cjs'
@@ -100,6 +101,8 @@ jobs:
           cc -std=c11 -Wall -Wextra -Werror os/linux-labs/durable-replace.c -o /tmp/os-lab-bins/durable-replace
       - name: Verify real Linux anonymous memory faults
         run: node tests/os-linux-pagefault.cjs
+      - name: Verify process-crash WAL replay with actual fsync and torn-log failpoint
+        run: node tests/os-wal-recovery.cjs
       - name: Run eight actual Linux bounded pthread producer consumer stress trials
         run: node tests/os-pthread-queue.cjs
       - name: Verify native Linux hardlinks, dup and fork shared OFD
