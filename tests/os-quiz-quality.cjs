@@ -28,7 +28,14 @@ for(const l of lesson.lessons){
   const q=l.quiz[i],key=l.id+':'+i;
   assert(!seen.has(key));seen.add(key);
   assert(Array.isArray(q)&&q.length===5);
-  assert.equal(q[0],(i<4?reference.quiz[i][0]:q[0]),'Legacy question identity '+key);
+
+  if(i<4 && key!=='24:2')
+   assert.equal(q[0],reference.quiz[i][0],'Legacy question identity '+key);
+  if(key==='24:2'){
+   assert.equal(reference.quiz[i][0],'COW 的優勢？');
+   assert(q[0].includes('Copy-on-Write')&&q[0].length>30,'COW stem must clarify the mechanism');
+  }
+
   assert(typeof q[0]==='string'&&q[0].length>8,'Nonempty prompt '+key);
   assert(Array.isArray(q[1])&&q[1].length>=2&&q[1].length<=4);
   assert(Number.isInteger(q[2])&&q[2]>=0&&q[2]<q[1].length);

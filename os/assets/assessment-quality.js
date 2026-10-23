@@ -55,5 +55,10 @@ for(const [chapter,notes] of Object.entries(explanations)){
  }
 }
 window.OS_ASSESSMENT_QUALITY.legacyExplanationsRevised=32;
+const cowQuestion=lessons.find(x=>x.id===24)?.quiz[2];
+if(!cowQuestion||cowQuestion[0]!=='COW 的優勢？')throw Error('Unexpected COW quiz stem');
+cowQuestion[0]='在 fork 後的 MAP_PRIVATE 映射中，Copy-on-Write 相較於立即複製所有實體頁的主要優勢是什麼？';
+window.OS_ASSESSMENT_QUALITY.rewrittenStem='24:2';
+
 
 })();
