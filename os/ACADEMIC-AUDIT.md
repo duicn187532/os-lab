@@ -95,3 +95,13 @@
 4. **P2** 課堂能力測驗/人工評量、iOS Safari 實機、360/430px、MathML a11y、課程導航/楓之谷外觀回歸。
 
 **目前不應宣稱：** 29 章全 L2 已經教員驗證、29 個 L3 真實 OS 作業、四語言 37 題全 AC、iOS Safari 通過或 L4 學習成果已 Mastered。
+
+
+## 批次 1B：兩個核心章的實際教材及獨立演算法驗證（新增）
+
+| ID | 交付教材／模型 | 計算例題與驗收 | 成熟度 |
+|---:|---|---|---|
+| 4 Scheduling | `assets/scheduling-masterclass.js` 已插入正式網頁，完整 FCFS/SJF/SRTF/RR (q=2) 的事件模型、每刻 ready/running/remaining、Gantt、CT/TAT/WT/RT、模型限制與反例 | `tests/os-scheduling-model.cjs`：4 組人工正確答案+800 次隨機政策 trace、不變量、可拒絕非搶先誤用 SRTF | L2 深化已實作；待 CI、人工教材審核與含切換成本之延伸完成 |
+| 17 Banker | `assets/banker-masterclass.js` 已插入正式網頁，5 行程 × 3 資源的 Need、Work/Finish、完整安全序列及 4 種 Request（GRANTED/ILLEGAL/WAIT/UNSAFE） | `tests/os-banker-model.cjs`：人工驗證 5 輪安全序列、4 種請求，以及 250 組小規模 exhaustive safety + 250 次 Request/rollback 參照比對 | L2 深化已實作；待 CI、人工教材審核與更大型的 L3 Judge |
+ 
+**注意：** 以上不表示整門課已完整；上述新增測試在 GitHub CI 成功之前不得標示「通過」，依各 commit 的執行紀錄為準。既有 29 題初階 Judge 不會因加入延伸內容而自動變成 L2 演算法題。
