@@ -18,7 +18,8 @@ try{
  }));
  assert.deepEqual(catalog,{chapters:29,quiz:174,advanced:8});
  let formulas=0,mathCards=0,rows=0;
- for(const id of OSApp.lessons.map(l=>l.id)){
+ const chapterIds=await page.evaluate(()=>OSApp.lessons.map(l=>l.id));
+ for(const id of chapterIds){
    await page.evaluate(id=>OSApp.navigate(id,'learn'),id);
    const status=await page.evaluate(()=>{
      const root=document.querySelector('.os-textbook'),math=root?.querySelector('math'),state=root?.querySelector('.os-state-table');
