@@ -54,7 +54,7 @@ for(const [key,s] of Object.entries(specs)){
   12:eq(v('L'),row(v('λ'),o('×'),v('W'))),
   13:eq(v('T_{end-to-end}'),row(v('T_{queue}'),o('+'),v('T_{CPU}'),o('+'),v('T_{I/O}'),o('+'),v('T_{network}'))),
   14:eq(v('P_n'),sup(n(2),v('n'))),
-  15:eq(v('write_durable'),row(v('fsync'),o('('),v('fd'),o(')'))),
+  15:math(row(t('依需求選擇系統機制'),o('→'),t('明確定義前置條件'),o('→'),t('蒐集執行證據'))),
   16:eq(v('empty'),row(v('capacity'),o('−'),v('full'))),
   17:eq(v('Need_{i,j}'),row(v('Max_{i,j}'),o('−'),v('Allocation_{i,j}'))),
   18:eq(v('external_frag'),row(v('free_total'),o('−'),v('largest_hole'))),
@@ -64,8 +64,8 @@ for(const [key,s] of Object.entries(specs)){
   22:eq(v('EOF'),row(v('buffer_empty'),o('∧'),v('writers'),o('='),n(0))),
   23:eq(v('proceed'),row(v('predicate'),o('='),v('true'))),
   24:eq(v('VA'),row(v('indices'),o('∥'),v('offset'))),
-  25:eq(v('W(t,Δ)'),row(o('{'),v('pages in window'),o('}'))),
-  26:eq(v('replay'),row(v('journal_commit'),o('='),v('durable'))),
+  25:math(row(v('W'),o('('),v('t'),o(','),v('Δ'),o(')'),o('='),o('{'),t('在觀察窗口內被引用的不同頁'),o('}'))),
+  26:math(row(t('commit record durable'),o('⇒'),t('recovery 可重做已提交交易'))),
   27:eq(v('remaining'),row(v('buffer_before'),o('−'),v('read_bytes'))),
   28:eq(v('throttle_ratio'),frac(v('throttled_periods'),v('total_periods')))
  })[Number(key)];
