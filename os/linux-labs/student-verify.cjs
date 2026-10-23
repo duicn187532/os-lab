@@ -5,6 +5,7 @@
  *
  * node os/linux-labs/student-verify.cjs --chapter 0 --language javascript --source solution.js
  * node os/linux-labs/student-verify.cjs --chapter 4 --language c --source solution.c
+ * node os/linux-labs/student-verify.cjs --challenge os.capstone.srtf --language python --source srtf.py
  */
 'use strict';
 const fs=require('node:fs');
@@ -17,18 +18,22 @@ const root=path.resolve(__dirname,'../..');
 const tasks=[];
 vm.runInNewContext(fs.readFileSync(path.join(root,'os/assets/advanced-code.js'),'utf8'),
   {CSLab:{code:{add:p=>tasks.push(p)}}},{filename:'advanced-code.js',timeout:3000});
+vm.runInNewContext(fs.readFileSync(path.join(root,'os/assets/algorithm-capstones.js'),'utf8'),
+  {CSLab:{code:{add:p=>tasks.push(p)}}},{filename:'algorithm-capstones.js',timeout:3000});
 const args=process.argv.slice(2);
 const opt={};
 for(let i=0;i<args.length;i+=2){
-  if(!['--chapter','--language','--source','--timeout-ms'].includes(args[i])||!args[i+1])
-    throw Error('Usage: --chapter ID --language c|cpp|python|javascript --source FILE [--timeout-ms N]');
+  if(!['--chapter','--challenge','--language','--source','--timeout-ms'].includes(args[i])||!args[i+1])
+    throw Error('Usage: (--chapter 0..28 | --challenge os.capstone.NAME) --language c|cpp|python|javascript --source FILE [--timeout-ms N]');
   opt[args[i].slice(2)]=args[i+1];
 }
-const id=Number(opt.chapter),lang=opt.language;
-if(!Number.isInteger(id)||id<0||id>28||!['c','cpp','python','javascript'].includes(lang)||!opt.source)
-  throw Error('Expected chapter 0..28, language c|cpp|python|javascript, and source path');
-const task=tasks.find(p=>p.lesson===id);
-assert(task,'Chapter task missing');
+const lang=opt.language,hasChapter=opt.chapter!==undefined,hasChallenge=opt.challenge!==undefined;
+if(hasChapter===hasChallenge||!['c','cpp','python','javascript'].includes(lang)||!opt.source)
+  throw Error('Select exactly one: --chapter ID or --challenge os.capstone.NAME; provide a language and --source FILE');
+const id=hasChapter?Number(opt.chapter):null;
+if(hasChapter&&(!Number.isInteger(id)||id<0||id>28))throw Error('Chapter ID must be an integer from 0 through 28');
+const task=hasChapter?tasks.find(p=>p.id==='os.textbook.'+id):tasks.find(p=>p.id===opt.challenge&&p.id.startsWith('os.capstone.'));
+assert(task,hasChapter?'Chapter task missing':'Unknown capstone challenge');
 const src=path.resolve(opt.source);
 assert(fs.statSync(src).isFile(),'Source path must be a file');
 const timeout=opt['timeout-ms']===undefined?Math.max(1200,(task.timeLimitMs||1200)*3):Number(opt['timeout-ms']);
