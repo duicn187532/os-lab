@@ -2,7 +2,7 @@
 
 🌐 [開啟互動課程](https://duicn187532.github.io/os-lab/)
 
-繁體中文、完全靜態的資工互動教材。根目錄是八門課（ICS、OS、DM、DSA、LA、AI、CO、ASM）的入口網；本儲存庫的主課程 **OS LAB**（`os/`）以「先預測 → 生活類比 → 回到真實機制 → 操作模擬器 → 測驗檢核 → 錯題複習」的節奏學習作業系統。
+繁體中文、完全靜態的資工互動教材。根目錄是九門課（ICS、OS、DM、DSA、LA、AI、CO、ASM、NET）的入口網；本儲存庫的主課程 **OS LAB**（`os/`）以「先預測 → 生活類比 → 回到真實機制 → 操作模擬器 → 測驗檢核 → 錯題複習」的節奏學習作業系統。
 
 ## OS LAB 內容
 
@@ -27,19 +27,19 @@
 - **模擬器**：先預測再操作；支援「上一步」回看、重設，以及可調速的自動播放（切換頁籤或隱藏頁面即暫停）。
 - **測驗與錯題本**：每題兩次機會，第一次只給提示；答錯的題目進入錯題本，可做錯題複習或 8 題跨章節混合練習。
 - **互動挑戰（NPC Q&A）**：章節頁尾的互動自我檢測，依學科設計成操作題而不是文字選擇題：選演算法的下一步、找反例、調參數達成目標…玩家先操作，系統用確定性的規則（或實驗的同一個模擬函式）驗證，之後才看得到解析。多種合法答案都接受、數值有容許誤差；提示依序給，失誤兩次後才能看解答。目前是四個原型：DSA 第 7 章二分搜尋的下一步、OS 第 5 章 SRTF 排程、DM 第 1 章真值表找反例、AI 第 3 章調學習率。設計、API 與 87 章規劃見 [`docs/interactive-challenges.md`](docs/interactive-challenges.md)。
-- **程式實作（④ 實作頁籤）**：有實作題的章節多一個頁籤，在瀏覽器裡真的編譯、執行 C、C++、Python、JavaScript 並用測資評測（隔離方式與限制見 [`challenge-poc/README.md`](challenge-poc/README.md)）。大型測資刻意讓暴力解逾時，必須用本章的方法；第一次通過全部測資才記錄並得經驗值。楓之谷外觀是「程式討伐」：任務 NPC 出題，怪物 HP＝測資數，每通過一筆打掉一格。目前 DSA 每章一題（18 題，預設 Python）、ICS 每章一題（20 題，預設 C++）。
+- **程式實作（④ 實作頁籤）**：有實作題的章節多一個頁籤，在瀏覽器裡真的編譯、執行 C、C++、Python、JavaScript 並用測資評測（隔離方式與限制見 [`challenge-poc/README.md`](challenge-poc/README.md)）。大型測資刻意讓暴力解逾時，必須用本章的方法；第一次通過全部測資才記錄並得經驗值。楓之谷外觀是「程式討伐」：任務 NPC 出題，怪物 HP＝測資數，每通過一筆打掉一格。目前 DSA 每章一題（18 題，預設 Python）、ICS 每章一題（20 題，預設 C++）、NET 每章一題（22 題，預設 Python；瀏覽器沙盒不能連網，題目都是模擬協定或解析封包）。
 - **工具頁**：實驗總覽、公式速查、術語表（中英對照）、我的筆記（匯出 Markdown、備份 / 還原進度 JSON、列印）。
 - **體驗**：可分享的網址（`#/ch/4/lab`）、瀏覽器上一頁、`/` 或 `Ctrl+K` 全文搜尋、`[` `]` 切換章節、`A`–`D` 作答、深色 / 淺色主題、手機抽屜選單、尊重「減少動態效果」。
 - **隱私**：沒有帳號、後端或追蹤；進度、筆記與錯題本只存在瀏覽器 localStorage（沿用舊版鍵值 `os_lab_2026_v1`，舊進度不會遺失）。
 
 ## 外觀：楓之谷與學術閱讀
 
-入口網與共用 shell 上的五門課（ICS、OS、DSA、DM、AI）預設使用「楓之谷」外觀（舊版楓之谷用戶端的遊戲視窗、NPC 對話框、MiniMap、任務圖示與場景），頂列的 🍁 按鈕可隨時切回原本的學術閱讀外觀。切換只改外觀：教材、測驗紀錄、錯題本與實驗狀態都不受影響；外觀選擇存在 localStorage 的 `cslab.skin`，所有課程共用。
+入口網與共用 shell 上的六門課（ICS、OS、DSA、DM、AI、NET）預設使用「楓之谷」外觀（舊版楓之谷用戶端的遊戲視窗、NPC 對話框、MiniMap、任務圖示與場景），頂列的 🍁 按鈕可隨時切回原本的學術閱讀外觀。切換只改外觀：教材、測驗紀錄、錯題本與實驗狀態都不受影響；外觀選擇存在 localStorage 的 `cslab.skin`，所有課程共用。
 
 - **素材**：遊戲美術屬 Nexon 所有。本儲存庫**不收錄任何遊戲圖檔**，而是引用 [self-research](https://github.com/duicn187532/self-research) 已發布在同一個 GitHub Pages 網域的 `/self-research/assets/maple/`。素材載不到時（例如只部署本儲存庫）自動維持學術外觀並隱藏切換按鈕。
 - **規範**：`.claude/skills/maple-skin/` 是沿用自 self-research 的 maple-skin Skill（素材組裝、9-slice、精靈圖、RWD 規範與建圖腳本），其中「In this repo's site (CS LAB)」一節說明本站的對應方式。
 - **共用層**：`shared/skin-maple.css`（全部楓之谷樣式，含入口網）與 `shared/cslab-skin.js`（切換、素材探測、NPC 精靈圖）。精靈圖只在楓之谷外觀時載入、離開畫面時暫停，尊重「減少動態效果」。
-- **場景**：ICS、OS、DM 在弓箭手村，DSA、AI 在魔法森林，入口網是登入畫面（`<html data-scene>`）。
+- **場景**：ICS、OS、DM 在弓箭手村，DSA、AI、NET 在魔法森林，入口網是登入畫面（`<html data-scene>`）。
 - **其他課程**：LA、CO、ASM 為獨立 HTML，之後以小型 adapter 樣式表把各自的元件對應到同一組視窗（見 Skill 說明）。
 - **遊戲性**（`shared/cslab-game.js`，做法沿用 self-research 的經驗值、狀態列與章節討伐，只在楓之谷外觀出現）：
   - **經驗值與等級**：完全由各課既有的進度推算，不另外累加——讀完觀念 +30、第一次操作實驗 +30、寫了筆記 +20、完成測驗 +100（精英章再 +100、BOSS 章再 +200）、完成的章節裡每題不在錯題本 +10（錯題複習答對就加回來）、整門課完成 +500。各課把總和與稱號快取在 `cslab.exp`，入口網與各課加總成同一位角色；一門課全部完成約 LV.10。和 self-research 的角色分開。
@@ -50,13 +50,13 @@
   - **測驗討伐**：測驗規則不變（兩次機會、提示、錯題本、紀錄），只是畫成打怪——測驗視窗上緣是戰場，左邊是隊伍、右邊是這一章的怪物。HP 是題數，答對一題主角衝上去打掉一格並跳出傷害數字；答錯一次怪物反擊、少一顆心（兩顆心＝兩次機會），兩次都錯是 MISS。全部答對是討伐成功（怪物倒下），否則怪物逃走；兩種結果都照原本規則完成章節。完成後主角歡呼、頭上浮出得到的經驗值，升級時播放光柱。錯題複習也是一場戰鬥。手機上戰場取代出題 NPC，對話框維持全寬。
   - **怪物挑戰**：頁尾的互動挑戰在這個外觀是一場怪物挑戰：NPC 出題、卡片上站著一隻小怪，HP 是關數；失誤時牠擋下、過一關打掉一格、完成時倒下，先看解答則逃走。經驗值依存下來的紀錄算一次：沒有失誤也沒看提示 +60、失誤加提示 1–2 次 +40、更多 +20、看過解答 0，再挑戰、重新整理都不會多拿。
   - **公告列**輪流顯示這一頁的重點：觀念頁的學習目標、先想一想的問題與重點回顧，實驗頁的預測題，測驗頁的戰況說明。
-  - 打倒各課 BOSS 得到稱號（OS「核心守護者」、DSA「演算法劍士」、DM「邏輯賢者」、AI「神經網路術士」、ICS「程式見習生」）。
+  - 打倒各課 BOSS 得到稱號（OS「核心守護者」、DSA「演算法劍士」、DM「邏輯賢者」、AI「神經網路術士」、ICS「程式見習生」、NET「封包信使」）。
   - 狀態列、角色與戰況列都是裝飾（`aria-hidden`、不可聚焦），同樣的進度在側欄、頁籤與測驗回饋都有文字；減少動態效果時不巡邏、不播特效；學術外觀時全部隱藏。
 - **擴充介面**：`cslab-app.js` 在 `document` 上發出 `cslab:render`、`cslab:quiz-view`、`cslab:answer`、`cslab:progress` 事件，`cslab-challenge.js` 發出 `cslab:challenge`；`window.CSLabSkin` 提供 `skin`、`active`、`set()`、`url()`、`npc()`、`onChange()` 與精靈圖引擎 `sprite`；`window.CSLabGame` 提供經驗值公式、章節等級與目前等級。
 
 ## 檔案結構與共用 shell
 
-ICS、OS、DM、DSA 與 AI LAB 共用同一套應用程式外殼（`shared/`）：路由、進度、測驗、錯題本、搜尋、術語、公式、筆記、主題與自動播放只寫一次，每門課只提供教材資料、課程設定與自己的實驗。其餘課程（LA、CO、ASM）預計依序遷移。
+ICS、OS、DM、DSA、AI 與 NET LAB 共用同一套應用程式外殼（`shared/`）：路由、進度、測驗、錯題本、搜尋、術語、公式、筆記、主題與自動播放只寫一次，每門課只提供教材資料、課程設定與自己的實驗。其餘課程（LA、CO、ASM）預計依序遷移。
 
 ```
 index.html                  七門課入口網
@@ -85,11 +85,13 @@ dm/assets/…                 DM LAB 的同類檔案（labs.js 為 24 種逐步�
 dsa/assets/…                DSA LAB 的同類檔案（labs.js 為 18 種逐步實驗）
 ai/assets/…                 AI LAB 的同類檔案（labs.js 為 24 種逐步實驗，course.js 另含舊版 ailab.* 進度轉換）
 ics/assets/…                ICS LAB（計算機概論，C++ 打底）：20 章教材、19 種逐步實驗（labs.js，模擬器在 CSLab.sim.ics）、每章一題 C++ 為主的程式實作（code.js）
+net/assets/…                NET LAB（計算機網路，由上而下）：22 章教材、21 種逐步實驗（labs.js，時序圖 / 拓樸圖 / 長條圖為行內 SVG，模擬器在 CSLab.sim.net）、每章一題的協定模擬與封包解析實作（code.js）
 tests/os-review.cjs         OS LAB 端對端檢查
 tests/dm-review.cjs         DM LAB 端對端檢查
 tests/dsa-review.cjs        DSA LAB 端對端檢查
 tests/ai-review.cjs         AI LAB 端對端檢查
 tests/ics-review.cjs        ICS LAB 端對端檢查（教材欄位、每個實驗選項、模擬器對照課文、兩種外觀的手機版面）
+tests/net-review.cjs        NET LAB 端對端檢查（同上；模擬器對照課文的 GBN / SR、Reno / Tahoe、Dijkstra、CRC、分段、DH）
 tests/skin-review.cjs       外觀層檢查（入口網、OS、DSA、DM、AI）
 tests/game-review.cjs       遊戲層檢查（經驗值、討伐、狀態列）
 tests/challenge-review.cjs  互動挑戰檢查（四個原型的驗證規則、多解、誤差、紀錄、經驗值、兩種外觀）
@@ -116,6 +118,7 @@ node tests/dm-review.cjs
 node tests/dsa-review.cjs
 node tests/ai-review.cjs
 node tests/ics-review.cjs   # 預設網址是 /os-lab/ics/，只開本儲存庫時用 TEST_URL=http://localhost:8000/ics/
+node tests/net-review.cjs   # 預設網址是 /os-lab/net/，同上
 ```
 
 只開本儲存庫時是學術外觀。要預覽楓之谷外觀，把 os-lab 與 self-research 放在同一個目錄，從那一層啟動伺服器（網址對應 GitHub Pages 的 `/os-lab/` 與 `/self-research/`）：
@@ -129,13 +132,14 @@ node os-lab/tests/game-review.cjs
 node os-lab/tests/challenge-review.cjs   # TEST_ROOT=http://localhost:8001/ 可測只開 os-lab（沒有素材）的情況
 bash os-lab/shared/code/tools/vendor.sh                 # 程式實作要用的執行環境（約 114 MB，不進 git）
 node os-lab/tests/coding-poc.cjs                         # Coding Challenge 原型（自己啟動伺服器）
-node os-lab/tests/code-review.cjs dsa                    # 程式實作頁籤（QUICK=1 只跑 Python 參考解；ics 同理）
+node os-lab/tests/code-review.cjs dsa                    # 程式實作頁籤（QUICK=1 只跑 Python 參考解；ics、net 同理）
 ```
 
 可用 `CHROMIUM_PATH` 指定瀏覽器、`TEST_URL` 指定網址、`SHOT_DIR` 輸出截圖（OS）。
 
 - **OS**：原始教材保留、每章欄位完整、演算法與教科書手算結果一致（SRTF、Banker、FIFO/LRU/OPT、Belady、磁碟排程…）、全部 21 個實驗的按鈕操作、84 題作答、正解位置均衡（全課程與每章）且重新整理不變、錯題本流程、路由與上一頁、播放與回看、搜尋、重新整理後保留進度、手機版無水平溢位。
 - **ICS**：20 章欄位齊全且程式範例都是 C++、術語都在術語表、19 個實驗的每一個選項都能產生步驟、模擬器結果與課文一致（進位轉換、二補數溢位、迷你 CPU、子網路、fib 呼叫次數、凱薩密碼、cin 讀取陷阱）、80 題作答、正解位置均衡、錯題本、搜尋、工具頁、兩種外觀的手機版無水平溢位；程式實作 20 題的 C++ / Python / JavaScript 參考解全部通過、四語言起始程式碼都能編譯執行（WA）、試除法與 O(n²) 去重逾時。
+- **NET**：22 章欄位齊全且程式範例都是 Python、術語都在術語表、21 個實驗的每一個選項（含兩兩組合）都能產生步驟、模擬器結果與課文一致（GBN 10 次 / SR 7 次、Reno 與 Tahoe 的 cwnd、VLSM、最長前綴匹配、Dijkstra 轉送表、距離向量回合數、分段位移、CRC 餘數、Diffie-Hellman）、88 題作答、正解位置均衡、錯題本、搜尋、工具頁、兩種外觀的手機版無水平溢位；程式實作 22 題的 C++ / Python / JavaScript 參考解全部通過、四語言起始程式碼都能編譯執行（WA）、逐筆比對的最長前綴匹配與 Bellman-Ford 逾時。
 - **DM**：舊版單檔的 24 章與 72 題逐字保留、舊版 localStorage 進度 / 筆記 / 主題相容、24 個逐步實驗、正解位置均衡（全課程與每章）且重新整理不變、自動播放、錯題本、搜尋、手機版無水平溢位。
 - **DSA**：舊版單檔的 18 章與 54 題逐字保留、舊版四個 `dsa.*` 鍵的進度 / 筆記 / 主題 / 答錯紀錄會匯入、18 章各有不同的實驗（選型、Dijkstra 距離、快取未命中數另有計算檢查）、提示後才給解析、正解位置均衡（全課程與每章）且重新整理不變、自動播放、錯題本、搜尋、手機版無水平溢位。
 - **AI**：舊版單檔的 24 章與 72 題逐字保留（每題另有提示）、舊版四個 `ailab.*` 鍵的進度 / 筆記 / 主題 / 錯題與 `#/chapter/…` 舊網址相容、24 個實驗都至少 5 步、小數參數不被取整、正解位置均衡（全課程與每章）且重新整理不變、自動播放、錯題本、搜尋、手機版每個實驗步驟都無水平溢位。

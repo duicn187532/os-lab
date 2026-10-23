@@ -70,6 +70,10 @@ const ok = (name, cond, extra = '') => { assert(cond, `${name} ${extra}`); conso
     ics: {
       'ics.loop.count-primes': ['cpp', '#include <cstdio>\nint main(){int q;scanf("%d",&q);while(q--){int n,c=0;scanf("%d",&n);for(int k=2;k<=n;k++){bool p=true;for(int d=2;d*d<=k;d++)if(k%d==0){p=false;break;}c+=p;}printf("%d\\n",c);}}'],
       'ics.complexity.sort-unique': ['cpp', '#include <cstdio>\n#include <algorithm>\nint a[100005],u[100005];int main(){int n,k=0;scanf("%d",&n);for(int i=0;i<n;i++){int x;scanf("%d",&x);bool seen=false;for(int j=0;j<k;j++)if(u[j]==x){seen=true;break;}if(!seen)u[k++]=x;}std::sort(u,u+k);printf("%d\\n",k);for(int i=0;i<k;i++)printf("%d%c",u[i],i+1<k?\' \':\'\\n\');}']
+    },
+    net: {
+      'net.forward.lpm': ['cpp', '#include <cstdio>\n#include <vector>\n#include <string>\nstruct E{unsigned net,mask;int id;};int main(){int n;scanf("%d",&n);std::vector<E>t(n);std::vector<std::string>nm(n);char p[64];for(int i=0;i<n;i++){unsigned a,b,c,d,k;scanf("%u.%u.%u.%u/%u %63s",&a,&b,&c,&d,&k,p);t[i]={a<<24|b<<16|c<<8|d,k?0xFFFFFFFFu<<(32-k):0u,i};nm[i]=p;}int q;scanf("%d",&q);while(q--){unsigned a,b,c,d;scanf("%u.%u.%u.%u",&a,&b,&c,&d);unsigned x=a<<24|b<<16|c<<8|d;int best=-1;unsigned bm=0;for(auto&e:t)if((x&e.mask)==e.net&&(best<0||e.mask>bm)){best=e.id;bm=e.mask;}puts(best<0?"DROP":nm[best].c_str());}}'],
+      'net.route.dijkstra': ['c', '#include <stdio.h>\n#include <stdlib.h>\n#include <limits.h>\nint main(void){int n,m,s;scanf("%d %d %d",&n,&m,&s);int*u=malloc(4*m),*v=malloc(4*m),*w=malloc(4*m),*h=malloc(4*(n+1));long long*d=malloc(8*(n+1));for(int i=0;i<m;i++)scanf("%d %d %d",&u[i],&v[i],&w[i]);for(int i=0;i<=n;i++){d[i]=LLONG_MAX/4;h[i]=INT_MAX;}d[s]=0;for(int it=1;it<n;it++){int ch=0;for(int i=0;i<m;i++)for(int r=0;r<2;r++){int a=r?v[i]:u[i],b=r?u[i]:v[i];long long nd=d[a]+w[i];int nh=a==s?b:h[a];if(nd<d[b]||(nd==d[b]&&nh<h[b])){d[b]=nd;h[b]=nh;ch=1;}}if(!ch)break;}for(int x=1;x<=n;x++){if(x==s)puts("0 -");else if(d[x]>=LLONG_MAX/4)puts("INF -");else printf("%lld %d\\n",d[x],h[x]);}return 0;}']
     }
   };
   if (BRUTE[COURSE] && !process.env.QUICK) {
