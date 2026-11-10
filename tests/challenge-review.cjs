@@ -28,7 +28,7 @@ const ROOT = process.env.TEST_ROOT || 'http://localhost:8000/os-lab/';
   const explained = () => page.locator(`${card} .ch-explain`).count();
   const exp = () => page.evaluate(() => CSLabGame.courseExp());
 
-  await page.goto(ROOT); await page.evaluate(() => localStorage.clear());
+  await page.goto(ROOT); await page.evaluate(() => { localStorage.clear(); localStorage.setItem('cslab.skin', 'maple'); }); // 楓之谷外觀要自己選；沒有素材時仍是預設外觀
 
   // 0. 題目資料：穩定 id、題型、介面、參數、規則、提示、解析與標籤；四門課各一題、只在觀念與實驗頁籤出現
   for (const [course, ch, kind] of [['dsa', 6, 'step'], ['os', 4, 'step'], ['dm', 0, 'counterexample'], ['ai', 2, 'target']]) {

@@ -39,12 +39,17 @@ assert(!fs.existsSync(path.join(root, 'shared/maple')) && !fs.readdirSync(root, 
     const URL = ROOT + course + '/';
     await page.goto(ROOT); await page.evaluate(() => localStorage.clear());
 
-    // 2. 預設是楓之谷外觀；切換按鈕可用鍵盤操作，狀態以 aria-pressed 表示
+    // 2. 預設是八萬工作室外觀（組合字標在側欄、工作室頁尾）；楓之谷要自己選。切換按鈕可用鍵盤操作，狀態以 aria-pressed 表示
     requests.length = 0; // 入口網自己的角色不算
     await page.goto(URL + '#/'); await settle();
-    assert.equal(await skinOf(), 'maple', `${course}: maple by default`);
+    assert.equal(await skinOf(), 'classic', `${course}: HACHIMAN STUDIO look by default`);
+    assert(await page.locator('.studio-mark').isVisible() && await page.locator('.main > .hs-footer').isVisible(), `${course}: studio lockup and footer`);
     const btn = page.locator('.skin-btn');
-    assert(await btn.isVisible() && (await btn.getAttribute('aria-pressed')) === 'true', `${course}: toggle shown and pressed`);
+    assert(await btn.isVisible() && (await btn.getAttribute('aria-pressed')) === 'false', `${course}: toggle shown, not pressed`);
+    await btn.click(); await settle();
+    assert.equal(await skinOf(), 'maple', `${course}: maple once chosen`);
+    assert.equal(await btn.getAttribute('aria-pressed'), 'true', `${course}: toggle pressed in maple`);
+    assert(!(await page.locator('.studio-mark').isVisible()), `${course}: no lockup in the game skin`);
     assert(await page.locator('.hero > .npc-portrait[aria-hidden=true] .spr').count(), `${course}: home NPC guide`);
 
     // 3. 做一些進度：讀觀念、做實驗走到一半、測驗答錯一題（進錯題本）
