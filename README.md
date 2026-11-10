@@ -1,6 +1,12 @@
+<p align="center"><img src="shared/brand/hachiman-lockup@2x.png" alt="HACHIMAN STUDIO 八萬工作室" height="64"></p>
+
 # CS LAB / OS LAB — 資工互動式自學網站
 
-🌐 [開啟互動課程](https://duicn187532.github.io/os-lab/)
+九門課的繁體中文互動資工教材，讀觀念、操作模擬器、做測驗都在瀏覽器裡完成。
+
+<sub>HACHIMAN STUDIO · 八萬工作室作品</sub>
+
+[開啟互動課程 →](https://duicn187532.github.io/os-lab/)
 
 繁體中文、完全靜態的資工互動教材。根目錄是九門課（ICS、OS、DM、DSA、LA、AI、CO、ASM、NET）的入口網；本儲存庫的主課程 **OS LAB**（`os/`）以「先預測 → 生活類比 → 回到真實機制 → 操作模擬器 → 測驗檢核 → 錯題複習」的節奏學習作業系統。
 

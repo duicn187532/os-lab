@@ -23,7 +23,7 @@ const ROOT = process.env.TEST_ROOT || 'http://localhost:8000/os-lab/';
 
   // 1. 經驗值從進度推算：OS 前三章讀完、第一章做過實驗、第二章寫了筆記、三章測驗都完成且沒有錯題
   //    3×30 + 30 + 20 + 3×100 + 精英（第二章是「基礎」單元的最後一章）100 + 12 題 ×10 = 660
-  await page.goto(ROOT); await page.evaluate(() => localStorage.clear());
+  await page.goto(ROOT); await page.evaluate(() => { localStorage.clear(); localStorage.setItem('cslab.skin', 'maple'); }); // 楓之谷外觀要自己選
   await page.goto(ROOT + 'os/#/'); await ready();
   assert.deepEqual(await page.evaluate(() => [CSLabGame.level.lv, CSLabGame.level.exp]), [1, 0], 'a new reader starts at LV.1');
   await seed('os_lab_2026_v1', "L.slice(0, 3).forEach(l => { s.learn[l.id] = 1; s.done[l.id] = { first: 4, total: 4, at: '' }; }); s.lab[L[0].id] = 1; s.notes[L[1].id] = '我的解釋';");

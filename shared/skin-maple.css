@@ -17,7 +17,8 @@ html:root[data-skin="maple"] {
   --accent: #1d4f86; --accent-strong: #173a66; --accent-soft: #dde8f5; --on-accent: #ffffff;
   --blue: #1d5fbf; --blue-soft: #dde8f5; --amber: #9a4a0c; --amber-soft: #fbf3c4; --rose: #b3261e; --rose-soft: #fbe3da; --green: #2f6f2a; --green-soft: #e1f0d8; --violet: #6a3fa0; --violet-soft: #eee5f8;
   --j0: #0d9488; --j1: #2563eb; --j2: #d97706; --j3: #c026d3; --j4: #dc2626; --j5: #4d7c0f;
-  --shadow: none; --radius: 3px;
+  --shadow: none; --radius: 3px; --focus-ring: #1d4f86;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
   --outline: -1px 0 #1a2a44, 1px 0 #1a2a44, 0 -1px #1a2a44, 0 1px #1a2a44, 1px 1px #1a2a44;
   --cursor: url("../../self-research/assets/maple/cursor.png") 2 2;
 }

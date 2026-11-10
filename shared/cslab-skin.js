@@ -1,4 +1,4 @@
-/* CS LAB 外觀層：楓之谷外觀（shared/skin-maple.css）與原本學術外觀的切換、遊戲素材的載入，以及 NPC 精靈圖。
+/* CS LAB 外觀層：楓之谷外觀（shared/skin-maple.css）與預設的八萬工作室外觀（shared/brand/、shared/cslab.css）的切換、遊戲素材的載入，以及 NPC 精靈圖。
  * 只改外觀：不讀寫課程進度、測驗紀錄或實驗狀態。外觀選擇存在 localStorage 的 cslab.skin（'maple' | 'classic'），
  * 所有課程與入口網共用。這裡確認素材載得到才套用，否則維持學術外觀並隱藏切換按鈕；確認過的結果記在 cslab.art，
  * 頁面 <head> 的一行程式依這兩個鍵先加上 data-skin，之後開頁就不會閃一下原本外觀，沒有素材的部署也不會去要圖。
@@ -13,13 +13,14 @@
   const url = file => MAPLE_BASE + file;
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
-  const read = () => { try { return localStorage.getItem(KEY) === 'classic' ? 'classic' : 'maple'; } catch (_) { return 'maple'; } };
+  // 預設是八萬工作室外觀（classic）；只有自己選過楓之谷才套用
+  const read = () => { try { return localStorage.getItem(KEY) === 'maple' ? 'maple' : 'classic'; } catch (_) { return 'classic'; } };
   let skin = read(), artReady = false;
   const listeners = [];
   const active = () => skin === 'maple' && artReady;
   function apply() {
     if (active()) root.dataset.skin = 'maple'; else delete root.dataset.skin;
-    document.querySelectorAll('.skin-btn').forEach(b => { b.hidden = !artReady; b.setAttribute('aria-pressed', String(skin === 'maple')); b.title = skin === 'maple' ? '切換為學術閱讀外觀' : '切換為楓之谷外觀'; });
+    document.querySelectorAll('.skin-btn').forEach(b => { b.hidden = !artReady; b.setAttribute('aria-pressed', String(skin === 'maple')); b.title = skin === 'maple' ? '切換為八萬工作室外觀' : '切換為楓之谷外觀'; });
     if (active()) loadTable(); else stopAll();
     listeners.forEach(fn => fn(active()));
   }

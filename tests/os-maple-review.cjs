@@ -12,6 +12,8 @@ const URL=process.env.TEST_URL||'http://localhost:8000/os-lab/os/';
  await page.goto(URL+'#/');
  await page.waitForFunction(()=>window.CSLabSkin?.artReady===true,{timeout:30000}).catch(()=>{});
  assert(await page.evaluate(()=>CSLabSkin.artReady),'Maple art was not loaded from self-research');
+ assert.equal(await page.evaluate(()=>document.documentElement.dataset.skin||'classic'),'classic','HACHIMAN STUDIO look by default; Maple is opt-in');
+ await page.evaluate(()=>CSLabSkin.set('maple')); await page.waitForTimeout(400);
  assert.equal(await page.evaluate(()=>document.documentElement.dataset.skin),'maple','Maple skin must be active');
  assert(await page.locator('.skin-btn').isVisible(),'Skin toggle visible');
  await page.waitForTimeout(350);

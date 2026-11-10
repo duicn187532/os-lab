@@ -12,15 +12,19 @@
   const $ = id => document.getElementById(id);
   const labName = l => Labs.registry[l.lab]?.title || '';
   const pad = n => String(n).padStart(2, '0');
+  // HACHIMAN STUDIO 八萬工作室：組合字標與頁尾（設計系統的 SiteHeader / SiteFooter，圖檔在 shared/brand/）
+  const BRAND = new URL('brand/', document.currentScript.src).href;
+  const STUDIO = { name: 'HACHIMAN STUDIO 八萬工作室', tagline: '靈感敏捷，作品有溫度。', works: 'https://duicn187532.github.io/HachimanStudio/works.html', github: 'https://github.com/duicn187532/os-lab' };
   // 外觀層（shared/cslab-skin.js）與之後的擴充透過這些 DOM 事件得知畫面與進度的變化；應用程式本身不依賴任何監聽者。
   const emit = (type, detail) => document.dispatchEvent(new CustomEvent('cslab:' + type, { detail }));
 
   /* ───────────── 頁面骨架 ───────────── */
   function mount() {
-    const tools = [['#/labs', '🧪 實驗總覽'], ['#/review', '↺ 錯題複習 <span class="badge" id="wrongBadge" hidden>0</span>'], formulas.length && ['#/formulas', '∑ 公式速查'], glossaryList.length && ['#/glossary', '🔤 術語表'], ['#/notes', '✎ 我的筆記']].filter(Boolean);
+    const tools = [['#/labs', '⚲ 實驗總覽'], ['#/review', '↺ 錯題複習 <span class="badge" id="wrongBadge" hidden>0</span>'], formulas.length && ['#/formulas', '∑ 公式速查'], glossaryList.length && ['#/glossary', 'Aa 術語表'], ['#/notes', '✎ 我的筆記']].filter(Boolean);
     document.body.insertAdjacentHTML('afterbegin', `<a class="skip-link" href="#main">跳至課程內容</a>
 <div class="app">
   <aside class="side" id="side" aria-label="章節選單">
+    <a class="studio-mark" href="${STUDIO.works}" aria-label="${STUDIO.name}：所有作品"><img class="studio-lockup" src="${BRAND}hachiman-lockup.png" alt="${STUDIO.name}"><img class="studio-lockup-reverse" src="${BRAND}hachiman-lockup-reverse.png" alt="${STUDIO.name}"></a>
     <div class="brand"><a class="brand-mark" href="#/" aria-label="${h(C.name)} 課程地圖">${h(C.mark)}</a><div><a class="brand-name" href="#/">${h(C.name)}</a><a class="brand-sub" href="../">← CS LAB 入口</a></div></div>
     <div class="side-progress"><div class="row between"><span id="progressNum"></span><span id="progressPct" class="muted"></span></div><div class="bar" role="progressbar" aria-label="完成章節比例" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="progressBar"></i></div></div>
     <nav class="side-links" aria-label="學習工具">${tools.map(([href, t]) => `<a href="${href}">${t}</a>`).join('')}</nav>
@@ -31,6 +35,7 @@
   <main class="main" id="main" tabindex="-1">
     <header class="topbar"><button type="button" class="icon-btn menu-btn" id="menu" aria-label="開啟章節選單" aria-controls="side" aria-expanded="false">☰</button><div class="crumb" id="crumb"></div><button type="button" class="search-btn" id="searchBtn" aria-label="搜尋（快捷鍵 /）"><span>⌕ 搜尋章節、術語、實驗</span><kbd>/</kbd></button><button type="button" class="icon-btn" id="helpBtn" aria-label="鍵盤快捷鍵說明">?</button><button type="button" class="icon-btn" id="themeBtn" aria-label="切換主題">☾</button></header>
     <div class="content" id="content"></div>
+    <footer class="hs-footer"><div class="hs-footer__brand"><span class="hs-footer__name">${STUDIO.name}</span><span class="hs-footer__tagline">${STUDIO.tagline}</span></div><nav class="hs-footer__links" aria-label="工作室連結"><a href="${STUDIO.works}">所有作品</a><a href="${STUDIO.github}">GitHub</a></nav></footer>
   </main>
 </div>
 <button type="button" class="scrolltop" id="scrollTop" aria-label="回到頂部">↑</button>
@@ -145,7 +150,7 @@
     renderSidebar();
     document.body.dataset.page = state.page;
     ({ home: renderHome, lesson: renderLesson, glossary: renderGlossary, formulas: renderFormulas, review: renderReview, notes: renderNotes, labs: renderLabIndex })[state.page]();
-    document.title = state.page === 'lesson' ? `${byId[state.lesson].title}｜${C.name}` : state.page === 'home' ? `${C.name} — ${C.title}` : `${TITLES[state.page]}｜${C.name}`;
+    document.title = (state.page === 'lesson' ? `${byId[state.lesson].title}｜${C.name}` : state.page === 'home' ? `${C.name} — ${C.title}` : `${TITLES[state.page]}｜${C.name}`) + ' · HACHIMAN STUDIO';
     emit('render', { page: state.page, lesson: state.page === 'lesson' ? state.lesson : null, tab: state.page === 'lesson' ? state.tab : null });
   }
   const crumb = html => { $('crumb').innerHTML = html; };
@@ -196,7 +201,7 @@
     </div>
     <h2 class="section-title">完整學習地圖</h2>
     <p class="muted small">主線：${units.filter(u => lessons.some(l => l.unit === u)).map(h).join(' → ')}</p>
-    <div class="course-grid">${lessons.map(l => `<a class="course-card${store.done[l.id] ? ' done' : ''}" data-status="${questState(l)}" href="#/ch/${l.id}/learn"><div class="cc-top"><span class="cc-num">CH ${pad(pos(l.id) + 1)} · ${h(l.unit)}</span>${dots(l)}</div><h4>${h(l.title)}</h4><p>${h(l.short || l.ask || '')}</p><div class="cc-meta">${l.minutes ? `<span>⏱ ${l.minutes} 分鐘</span>` : ''}<span>🧪 ${h(labName(l))}</span></div></a>`).join('')}</div>
+    <div class="course-grid">${lessons.map(l => `<a class="course-card${store.done[l.id] ? ' done' : ''}" data-status="${questState(l)}" href="#/ch/${l.id}/learn"><div class="cc-top"><span class="cc-num">CH ${pad(pos(l.id) + 1)} · ${h(l.unit)}</span>${dots(l)}</div><h4>${h(l.title)}</h4><p>${h(l.short || l.ask || '')}</p><div class="cc-meta">${l.minutes ? `<span>⏱ ${l.minutes} 分鐘</span>` : ''}<span>⚲ ${h(labName(l))}</span></div></a>`).join('')}</div>
     ${C.disclaimer ? `<p class="disclaimer">${h(C.disclaimer)}</p>` : ''}`;
   }
 
@@ -215,7 +220,7 @@
       <div class="lh-meta"><span class="cc-num">CHAPTER ${pad(p + 1)} · ${h(l.unit)}</span>${dots(l)}</div>
       <h1>${h(l.title)}</h1>
       ${l.short ? `<p class="lead">${h(l.short)}</p>` : ''}
-      <div class="chips">${l.minutes ? `<span>⏱ 約 ${l.minutes} 分鐘</span>` : ''}<span>🧪 ${h(labName(l))}</span><span>✎ ${l.quiz.length} 題測驗</span>${codeFor(l.id).length ? `<span>⌨ ${codeFor(l.id).length} 題程式實作</span>` : ''}</div>
+      <div class="chips">${l.minutes ? `<span>⏱ 約 ${l.minutes} 分鐘</span>` : ''}<span>⚲ ${h(labName(l))}</span><span>✎ ${l.quiz.length} 題測驗</span>${codeFor(l.id).length ? `<span>⌨ ${codeFor(l.id).length} 題程式實作</span>` : ''}</div>
     </header>
     <nav class="tabs" role="tablist" aria-label="本章學習階段">${tabsFor(l.id).map(([k, t]) => `<a role="tab" id="tab-${k}" href="#/ch/${l.id}/${k}" aria-selected="${state.tab === k}" aria-controls="stage" tabindex="${state.tab === k ? 0 : -1}" class="${chapterStatus(l)[k] ? 'complete' : ''}">${t}</a>`).join('')}</nav>
     <div id="stage" role="tabpanel" aria-labelledby="tab-${state.tab}"></div>
@@ -266,7 +271,7 @@
       l.caveat && `<aside class="callout warn"><b>⚠ 常見誤解 / 適用界線</b><p>${h(l.caveat)}</p></aside>`,
       code && `<section class="code-card"><div class="code-head"><span>${h(code[0])}</span><button type="button" class="btn ghost sm" id="copyCode">複製</button></div><pre><code>${h(code[1])}</code></pre></section>`,
       l.summary?.length && card('summary', '✓ 重點回顧', `<ul>${l.summary.map(s => `<li>${h(s)}</li>`).join('')}</ul>`),
-      l.terms?.length && card('', '🔤 關鍵術語', `<div class="term-chips">${l.terms.filter(t => glossary[t]).map(t => `<button type="button" class="term-chip" data-term="${t}" aria-expanded="false">${h(glossary[t].zh)}<small>${h(glossary[t].en)}</small></button>`).join('')}</div><div id="termDef" class="term-def" hidden></div>`),
+      l.terms?.length && card('', 'Aa 關鍵術語', `<div class="term-chips">${l.terms.filter(t => glossary[t]).map(t => `<button type="button" class="term-chip" data-term="${t}" aria-expanded="false">${h(glossary[t].zh)}<small>${h(glossary[t].en)}</small></button>`).join('')}</div><div id="termDef" class="term-def" hidden></div>`),
       card('', '✎ 用自己的話解釋這一章', `${l.ask ? `<p class="muted">${h(l.ask)}</p>` : ''}<textarea id="noteArea" class="note-area" rows="5" placeholder="試著不看上面的內容，用三到五句話解釋。">${h(store.notes[l.id] || '')}</textarea><p class="muted small" id="noteStatus">筆記自動儲存在這個瀏覽器。${store.guess[l.id] ? '別忘了對照你一開始的猜測。' : ''}</p>`),
       `<div class="cta"><a class="btn primary" href="#/ch/${l.id}/lab">進入互動實驗 →</a><a class="btn secondary" href="#/ch/${l.id}/quiz">直接挑戰測驗</a></div><div id="readEnd" aria-hidden="true"></div>`
     ].filter(Boolean).join('');

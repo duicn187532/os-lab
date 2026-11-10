@@ -1,42 +1,40 @@
 /* CS LAB 共用樣式：設計變數 → 版面 → 共用元件 → 首頁 → 章節頁 → 測驗 → 工具頁 → 對話框 → 互動實驗元件 → 響應式。各課專屬的實驗樣式放在各自的 assets/。 */
 :root {
+  /* HACHIMAN STUDIO 八萬工作室設計系統（shared/brand/tokens.css）：學術外觀的顏色與字體都指向設計系統的 tokens。
+     --surface、--surface-2、--line 與設計系統同名，直接沿用；楓之谷外觀（skin-maple.css）另有一整組自己的值。
+     不在設計系統裡的色（第二資料色、圖表系列 j0–j5）取自品牌圖表配色：橘、石板藍、芥黃、梅紫、磚紅、苔綠。 */
   color-scheme: light;
-  --bg: #f6f7fb; --surface: #ffffff; --surface-2: #f0f3f8; --surface-3: #e7ecf4; --line: #dce3ed; --line-strong: #c4cfdd;
-  --text: #142033; --text-2: #34445c; --muted: #5d6c83;
-  --accent: #0d9488; --accent-strong: #0f766e; --accent-soft: #ccfbf1; --on-accent: #ffffff;
-  --blue: #2563eb; --blue-soft: #dbeafe; --amber: #b45309; --amber-soft: #fef3c7; --rose: #be123c; --rose-soft: #ffe4e6; --green: #15803d; --green-soft: #dcfce7; --violet: #7c3aed; --violet-soft: #ede9fe;
-  --j0: #0d9488; --j1: #2563eb; --j2: #d97706; --j3: #c026d3; --j4: #dc2626; --j5: #4d7c0f;
-  --shadow: 0 1px 2px rgb(15 23 42 / .06), 0 4px 16px rgb(15 23 42 / .05);
-  --radius: 14px; --side-w: 300px;
-  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --bg: var(--cream); --surface-3: var(--cream-deep); --line-strong: var(--control-border);
+  --text: var(--ink); --muted: var(--ink-muted);
+  --accent: var(--action); --accent-strong: var(--ginger-text); --accent-soft: var(--ginger-soft); --on-accent: var(--on-action);
+  --amber: var(--ginger-text); --amber-soft: var(--ginger-soft); --rose: var(--danger-text); --rose-soft: var(--danger-soft); --green: var(--sage-text); --green-soft: var(--sage-soft);
+  --text-2: #4a3e35; --blue: #4a6c8c; --blue-soft: #e3eaf1; --violet: #8a5a7a; --violet-soft: #f0e4ec;
+  --j0: #c86a2d; --j1: #4a6c8c; --j2: #a87a12; --j3: #8a5a7a; --j4: #b5473a; --j5: #6b7a4f;
+  --shadow: none;
+  --radius: var(--radius-tile); --side-w: 300px;
+  --font: var(--font-sans);
   --mono: ui-monospace, "SFMono-Regular", "Cascadia Code", "JetBrains Mono", Consolas, monospace;
 }
 :root[data-theme="dark"] { color-scheme: dark;
-  --bg: #0b1120; --surface: #111a2c; --surface-2: #162236; --surface-3: #1d2b43; --line: #24344f; --line-strong: #34486a;
-  --text: #e8eef8; --text-2: #c3cfe0; --muted: #94a3bb;
-  --accent: #5eead4; --accent-strong: #99f6e4; --accent-soft: #123b3a; --on-accent: #052e2b;
-  --blue: #7cb6ff; --blue-soft: #16294a; --amber: #f6c177; --amber-soft: #3a2a12; --rose: #fb7185; --rose-soft: #3d1622; --green: #86efac; --green-soft: #133224; --violet: #c4b5fd; --violet-soft: #2a2250;
-  --j0: #2dd4bf; --j1: #60a5fa; --j2: #fbbf24; --j3: #e879f9; --j4: #f87171; --j5: #a3e635;
-  --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 8px 24px rgb(0 0 0 / .18);
+  --text-2: #e6d3be; --blue: #a9c1d9; --blue-soft: #2b3540; --violet: #d3aac6; --violet-soft: #3a2a35;
+  --j0: #e08a4e; --j1: #8fb0cf; --j2: #e8c06a; --j3: #c99bbb; --j4: #e58a7e; --j5: #b9c49f;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { color-scheme: dark;
-  --bg: #0b1120; --surface: #111a2c; --surface-2: #162236; --surface-3: #1d2b43; --line: #24344f; --line-strong: #34486a;
-  --text: #e8eef8; --text-2: #c3cfe0; --muted: #94a3bb;
-  --accent: #5eead4; --accent-strong: #99f6e4; --accent-soft: #123b3a; --on-accent: #052e2b;
-  --blue: #7cb6ff; --blue-soft: #16294a; --amber: #f6c177; --amber-soft: #3a2a12; --rose: #fb7185; --rose-soft: #3d1622; --green: #86efac; --green-soft: #133224; --violet: #c4b5fd; --violet-soft: #2a2250;
-  --j0: #2dd4bf; --j1: #60a5fa; --j2: #fbbf24; --j3: #e879f9; --j4: #f87171; --j5: #a3e635;
-  --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 8px 24px rgb(0 0 0 / .18);
+  --hachiman-ginger: #e08a4e; --cream: #241e1a; --charcoal: #3b312a; --orei-white: #fdfdfc; --sage: #9ba487; --surface: #2f2721; --surface-2: #3a3029; --cream-deep: #3a3029; --line: #4a3d33; --control-border: #c9b6a2; --ink: #f6e7d6; --ink-muted: #c9b6a2; --ginger-text: #f0a673; --action: #e08a4e; --on-action: #241e1a; --focus-ring: var(--hachiman-ginger); --ginger-soft: #4a3020; --sage-text: #b9c49f; --sage-soft: #343a2a; --danger-text: #f2a08f; --danger-soft: #4a2621;
+  --text-2: #e6d3be; --blue: #a9c1d9; --blue-soft: #2b3540; --violet: #d3aac6; --violet-soft: #3a2a35;
+  --j0: #e08a4e; --j1: #8fb0cf; --j2: #e8c06a; --j3: #c99bbb; --j4: #e58a7e; --j5: #b9c49f;
 } }
 
 * { box-sizing: border-box; }
 html { scroll-padding-top: 72px; -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.75 var(--font); letter-spacing: .01em; }
-a { color: var(--blue); text-underline-offset: 3px; }
+a { color: var(--accent-strong); text-underline-offset: 3px; }
 button, input, select, textarea { font: inherit; color: inherit; }
 code, pre, kbd { font-family: var(--mono); }
 h1, h2, h3, h4 { line-height: 1.3; margin: 0; letter-spacing: -.01em; }
+:root:not([data-skin="maple"]) :is(h1, h2) { font-family: var(--font-zh); font-weight: 900; }
 p { margin: 0; }
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; border-radius: 6px; }
 .skip-link { position: fixed; left: 12px; top: -120px; z-index: 100; background: var(--accent); color: var(--on-accent); padding: 8px 14px; border-radius: 8px; font-weight: 700; }
 .skip-link:focus { top: 8px; }
 .muted { color: var(--muted); }
@@ -50,6 +48,15 @@ p { margin: 0; }
 .side { position: fixed; inset: 0 auto 0 0; width: var(--side-w); background: var(--surface); border-right: 1px solid var(--line); overflow-y: auto; padding: 18px 14px 24px; z-index: 30; display: flex; flex-direction: column; gap: 14px; scrollbar-width: thin; }
 .main { margin-left: var(--side-w); flex: 1; min-width: 0; outline: none; }
 .content { max-width: 1040px; margin: 0 auto; padding: 28px 32px 80px; }
+/* HACHIMAN STUDIO 八萬工作室組合字標（側欄最上方，連回作品集）；深色主題換反白版，楓之谷外觀不顯示 */
+.studio-mark { display: block; padding: 2px 6px 12px; border-bottom: 1.5px solid var(--line); }
+.studio-mark img { height: 36px; width: auto; display: block; }
+.studio-lockup-reverse { display: none !important; }
+:root[data-theme="dark"] .studio-lockup { display: none !important; }
+:root[data-theme="dark"] .studio-lockup-reverse { display: block !important; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .studio-lockup { display: none !important; } :root:not([data-theme="light"]) .studio-lockup-reverse { display: block !important; } }
+:root[data-skin="maple"] .studio-mark { display: none; }
+.main > .hs-footer a { text-decoration: none; }
 .brand { display: flex; gap: 12px; align-items: center; padding: 0 6px; }
 .brand-mark { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--accent); color: var(--on-accent); font: 800 15px var(--mono); text-decoration: none; }
 .brand-name { display: block; font-weight: 800; font-size: 18px; color: var(--text); text-decoration: none; letter-spacing: .06em; }
