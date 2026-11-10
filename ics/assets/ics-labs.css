@@ -1,0 +1,102 @@
+/* ICS LAB 實驗視覺元件（由 labs.js 產生，class 皆以 ix- 開頭）。共用元件見 shared/cslab.css；
+   顏色全部用設計變數，深淺主題與楓之谷外觀都會跟著變。 */
+.ix-stage { border: 1px dashed var(--line-strong); border-radius: 13px; background: var(--surface-2); display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 18px 12px; min-width: 0; }
+.ix-stage > * { max-width: 100%; }
+.ix-cap { margin: 0; font-size: 12px; color: var(--muted); text-align: center; }
+.ix-row { display: flex; flex-wrap: wrap; gap: 24px 8px; justify-content: center; padding-bottom: 18px; }
+.ix-row.tight { gap: 22px 4px; }
+.ix-row.left { justify-content: flex-start; }
+.ix-cell { position: relative; min-width: 42px; height: 44px; padding: 0 6px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); color: var(--text); font: 800 16px var(--mono); }
+.ix-row.tight .ix-cell { min-width: 30px; height: 38px; font-size: 14px; padding: 0 4px; }
+.ix-cell small { position: absolute; top: calc(100% + 3px); left: 50%; transform: translateX(-50%); white-space: nowrap; color: var(--muted); font: 500 10px var(--mono); }
+.ix-cell.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-strong); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); }
+.ix-cell.done { border-color: var(--green); background: var(--green-soft); color: var(--green); }
+.ix-cell.bad { border-color: var(--rose); background: var(--rose-soft); color: var(--rose); }
+.ix-cell.faint { opacity: .45; }
+.ix-hr { width: min(100%, 360px); border: 0; border-top: 2px solid var(--line-strong); margin: -10px 0 0; }
+
+.ix-scroll { max-width: 100%; overflow-x: auto; }
+.ix-table { border-collapse: collapse; font-size: 14px; background: var(--surface); border-radius: 8px; overflow: hidden; }
+.ix-table th, .ix-table td { padding: 6px 12px; border-bottom: 1px solid var(--line); text-align: center; white-space: nowrap; }
+.ix-table th { color: var(--muted); font-weight: 650; font-size: 12px; background: var(--surface-3); }
+.ix-table tbody th { text-align: left; }
+.ix-table td { font-family: var(--mono); }
+.ix-table tr.on td, .ix-table tr.on th { background: var(--accent-soft); color: var(--accent-strong); }
+
+.ix-kv { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.ix-kv > div { display: flex; flex-direction: column; align-items: center; min-width: 84px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.ix-kv span { font-size: 11px; color: var(--muted); }
+.ix-kv b { font: 800 16px var(--mono); color: var(--text); word-break: break-all; text-align: center; }
+.ix-kv .ok { border-color: var(--green); }
+.ix-kv .ok b { color: var(--green); }
+.ix-kv .bad { border-color: var(--rose); }
+.ix-kv .bad b { color: var(--rose); }
+
+.ix-code { margin: 0; width: min(100%, 560px); padding: 10px 0; background: #0f172a; color: #e2e8f0; border-radius: 10px; font: 13px/1.6 var(--mono); overflow-x: auto; }
+.ix-code span { display: block; padding: 0 14px; white-space: pre; border-left: 3px solid transparent; }
+.ix-code span.on { background: rgb(250 204 21 / .16); border-left-color: #facc15; }
+.ix-term { margin: 0; width: min(100%, 560px); padding: 10px 14px; background: #0f172a; color: #a7f3d0; border-radius: 10px; font: 13px/1.6 var(--mono); white-space: pre-wrap; }
+.ix-term.bad { color: #fca5a5; }
+
+.ix-pipe { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; }
+.ix-pipe span { padding: 6px 12px; border: 1px solid var(--line-strong); border-radius: 99px; background: var(--surface); font-size: 13px; font-weight: 650; color: var(--muted); }
+.ix-pipe span.done { border-color: var(--green); color: var(--green); background: var(--green-soft); }
+.ix-pipe span.on { border-color: var(--accent); color: var(--accent-strong); background: var(--accent-soft); }
+.ix-pipe span.bad { border-color: var(--rose); color: var(--rose); background: var(--rose-soft); }
+.ix-pipe i { color: var(--muted); font-style: normal; }
+
+.ix-gates { display: grid; gap: 8px; width: min(100%, 460px); }
+.ix-gate { display: grid; grid-template-columns: minmax(0, 1fr) auto 44px; gap: 10px; align-items: center; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.ix-gate b { font-size: 14px; }
+.ix-gate span { font: 13px var(--mono); color: var(--muted); }
+.ix-gate i { font: 800 18px var(--mono); font-style: normal; text-align: center; color: var(--muted); }
+.ix-gate.on { border-color: var(--accent); background: var(--accent-soft); }
+.ix-gate.on i { color: var(--accent-strong); }
+
+.ix-nest { width: min(100%, 560px); }
+.ix-pkt { border: 2px solid var(--line-strong); border-radius: 10px; padding: 6px 8px 8px; background: var(--surface); display: flex; flex-direction: column; gap: 4px; }
+.ix-pkt > b { font-size: 12px; }
+.ix-pkt > span { font: 12px var(--mono); color: var(--muted); }
+.ix-pkt.data { border-color: var(--accent); background: var(--accent-soft); }
+.ix-pkt.l1 { border-color: var(--blue); background: var(--blue-soft); }
+.ix-pkt.l2 { border-color: var(--violet); background: var(--violet-soft); }
+.ix-pkt.l3 { border-color: var(--amber); background: var(--amber-soft); }
+.ix-nest.recv .ix-pkt.data { border-color: var(--green); background: var(--green-soft); }
+
+.ix-grid { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; width: min(100%, 460px); }
+.ix-grid span { padding: 6px 0; text-align: center; border-radius: 6px; font: 700 13px var(--mono); border: 1px solid var(--line); background: var(--surface); }
+.ix-grid span.done { border-color: var(--green); color: var(--green); background: var(--green-soft); }
+.ix-grid span.off { opacity: .35; text-decoration: line-through; }
+.ix-grid span.on { border-color: var(--accent); color: var(--accent-strong); background: var(--accent-soft); }
+
+.ix-stack { display: flex; flex-direction: column; gap: 6px; width: min(100%, 360px); }
+.ix-frame { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; padding: 8px 12px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); }
+.ix-frame b { min-width: 3.5em; }
+.ix-frame span { font: 13px var(--mono); color: var(--text-2); }
+.ix-frame.on { border-color: var(--accent); background: var(--accent-soft); }
+
+.ix-tree { display: grid; gap: 2px; width: min(100%, 420px); max-height: 340px; overflow: auto; font: 13px var(--mono); }
+.ix-tree div { padding: 2px 8px 2px calc(8px + var(--d) * 18px); border-left: 2px solid transparent; border-radius: 4px; }
+.ix-tree div.on { background: var(--accent-soft); border-left-color: var(--accent); color: var(--accent-strong); font-weight: 700; }
+.ix-tree div.done { color: var(--green); }
+.ix-tree div.faint { opacity: .3; }
+
+.ix-bars { display: grid; gap: 6px; width: min(100%, 560px); }
+.ix-bars > div { display: grid; grid-template-columns: 6.5em minmax(0, 1fr) 7.5em; gap: 8px; align-items: center; font-size: 13px; }
+.ix-bars span { font: 700 13px var(--mono); }
+.ix-bars i { display: block; height: 14px; border-radius: 4px; background: var(--green); }
+.ix-bars .bad i { background: var(--rose); }
+.ix-bars b { font: 12px var(--mono); color: var(--muted); text-align: right; }
+.ix-bars .on span { color: var(--accent-strong); }
+
+@media (max-width: 520px) {
+  .ix-stage { padding: 14px 8px; }
+  .ix-row.tight .ix-cell { min-width: 26px; height: 34px; font-size: 13px; }
+  .ix-table th, .ix-table td { padding: 5px 8px; }
+  .ix-bars > div { grid-template-columns: 5.5em minmax(0, 1fr) 6em; }
+}
+
+/* 楓之谷外觀：方角、遊戲視窗的米白底 */
+:root[data-skin="maple"] .ix-stage { border-radius: 2px; background: #f6f6ee; }
+:root[data-skin="maple"] :is(.ix-cell, .ix-kv > div, .ix-gate, .ix-frame, .ix-pkt, .ix-grid span, .ix-table) { border-radius: 2px; }
+:root[data-skin="maple"] :is(.ix-code, .ix-term) { border-radius: 0; border: 1px solid #1d3550; }

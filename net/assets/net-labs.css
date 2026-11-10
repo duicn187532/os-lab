@@ -1,0 +1,168 @@
+/* NET LAB 實驗視覺元件（由 labs.js 產生，class 皆以 nx- 開頭）。共用元件見 shared/cslab.css；
+   顏色全部用設計變數，深淺主題與楓之谷外觀都會跟著變。 */
+.nx-stage { border: 1px dashed var(--line-strong); border-radius: 13px; background: var(--surface-2); display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 18px 12px; min-width: 0; }
+.nx-stage > * { max-width: 100%; }
+.nx-cap { margin: 0; font-size: 12px; color: var(--muted); text-align: center; }
+.nx-row { display: flex; flex-wrap: wrap; gap: 24px 8px; justify-content: center; padding-bottom: 18px; }
+.nx-row.tight { gap: 22px 4px; }
+.nx-row.left { justify-content: flex-start; }
+.nx-cell { position: relative; min-width: 42px; height: 44px; padding: 0 6px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); color: var(--text); font: 800 16px var(--mono); }
+.nx-row.tight .nx-cell { min-width: 30px; height: 38px; font-size: 14px; padding: 0 4px; }
+.nx-cell small { position: absolute; top: calc(100% + 3px); left: 50%; transform: translateX(-50%); white-space: nowrap; color: var(--muted); font: 500 10px var(--mono); }
+.nx-cell.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-strong); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); }
+.nx-cell.done { border-color: var(--green); background: var(--green-soft); color: var(--green); }
+.nx-cell.bad { border-color: var(--rose); background: var(--rose-soft); color: var(--rose); }
+.nx-cell.faint { opacity: .45; }
+.nx-hr { width: min(100%, 360px); border: 0; border-top: 2px solid var(--line-strong); margin: -10px 0 0; }
+
+.nx-scroll { max-width: 100%; overflow-x: auto; }
+.nx-table { border-collapse: collapse; font-size: 14px; background: var(--surface); border-radius: 8px; overflow: hidden; }
+.nx-table th, .nx-table td { padding: 6px 12px; border-bottom: 1px solid var(--line); text-align: center; white-space: nowrap; }
+.nx-table th { color: var(--muted); font-weight: 650; font-size: 12px; background: var(--surface-3); }
+.nx-table tbody th { text-align: left; }
+.nx-table td { font-family: var(--mono); }
+.nx-table tr.on td, .nx-table tr.on th { background: var(--accent-soft); color: var(--accent-strong); }
+
+.nx-kv { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.nx-kv > div { display: flex; flex-direction: column; align-items: center; min-width: 84px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.nx-kv span { font-size: 11px; color: var(--muted); }
+.nx-kv b { font: 800 16px var(--mono); color: var(--text); word-break: break-all; text-align: center; }
+.nx-kv .ok { border-color: var(--green); }
+.nx-kv .ok b { color: var(--green); }
+.nx-kv .bad { border-color: var(--rose); }
+.nx-kv .bad b { color: var(--rose); }
+
+.nx-code { margin: 0; width: min(100%, 560px); padding: 10px 0; background: #0f172a; color: #e2e8f0; border-radius: 10px; font: 13px/1.6 var(--mono); overflow-x: auto; }
+.nx-code span { display: block; padding: 0 14px; white-space: pre; border-left: 3px solid transparent; }
+.nx-code span.on { background: rgb(250 204 21 / .16); border-left-color: #facc15; }
+.nx-term { margin: 0; width: min(100%, 560px); padding: 10px 14px; background: #0f172a; color: #a7f3d0; border-radius: 10px; font: 13px/1.6 var(--mono); white-space: pre-wrap; }
+.nx-term.bad { color: #fca5a5; }
+
+.nx-pipe { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; }
+.nx-pipe span { padding: 6px 12px; border: 1px solid var(--line-strong); border-radius: 99px; background: var(--surface); font-size: 13px; font-weight: 650; color: var(--muted); }
+.nx-pipe span.done { border-color: var(--green); color: var(--green); background: var(--green-soft); }
+.nx-pipe span.on { border-color: var(--accent); color: var(--accent-strong); background: var(--accent-soft); }
+.nx-pipe span.bad { border-color: var(--rose); color: var(--rose); background: var(--rose-soft); }
+.nx-pipe i { color: var(--muted); font-style: normal; }
+
+.nx-gates { display: grid; gap: 8px; width: min(100%, 460px); }
+.nx-gate { display: grid; grid-template-columns: minmax(0, 1fr) auto 44px; gap: 10px; align-items: center; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.nx-gate b { font-size: 14px; }
+.nx-gate span { font: 13px var(--mono); color: var(--muted); }
+.nx-gate i { font: 800 18px var(--mono); font-style: normal; text-align: center; color: var(--muted); }
+.nx-gate.on { border-color: var(--accent); background: var(--accent-soft); }
+.nx-gate.on i { color: var(--accent-strong); }
+
+.nx-nest { width: min(100%, 560px); }
+.nx-pkt { border: 2px solid var(--line-strong); border-radius: 10px; padding: 6px 8px 8px; background: var(--surface); display: flex; flex-direction: column; gap: 4px; }
+.nx-pkt > b { font-size: 12px; }
+.nx-pkt > span { font: 12px var(--mono); color: var(--muted); }
+.nx-pkt.data { border-color: var(--accent); background: var(--accent-soft); }
+.nx-pkt.l1 { border-color: var(--blue); background: var(--blue-soft); }
+.nx-pkt.l2 { border-color: var(--violet); background: var(--violet-soft); }
+.nx-pkt.l3 { border-color: var(--amber); background: var(--amber-soft); }
+.nx-nest.recv .nx-pkt.data { border-color: var(--green); background: var(--green-soft); }
+
+.nx-grid { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; width: min(100%, 460px); }
+.nx-grid span { padding: 6px 0; text-align: center; border-radius: 6px; font: 700 13px var(--mono); border: 1px solid var(--line); background: var(--surface); }
+.nx-grid span.done { border-color: var(--green); color: var(--green); background: var(--green-soft); }
+.nx-grid span.off { opacity: .35; text-decoration: line-through; }
+.nx-grid span.on { border-color: var(--accent); color: var(--accent-strong); background: var(--accent-soft); }
+
+.nx-stack { display: flex; flex-direction: column; gap: 6px; width: min(100%, 360px); }
+.nx-frame { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; padding: 8px 12px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); }
+.nx-frame b { min-width: 3.5em; }
+.nx-frame span { font: 13px var(--mono); color: var(--text-2); }
+.nx-frame.on { border-color: var(--accent); background: var(--accent-soft); }
+
+.nx-tree { display: grid; gap: 2px; width: min(100%, 420px); max-height: 340px; overflow: auto; font: 13px var(--mono); }
+.nx-tree div { padding: 2px 8px 2px calc(8px + var(--d) * 18px); border-left: 2px solid transparent; border-radius: 4px; }
+.nx-tree div.on { background: var(--accent-soft); border-left-color: var(--accent); color: var(--accent-strong); font-weight: 700; }
+.nx-tree div.done { color: var(--green); }
+.nx-tree div.faint { opacity: .3; }
+
+.nx-bars { display: grid; gap: 6px; width: min(100%, 560px); }
+.nx-bars > div { display: grid; grid-template-columns: 6.5em minmax(0, 1fr) 7.5em; gap: 8px; align-items: center; font-size: 13px; }
+.nx-bars span { font: 700 13px var(--mono); }
+.nx-bars i { display: block; height: 14px; border-radius: 4px; background: var(--green); }
+.nx-bars .bad i { background: var(--rose); }
+.nx-bars b { font: 12px var(--mono); color: var(--muted); text-align: right; }
+.nx-bars .on span { color: var(--accent-strong); }
+
+/* 程式碼框的標題、雙欄並排 */
+.nx-code em { display: block; padding: 0 14px 6px; color: #94a3b8; font: 600 11px var(--mono); font-style: normal; letter-spacing: .04em; }
+.nx-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: min(100%, 760px); }
+.nx-two .nx-code { width: 100%; }
+.nx-bad { color: var(--rose); }
+.nx-hl { color: var(--accent-strong); }
+.nx-table small { color: var(--muted); font-size: 11px; }
+.nx-tag { display: inline-block; min-width: 26px; padding: 1px 4px; border-radius: 4px; font: 700 12px var(--mono); color: #0b1120; }
+.nx-tag.m { background: var(--violet); color: #fff; }
+.nx-tag.p0 { background: #7dd3fc; } .nx-tag.p1 { background: #fcd34d; } .nx-tag.p2 { background: #86efac; } .nx-tag.p3 { background: #f9a8d4; }
+.nx-bars .warn i { background: var(--amber); }
+
+/* 時序圖、拓樸圖、長條圖（SVG） */
+.nx-ladder, .nx-graph, .nx-chart { display: block; width: 100%; height: auto; font-family: var(--font); }
+.nx-ladder .sv-col { fill: var(--text); font-size: 13px; font-weight: 700; text-anchor: middle; }
+.nx-ladder .sv-axis { stroke: var(--line-strong); stroke-width: 2; }
+.nx-ladder .sv-msg { stroke: var(--muted); stroke-width: 1.6; }
+.nx-ladder .sv-head { fill: var(--muted); }
+.nx-ladder .sv-lbl { fill: var(--text-2, var(--text)); font-size: 11.5px; text-anchor: middle; paint-order: stroke; stroke: var(--surface-2); stroke-width: 4px; stroke-linejoin: round; }
+.nx-ladder .sv-msg.on { stroke: var(--accent); stroke-width: 2.4; }
+.nx-ladder .sv-head.on { fill: var(--accent); }
+.nx-ladder .sv-lbl.on { fill: var(--accent-strong); font-weight: 700; }
+.nx-ladder .sv-msg.lost, .nx-ladder .sv-msg.bad { stroke: var(--rose); stroke-dasharray: 5 4; }
+.nx-ladder .sv-head.bad { fill: var(--rose); }
+.nx-ladder .sv-lbl.lost, .nx-ladder .sv-lbl.bad, .nx-ladder .sv-x { fill: var(--rose); }
+.nx-ladder .sv-x { font-size: 15px; font-weight: 800; text-anchor: middle; }
+.nx-ladder .sv-msg.faint { stroke-dasharray: 2 4; }
+.nx-ladder .sv-lbl.faint { fill: var(--muted); }
+.nx-ladder .sv-self, .nx-ladder .sv-note { fill: var(--muted); font-size: 11px; }
+.nx-graph .sv-edge { stroke: var(--line-strong); stroke-width: 2; }
+.nx-graph .sv-edge.cand { stroke: var(--amber); stroke-dasharray: 5 4; }
+.nx-graph .sv-edge.tree { stroke: var(--green); stroke-width: 4; }
+.nx-graph .sv-w { fill: var(--muted); font-size: 12px; font-weight: 700; text-anchor: middle; paint-order: stroke; stroke: var(--surface-2); stroke-width: 4px; }
+.nx-graph .sv-node { fill: var(--surface); stroke: var(--line-strong); stroke-width: 2; }
+.nx-graph .sv-node.done { fill: var(--green-soft); stroke: var(--green); }
+.nx-graph .sv-node.on { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 3; }
+.nx-graph .sv-nid { fill: var(--text); font-size: 14px; font-weight: 800; text-anchor: middle; }
+.nx-graph .sv-nlab { fill: var(--accent-strong); font: 700 12px var(--mono); text-anchor: middle; }
+.nx-chart .sv-grid { stroke: var(--line); stroke-width: 1; }
+.nx-chart .sv-ref { stroke: var(--amber); stroke-width: 1.6; stroke-dasharray: 6 4; }
+.nx-chart .sv-tick { fill: var(--muted); font-size: 10px; text-anchor: middle; }
+.nx-chart .sv-ytick { fill: var(--muted); font-size: 10px; text-anchor: end; }
+.nx-chart .sv-rlab { fill: var(--amber); font-size: 11px; font-weight: 700; text-anchor: end; }
+.nx-chart .sv-bar { fill: var(--accent); opacity: .85; }
+.nx-chart .sv-bar.warn { fill: var(--amber); }
+.nx-chart .sv-bar.bad { fill: var(--rose); }
+
+/* 位址區塊條（VLSM） */
+.nx-addr { position: relative; width: min(100%, 560px); height: 34px; border: 1px solid var(--line-strong); border-radius: 8px; background: repeating-linear-gradient(45deg, var(--surface), var(--surface) 6px, var(--surface-3) 6px, var(--surface-3) 12px); overflow: hidden; }
+.nx-addr i { position: absolute; top: 0; bottom: 0; display: flex; align-items: center; justify-content: center; font: 700 12px var(--mono); font-style: normal; color: #0b1120; border-right: 1px solid var(--surface); }
+.nx-addr i.p0 { background: #7dd3fc; } .nx-addr i.p1 { background: #fcd34d; } .nx-addr i.p2 { background: #86efac; } .nx-addr i.p3 { background: #f9a8d4; }
+.nx-addr-scale { display: flex; justify-content: space-between; width: min(100%, 560px); margin-top: -8px; font: 11px var(--mono); color: var(--muted); }
+
+@media (max-width: 620px) {
+  .nx-two { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 520px) {
+  .nx-stage { padding: 14px 8px; }
+  .nx-row.tight .nx-cell { min-width: 26px; height: 34px; font-size: 13px; }
+  .nx-table th, .nx-table td { padding: 5px 8px; }
+  .nx-bars > div { grid-template-columns: 5.5em minmax(0, 1fr) 6em; }
+}
+
+/* 楓之谷外觀：方角、遊戲視窗的米白底 */
+:root[data-skin="maple"] .nx-stage { border-radius: 2px; background: #f6f6ee; }
+:root[data-skin="maple"] :is(.nx-cell, .nx-kv > div, .nx-gate, .nx-frame, .nx-pkt, .nx-grid span, .nx-table, .nx-addr) { border-radius: 2px; }
+:root[data-skin="maple"] .nx-ladder .sv-lbl, :root[data-skin="maple"] .nx-graph .sv-w { stroke: #f6f6ee; }
+:root[data-skin="maple"] :is(.nx-code, .nx-term) { border-radius: 0; border: 1px solid #1d3550; }
+
+/* NET LAB mobile: grid tracks must be allowed to shrink below long formula/code min-content.
+ * Keep long code inside its own scrolling container rather than widening the document. */
+.detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.detail-grid > .detail { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  .detail-grid { grid-template-columns: minmax(0, 1fr); }
+}
